@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://c8w1fj6t47t1y"]
+
+[ext_resource type="Texture2D" uid="uid://cx2k2mtxtwuef" path="res://assets/textures/Ground068_4K-PNG/Ground068_4K-PNG_Color.png" id="1_115a2"]
+[ext_resource type="Shader" path="res://level/scenes/hex.gdshader" id="1_cy38b"]
+[ext_resource type="Texture2D" uid="uid://c2sfcx2gm10qw" path="res://assets/textures/ground_hex/Ground068_4K-PNG_Color_lut.png" id="2_78w88"]
+[ext_resource type="Texture2D" uid="uid://dgt2mwv23v6hh" path="res://assets/textures/ground_hex/Ground068_4K-PNG_Color_t_input.png" id="3_egfe1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6ond4"]
+albedo_texture = ExtResource("1_115a2")
+
+[resource]
+render_priority = 0
+next_pass = SubResource("StandardMaterial3D_6ond4")
+shader = ExtResource("1_cy38b")
+shader_parameter/uv_scale = Vector2(30, 30)
+shader_parameter/color_space_vector1 = Vector3(1, 1.2, 0)
+shader_parameter/color_space_vector2 = Vector3(0, 0, 0)
+shader_parameter/color_space_vector3 = Vector3(0, 0, 0)
+shader_parameter/color_space_origin = Vector3(0, 0, 0)
+shader_parameter/t_input = ExtResource("3_egfe1")
+shader_parameter/inv_t = ExtResource("2_78w88")

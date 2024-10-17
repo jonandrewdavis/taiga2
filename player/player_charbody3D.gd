@@ -8,8 +8,8 @@ extends CharacterBody3D
 @onready var nickname: Label3D = $PlayerNick/Nickname
 
 @export_category("Objects")
-@export var _body: Node3D = null
-@export var _spring_arm_offset: Node3D = null
+#@export var _body: Node3D = null
+#@export var _spring_arm_offset: Node3D = null
 
 @export_category("Skin Colors")
 @export var blue_texture : CompressedTexture2D
@@ -196,7 +196,9 @@ func _ready():
 	current_state = state.FREE
 	
 	weapon_change_ended.emit(weapon_type)
-
+	
+	# TODO: Remove before launch
+	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT 
 	
 ## Makes variable changes for each state, primiarily used for updating movement speeds
 func change_state(new_state):
@@ -225,7 +227,7 @@ func change_state(new_state):
 			
 func _physics_process(_delta):
 	## MULTIPLAYER TEMPLATE FUNCS
-	# NOTE: All 3 Required for all authorities because of "Flying" bug.
+	# NOTE: All 3 Required for all authorities because of "flying" bug.
 	# TODO: Adding Ladders may just need everything here.
 	if not is_multiplayer_authority(): 
 		apply_gravity(_delta)
@@ -361,7 +363,22 @@ func set_strafe_targeting():
 func _on_target_cleared():
 	strafing = false
 
+func attack_face_forward():
+	var rate = 1.0
+	var target_rotation
+	var current_rotation = global_transform.basis.get_rotation_quaternion()
+	var new_direction = calc_direction_based_on_camera().normalized()
+	
+	# Rotate the player per the perspective of the camera
+	target_rotation = current_rotation.slerp(Quaternion(Vector3.UP, orientation_target.global_rotation.y + PI), rate)
+	global_transform.basis = Basis(target_rotation)
+	
+	var forward_vector = global_transform.basis.z.normalized() 
+	strafe_cross_product = -forward_vector.cross(new_direction).y
+	move_dot_product = forward_vector.dot(new_direction)
+
 func attack():
+	attack_face_forward()
 	trigger_event("attack_started")
 	
 func attack_strong():
@@ -615,13 +632,15 @@ func set_root_climb(delta):
 	if is_on_floor():
 		current_state = state.FREE
 		#free_started.emit()
-	
 		
 func calc_direction() -> Vector3 :
 	var new_direction = (current_camera.global_transform.basis.z * input_dir.y + \
 	current_camera.global_transform.basis.x * input_dir.x)
 	return new_direction
 	
+func calc_direction_based_on_camera() -> Vector3: 
+	var new_camera_direction = current_camera.global_transform.basis.z + current_camera.global_transform.basis.x
+	return new_camera_direction
 	
 	
 	
@@ -641,13 +660,13 @@ func get_texture_from_name(skin_name: String) -> CompressedTexture2D:
 		"yellow": return yellow_texture
 		_: return blue_texture
 		
-@rpc("any_peer", "reliable")
-func set_player_skin(skin_name: String) -> void:
-	var texture = get_texture_from_name(skin_name)
-	var bottom: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Bottom")
-	var chest: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Chest")
-	var face: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Face")
-	var limbs_head: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head")
+#@rpc("any_peer", "reliable")
+#func set_player_skin(skin_name: String) -> void:
+	#var texture = get_texture_from_name(skin_name)
+	#var bottom: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Bottom")
+	#var chest: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Chest")
+	#var face: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Face")
+	#var limbs_head: MeshInstance3D = get_node("3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head")
 	#
 	#set_mesh_texture(bottom, texture)
 	#set_mesh_texture(chest, texture)

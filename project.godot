@@ -23,11 +23,20 @@ buses/default_bus_layout="res://audio/default_bus_layout.tres"
 [autoload]
 
 Network="*res://level/scripts/network.gd"
+DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
+
+[debug]
+
+gdscript/warnings/unused_signal=0
 
 [display]
 
-window/size/viewport_width=1280
+window/size/viewport_width=1920
 window/size/viewport_height=720
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg")
 
 [input]
 

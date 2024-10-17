@@ -22,10 +22,18 @@ class_name AnimationTreeSoulsBase
 @onready var base_state_machine : AnimationNodeStateMachinePlayback = self["parameters/MovementStates/playback"]
 #@onready var ladder_state_machine = self["parameters/MovementStates/LADDER_tree/playback"]
 @onready var current_weapon_tree : AnimationNodeStateMachinePlayback
-@onready var weapon_type : String = "SLASH"
-@onready var gadget_type : String = "SHIELD"
-@onready var interact_type :String = "GENERIC"
-@onready var current_item : ItemResource
+
+## MULTIPLAYER TEMPLATE FUNCS 
+## MULTIPLAYER TEMPLATE FUNCS
+
+@export var weapon_type : String = "SLASH"
+@export var gadget_type : String = "SHIELD"
+@export var interact_type :String = "GENERIC"
+@export var current_item : ItemResource
+
+## MULTIPLAYER TEMPLATE FUNCS 
+## MULTIPLAYER TEMPLATE FUNCS
+
 @export var max_attack_count : int = 2 ## how many attacks you have in the attack tree
 @onready var attack_count = 1 ## Used in the anim state tree. The oneShot for the
 ## ATTACK_tree, under SLASH and HEAVY each route to an animation will use this 
@@ -42,7 +50,6 @@ var lerp_movement
 var guard_value :float = 0.0
 
 signal animation_measured
-
 
 ## MULTIPLAYER TEMPLATE FUNCS 
 ## MULTIPLAYER TEMPLATE FUNCS
@@ -114,7 +121,7 @@ func _process(_delta):
 
 # RPC THIS? 
 func request_oneshot(oneshot:String):
-	print('GOT ONESHOT', oneshot)
+	#print('GOT ONESHOT', oneshot)
 	last_oneshot = oneshot
 	set("parameters/" + oneshot + "/request", true)
 	if is_multiplayer_authority():
@@ -172,6 +179,8 @@ func _on_gadget_started():
 
 func _on_sprint_started():
 	base_state_machine.travel("SPRINT_tree")
+	if is_multiplayer_authority():
+		sync_player_sprinting.rpc()
 	
 func _on_dodge_started():
 	request_oneshot("Dodge")
@@ -263,7 +272,14 @@ func _on_animation_started(anim_name):
 func _on_attack_timer_timeout():
 	attack_count = 1
 	
+## MULTIPLAYER RPCs
+## MULTIPLAYER RPCs
+## MULTIPLAYER RPCs
 	
 @rpc("any_peer", "reliable")
 func sync_player_one_shot(one_shot) -> void:
 	request_oneshot(one_shot)
+
+@rpc("any_peer", "reliable")
+func sync_player_sprinting() -> void:
+	base_state_machine.travel("SPRINT_tree")

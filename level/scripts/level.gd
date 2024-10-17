@@ -8,6 +8,16 @@ extends Node3D
 @export var player_scene: PackedScene
 
 func _ready():
+	# Check for -- server
+	var args = OS.get_cmdline_user_args()
+	for arg in args:
+		var key_value = arg.rsplit("=")
+		match key_value[0]:
+			"server":
+				print('DEBUG: SERVER STARTING `-- server` found')
+				_on_host_pressed()
+
+	# We're a client
 	if not multiplayer.is_server():
 		return
 		
@@ -65,8 +75,9 @@ func sync_player_position(id: int, new_position: Vector3):
 		
 @rpc("any_peer", "call_local")
 func sync_player_skin(id: int, skin_name: String):
-	if id == 1: return # ignore host
-	var player = players_container.get_node(str(id))
+	print('JOINED RPC', id, skin_name)
+	#if id == 1: return # ignore host
+	#var player = players_container.get_node(str(id))
 	#if player:
 		#player.set_player_skin(skin_name)
 		
