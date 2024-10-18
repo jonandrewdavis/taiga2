@@ -1,10 +1,10 @@
 @tool
 extends Node3D
 
-const GRASS_MESH_HIGH := preload('res://assets/grass/grass_high.obj')
-const GRASS_MESH_LOW := preload('res://assets/grass/grass_low.obj')
-const GRASS_MAT := preload('res://assets/grass/mat_grass.tres')
-const HEIGHTMAP := preload('res://assets/heightmap.tres')
+const GRASS_MESH_HIGH := preload('res://assets/environment/GodotGrass/grass/grass_high.obj')
+const GRASS_MESH_LOW := preload('res://assets/environment/GodotGrass/grass/grass_low.obj')
+const GRASS_MAT := preload('res://assets/environment/GodotGrass/grass/mat_grass.tres')
+const HEIGHTMAP := preload('res://assets/environment/GodotGrass/heightmap.tres')
 
 const TILE_SIZE := 5.0
 const MAP_RADIUS := 200.0
@@ -12,12 +12,12 @@ const HEIGHTMAP_SCALE := 5.0
 
 var grass_multimeshes : Array[Array] = []
 var previous_tile_id := Vector3.ZERO
-var should_render_imgui := true
+var should_render_imgui := false
 
-@onready var camera := get_viewport().get_camera_3d()
-@onready var camera_fov := [camera.fov]
-@onready var should_render_fog := [$Environment.environment.volumetric_fog_enabled]
-@onready var should_render_shadows := [true]
+@onready var camera: Camera3D
+#@onready var camera_fov := [camera.fov]
+@onready var should_render_fog := false
+@onready var should_render_shadows := false
 @onready var density_modifier := [0.8 if Engine.is_editor_hint() else 1.0]
 @onready var clumping_factor := [GRASS_MAT.get_shader_parameter('clumping_factor')]
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
@@ -25,69 +25,41 @@ var should_render_imgui := true
 @export var player: CharacterBody3D
 
 func _init() -> void:
-	DisplayServer.window_set_size(DisplayServer.screen_get_size() * 0.75)
-	DisplayServer.window_set_position(DisplayServer.screen_get_size() * 0.25 / 2.0)
+	#DisplayServer.window_set_size(DisplayServer.screen_get_size() * 0.75)
+	#DisplayServer.window_set_position(DisplayServer.screen_get_size() * 0.25 / 2.0)
 	RenderingServer.global_shader_parameter_set('heightmap', HEIGHTMAP)
 	RenderingServer.global_shader_parameter_set('heightmap_scale', HEIGHTMAP_SCALE)
 	
-func _ready() -> void:
+func grass_ready() -> void:
+	camera = get_viewport().get_camera_3d()
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	should_render_imgui = not Engine.is_editor_hint()
 	_setup_heightmap_collision()
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
 
-func _render_imgui() -> void:
-	var viewport_rid := get_tree().root.get_viewport_rid()
-	var frame_time = RenderingServer.get_frame_setup_time_cpu() + RenderingServer.viewport_get_measured_render_time_cpu(viewport_rid) + RenderingServer.viewport_get_measured_render_time_gpu(viewport_rid)
-	
-	ImGui.Begin(' ', [], ImGui.WindowFlags_AlwaysAutoResize | ImGui.WindowFlags_NoMove)
-	ImGui.SetWindowPos(Vector2(20, 20))
-	
-	ImGui.PushStyleColor(ImGui.Col_Text, Color.WEB_GRAY); 
-	ImGui.Text('Press %s-H to toggle GUI visibility!' % ['Cmd' if OS.get_name() == 'macOS' else 'Ctrl']); 
-	ImGui.Text('Press %s-F to toggle fullscreen!' % ['Cmd' if OS.get_name() == 'macOS' else 'Ctrl']); 
-	ImGui.PopStyleColor()
-	ImGui.SeparatorText('Grass')
-	ImGui.Text('FPS:              %d (%s)' % [Engine.get_frames_per_second(), '%.2fms' % frame_time])
-	ImGui.Text('Render Fog:      '); ImGui.SameLine(); if ImGui.Checkbox('##fog_bool', should_render_fog): $Environment.environment.volumetric_fog_enabled = should_render_fog[0]
-	ImGui.Text('Render Shadows:  '); ImGui.SameLine(); if ImGui.Checkbox('##shadows_bool', should_render_shadows):
-		for data in grass_multimeshes:
-			data[0].cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if should_render_shadows[0] else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	ImGui.Text('Grass Density:   '); ImGui.SameLine(); if ImGui.SliderFloat('##density_float', density_modifier, 0.0, 1.0): _generate_grass_multimeshes()
-	ImGui.Text('Clumping Factor: '); ImGui.SameLine(); if ImGui.SliderFloat('##clump_float', clumping_factor, 0.0, 1.0): GRASS_MAT.set_shader_parameter('clumping_factor', clumping_factor[0])
-	ImGui.Text('Wind Speed:      '); ImGui.SameLine(); if ImGui.SliderFloat('##speed_float', wind_speed, 0.0, 5.0): 
-		GRASS_MAT.set_shader_parameter('wind_speed', (wind_speed[0] + 0.1)*0.91)
-		$WindAudioPlayer.pitch_scale = lerpf(0.8, 2.0, wind_speed[0] / 5.0)
-		$WindAudioPlayer.volume_db = lerpf(-10.0, 5.0, min(wind_speed[0], 1.0))
-		$GrassAudioPlayer.volume_db = lerpf(-30.0, -18.5, wind_speed[0] / 5.0)
-		$InsectAudioPlayer.volume_db = lerpf(-30.0, -80.0, wind_speed[0] / 5.0)
-	ImGui.SeparatorText('Camera')
-	ImGui.Text('Camera Position:  %+.2v' % [$Player/CameraMount/Camera3D.global_position])
-	ImGui.Text('Camera FOV:      '); ImGui.SameLine(); if ImGui.SliderFloat('##fov_float', camera_fov, 20, 170): camera.fov = camera_fov[0]
-	ImGui.End()
-
-func _input(event: InputEvent) -> void:
-	if event.is_action_pressed('toggle_imgui'):
-		should_render_imgui = not should_render_imgui
-	elif event.is_action_pressed('toggle_fullscreen'):
-		if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED:
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-		else:
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	elif event.is_action_pressed('ui_cancel'):
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+#func _input(event: InputEvent) -> void:
+	#if event.is_action_pressed('toggle_imgui'):
+		#should_render_imgui = not should_render_imgui
+	#elif event.is_action_pressed('toggle_fullscreen'):
+		#if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED:
+			#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		#else:
+			#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	#elif event.is_action_pressed('ui_cancel'):
+		#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 
 func _process(delta: float) -> void:
-	if should_render_imgui:
-		_render_imgui()
-	$Player.enable_camera_movement = Input.is_action_pressed('ui_select') and not ImGui.IsAnyItemActive()
+	pass
+	#$Player.enable_camera_movement = Input.is_action_pressed('ui_select') and not ImGui.IsAnyItemActive()
 
 func _physics_process(delta: float) -> void:
+	if !player || Engine.is_editor_hint():
+		return
 	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
 
 	# Correct LOD by repositioning tiles when the player moves into a new tile
-	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else $Player
+	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else $Marker3D
 	var tile_id : Vector3 = ((lod_target.global_position + Vector3.ONE*TILE_SIZE*0.5) / TILE_SIZE * Vector3(1,0,1)).floor()
 	if tile_id != previous_tile_id:
 		for data in grass_multimeshes:
@@ -107,14 +79,14 @@ func _setup_heightmap_collision() -> void:
 	heightmap_shape.map_width = dims.x
 	heightmap_shape.map_depth = dims.y
 	heightmap_shape.map_data = map_data
-	$Ground/CollisionShape3D.shape = heightmap_shape
+	$Floor/CollisionShape3D.shape = heightmap_shape
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:
 	for i in range(-MAP_RADIUS, MAP_RADIUS, TILE_SIZE):
 		for j in range(-MAP_RADIUS, MAP_RADIUS, TILE_SIZE):
 			var instance := MultiMeshInstance3D.new()
-			instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if should_render_shadows[0] else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 			instance.material_override = GRASS_MAT
 			instance.position = Vector3(i, 0.0, j)
 			instance.extra_cull_margin = 1.0

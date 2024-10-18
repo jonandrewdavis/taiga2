@@ -41,6 +41,7 @@ func _on_join_pressed():
 	Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
 	
 func _add_player(id: int, player_info : Dictionary):
+	$GrassMain.grass_ready()
 	if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
 		return
 	var player = player_scene.instantiate()
@@ -55,6 +56,7 @@ func _add_player(id: int, player_info : Dictionary):
 	rpc("sync_player_skin", id, skin_name)
 	
 	rpc("sync_player_position", id, player.position)
+	
 	
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
