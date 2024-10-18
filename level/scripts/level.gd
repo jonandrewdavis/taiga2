@@ -41,7 +41,8 @@ func _on_join_pressed():
 	Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
 	
 func _add_player(id: int, player_info : Dictionary):
-	$GrassMain.grass_ready()
+	# TODO: Proper loading signal / bus for users to load their scenery.
+	$EnvironmentInstanceRoot.grass.grass_ready()
 	if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
 		return
 	var player = player_scene.instantiate()

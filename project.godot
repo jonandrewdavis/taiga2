@@ -36,7 +36,7 @@ window/size/viewport_height=778
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg")
+enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
 
 [input]
 
@@ -208,7 +208,7 @@ change_item={
 
 heightmap={
 "type": "sampler2D",
-"value": "res://assets/environment/GodotGrass/heightmap.tres"
+"value": "res://assets/environment_instances/DUPE_SEEM_LESS_environment_hmap.tres"
 }
 heightmap_scale={
 "type": "float",

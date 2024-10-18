@@ -4,7 +4,7 @@ extends Node3D
 const GRASS_MESH_HIGH := preload('res://assets/environment/GodotGrass/grass/grass_high.obj')
 const GRASS_MESH_LOW := preload('res://assets/environment/GodotGrass/grass/grass_low.obj')
 const GRASS_MAT := preload('res://assets/environment/GodotGrass/grass/mat_grass.tres')
-const HEIGHTMAP := preload('res://assets/environment/GodotGrass/heightmap.tres')
+const HEIGHTMAP := preload('res://assets/environment_instances/DUPE_SEEM_LESS_environment_hmap.tres')
 
 const TILE_SIZE := 5.0
 const MAP_RADIUS := 200.0
@@ -34,7 +34,7 @@ func grass_ready() -> void:
 	camera = get_viewport().get_camera_3d()
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	should_render_imgui = not Engine.is_editor_hint()
-	_setup_heightmap_collision()
+	#_setup_heightmap_collision()
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
 
@@ -59,7 +59,7 @@ func _physics_process(delta: float) -> void:
 	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
 
 	# Correct LOD by repositioning tiles when the player moves into a new tile
-	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else $Marker3D
+	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else get_parent()
 	var tile_id : Vector3 = ((lod_target.global_position + Vector3.ONE*TILE_SIZE*0.5) / TILE_SIZE * Vector3(1,0,1)).floor()
 	if tile_id != previous_tile_id:
 		for data in grass_multimeshes:
@@ -79,7 +79,7 @@ func _setup_heightmap_collision() -> void:
 	heightmap_shape.map_width = dims.x
 	heightmap_shape.map_depth = dims.y
 	heightmap_shape.map_data = map_data
-	$Floor/CollisionShape3D.shape = heightmap_shape
+	#$Floor/CollisionShape3D.shape = heightmap_shape
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:

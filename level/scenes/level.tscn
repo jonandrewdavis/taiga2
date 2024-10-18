@@ -1,11 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=9 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
 [ext_resource type="Shader" path="res://level/scenes/filmgrain.gdshader" id="3_1ypwr"]
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="3_icc4p"]
 [ext_resource type="Environment" uid="uid://cslvvwcb7yhg0" path="res://assets/environment/ForestEnvironment.tres" id="5_ksnxb"]
-[ext_resource type="PackedScene" uid="uid://cri21pmfc6wxi" path="res://assets/environment/GodotGrass/grass_main.tscn" id="7_0kofk"]
 [ext_resource type="PackedScene" uid="uid://8njjisb8vun0" path="res://assets/environment_instances/environment_instance_root.tscn" id="7_yd3gy"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tqduw"]
@@ -39,11 +38,6 @@ shadow_enabled = true
 shadow_blur = 0.5
 directional_shadow_mode = 0
 sky_mode = 1
-
-[node name="EnvMeshHolder" type="Node3D" parent="."]
-
-[node name="Marker3D" type="Marker3D" parent="EnvMeshHolder"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.48605, 1.05095, 1.73156)
 
 [node name="Menu" type="Control" parent="."]
 layout_mode = 3
@@ -211,8 +205,6 @@ spawn_path = NodePath("../PlayersContainer")
 [node name="MARKER" type="Marker3D" parent="."]
 
 [node name="EnvironmentInstanceRoot" parent="." instance=ExtResource("7_yd3gy")]
-
-[node name="GrassMain" parent="." instance=ExtResource("7_0kofk")]
 
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]

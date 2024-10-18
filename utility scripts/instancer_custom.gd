@@ -79,14 +79,13 @@ func create_multimesh():
 
 	# TODO: What does this do.	Stops the editor from working because it's getting from InstanceRoot
 	#wait for map to load before continuing
-	if !Engine.is_editor_hint():
-		await heightmap.changed
+	await heightmap.changed
 
 	hmap_img = heightmap.get_image()
 	width = hmap_img.get_width()
 	height = hmap_img.get_height()
 	
-	print(hmap_img, width, height)
+	print('HEIGHTMAP LOADING...: ', hmap_img, width, height)
 	
 	# Add the MultiMeshInstance3D as a child of the instancer
 	add_child(multi_mesh_instance)
@@ -136,6 +135,7 @@ func distribute_meshes():
 		
 		# Sample the heightmap texture to determine the Y position
 		var y = get_heightmap_y(x, z)
+		#var y = get_heightmap_s(x, z)
  
 		var ori = Vector3(x, y, z)
 		var sc = Vector3(   instance_min_scale+scale_randomize * random(x,z) + instance_width,
@@ -175,20 +175,19 @@ func distribute_meshes():
  
 func get_heightmap_y(x, z):
 	# Sample the heightmap texture to get the Y position based on X and Z coordinates
-	var i : float = 2.0
-	var pixel_x = (width / i) + x
-	var pixel_z = (height / i) + z
+	var pixel_x = (width / 2) + x / h_scale 
+	var pixel_z = (height / 2) + z / h_scale 
 	
 	if pixel_x > width: pixel_x -= width 
 	if pixel_z > height: pixel_z -= height 
 	if pixel_x < 0: pixel_x += width 
 	if pixel_z < 0: pixel_z += height 
- 	
-	var color: Color = hmap_img.get_pixel(pixel_x, pixel_z)
+ 
+	#var color = hmap_img.get_pixel(pixel_x, pixel_z)
+	var color = Color(heightmap.noise.get_noise_2d(pixel_x, pixel_z) * 10.0, 0., 0., 1.)
 	
-	# NOTE: The secret key here was the scaling factor (* 300.0) for generated terrain
-	# TODO: Rename terrain_height to terrain_height (negative), cause I'm using to subtract
-	return (color.r * (2.0 * 1)) - terrain_height
+	#return heightmap.noise.get_noise_2d(x, z) * 10.0
+	return color.r * terrain_height * v_scale
 
  
 func random(x,z):

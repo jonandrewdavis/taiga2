@@ -5,6 +5,8 @@ extends Node3D
 @export var ground_chunk_mesh: NodePath
 @export var heightmap : Texture2D
 
+@onready var grass = $GrassMain
+
 func create_editor_nodes():
 	if !environment_root_tracker:
 		var root_marker = Marker3D.new()
