@@ -1,28 +1,16 @@
-[gd_scene load_steps=12 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=9 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
 [ext_resource type="Shader" path="res://level/scenes/filmgrain.gdshader" id="3_1ypwr"]
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="3_icc4p"]
-[ext_resource type="Texture2D" uid="uid://cx2k2mtxtwuef" path="res://assets/textures/Ground068_4K-PNG/Ground068_4K-PNG_Color.png" id="4_4pncc"]
 [ext_resource type="Environment" uid="uid://cslvvwcb7yhg0" path="res://assets/environment/ForestEnvironment.tres" id="5_ksnxb"]
+[ext_resource type="PackedScene" uid="uid://8njjisb8vun0" path="res://assets/environment_instances/environment_instance_root.tscn" id="7_yd3gy"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tqduw"]
 shader = ExtResource("3_1ypwr")
 shader_parameter/grain_amount = 0.02
 shader_parameter/grain_size = 1.0
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_r5xs5"]
-size = Vector2(2000, 2000)
-center_offset = Vector3(0, 0.5, 0)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dm8ol"]
-albedo_texture = ExtResource("4_4pncc")
-normal_enabled = true
-uv1_scale = Vector3(120, 120, 120)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_x3h1o"]
-size = Vector3(2000, 1, 2000)
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_npnbc"]
 color = Color(0, 0, 0, 0)
@@ -41,23 +29,11 @@ grow_vertical = 2
 
 [node name="Environment" type="Node3D" parent="."]
 
-[node name="Floor" type="StaticBody3D" parent="Environment"]
-collision_layer = 2
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Floor"]
-transform = Transform3D(0.99989, 0, -0.0148522, 0, 1, 0, 0.0148522, 0, 0.99989, 0, 0, 0)
-mesh = SubResource("PlaneMesh_r5xs5")
-surface_material_override/0 = SubResource("StandardMaterial3D_dm8ol")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Floor"]
-shape = SubResource("BoxShape3D_x3h1o")
-
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
 environment = ExtResource("5_ksnxb")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
 transform = Transform3D(1, 0, 0, 0, -0.495611, 0.868545, 0, -0.868545, -0.495611, 0, 4, 0)
-light_energy = 0.2
 shadow_enabled = true
 shadow_blur = 0.5
 directional_shadow_mode = 0
@@ -230,6 +206,10 @@ _spawnable_scenes = PackedStringArray("res://level/scenes/player.tscn", "res://p
 spawn_path = NodePath("../PlayersContainer")
 
 [node name="PlayersContainer" type="Node3D" parent="."]
+
+[node name="MARKER" type="Marker3D" parent="."]
+
+[node name="EnvironmentInstanceRoot" parent="." instance=ExtResource("7_yd3gy")]
 
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]

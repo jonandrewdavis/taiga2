@@ -31,8 +31,8 @@ gdscript/warnings/unused_signal=0
 
 [display]
 
-window/size/viewport_width=1920
-window/size/viewport_height=720
+window/size/viewport_width=1382
+window/size/viewport_height=778
 
 [editor_plugins]
 
@@ -203,3 +203,14 @@ change_item={
 [physics]
 
 3d/physics_engine="JoltPhysics3D"
+
+[shader_globals]
+
+heightmap={
+"type": "sampler2D",
+"value": "res://assets/environment/GodotGrass/heightmap.tres"
+}
+heightmap_scale={
+"type": "float",
+"value": 5.0
+}

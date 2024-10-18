@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://csd7jgp56qo8r"]
+
+[ext_resource type="Script" path="res://utility scripts/instancer.gd" id="1_edn5c"]
+[ext_resource type="ArrayMesh" uid="uid://bq73t5hoanj0l" path="res://assets/environment_objects/trees/arbol1.res" id="2_wkr4e"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_03fyl"]
+radius = 0.1
+height = 4.0
+
+[node name="Arbol1" type="Node3D"]
+script = ExtResource("1_edn5c")
+instance_amount = 300
+instance_mesh = ExtResource("2_wkr4e")
+instance_collision = SubResource("CapsuleShape3D_03fyl")
