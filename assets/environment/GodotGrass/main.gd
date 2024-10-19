@@ -4,25 +4,25 @@ extends Node3D
 const GRASS_MESH_HIGH := preload('res://assets/environment/GodotGrass/grass/grass_high.obj')
 const GRASS_MESH_LOW := preload('res://assets/environment/GodotGrass/grass/grass_low.obj')
 const GRASS_MAT := preload('res://assets/environment/GodotGrass/grass/mat_grass.tres')
-const HEIGHTMAP := preload('res://assets/environment_instances/DUPE_SEEM_LESS_environment_hmap.tres')
+const HEIGHTMAP := preload('res://assets/environment_instances/environment_instance_root_hmap.tres')
 
 const TILE_SIZE := 5.0
 const MAP_RADIUS := 200.0
-const HEIGHTMAP_SCALE := 5.0
+const HEIGHTMAP_SCALE := 1.0
 
 var grass_multimeshes : Array[Array] = []
 var previous_tile_id := Vector3.ZERO
 var should_render_imgui := false
 
-@onready var camera: Camera3D
-#@onready var camera_fov := [camera.fov]
+@onready var camera := get_viewport().get_camera_3d()
+@onready var camera_fov := [camera.fov]
 @onready var should_render_fog := false
 @onready var should_render_shadows := false
 @onready var density_modifier := [0.8 if Engine.is_editor_hint() else 1.0]
 @onready var clumping_factor := [GRASS_MAT.get_shader_parameter('clumping_factor')]
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
 
-@export var player: CharacterBody3D
+@export var player: Node3D
 
 func _init() -> void:
 	#DisplayServer.window_set_size(DisplayServer.screen_get_size() * 0.75)
@@ -30,36 +30,38 @@ func _init() -> void:
 	RenderingServer.global_shader_parameter_set('heightmap', HEIGHTMAP)
 	RenderingServer.global_shader_parameter_set('heightmap_scale', HEIGHTMAP_SCALE)
 	
-func grass_ready() -> void:
+func _ready() -> void:
+	Hub.connect("_hello_world", helloWorld) 
+	if Engine.is_editor_hint(): 
+		helloWorld(1)
+
+func helloWorld(peer_id):
+
 	camera = get_viewport().get_camera_3d()
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	should_render_imgui = not Engine.is_editor_hint()
 	#_setup_heightmap_collision()
+	if get_parent() && get_parent().has_method('create_editor_nodes'):
+		player = get_parent().environment_root_tracker
+	else:
+		if Engine.is_editor_hint(): 
+			player = $Marker3D
+	
+	# TODO: PROPER SIGNAL BUS TO HOOK THIS UP
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
 
-#func _input(event: InputEvent) -> void:
-	#if event.is_action_pressed('toggle_imgui'):
-		#should_render_imgui = not should_render_imgui
-	#elif event.is_action_pressed('toggle_fullscreen'):
-		#if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_WINDOWED:
-			#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-		#else:
-			#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	#elif event.is_action_pressed('ui_cancel'):
-		#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	var find_player = get_tree().get_root().get_node("Level").get_node('PlayersContainer').get_node(str(peer_id))
+	if find_player:
+		player = find_player
 
-func _process(delta: float) -> void:
-	pass
-	#$Player.enable_camera_movement = Input.is_action_pressed('ui_select') and not ImGui.IsAnyItemActive()
-
-func _physics_process(delta: float) -> void:
-	if !player || Engine.is_editor_hint():
+func _physics_process(_delta: float) -> void:
+	if !player:
 		return
 	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
-
+	
 	# Correct LOD by repositioning tiles when the player moves into a new tile
-	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else get_parent()
+	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else player
 	var tile_id : Vector3 = ((lod_target.global_position + Vector3.ONE*TILE_SIZE*0.5) / TILE_SIZE * Vector3(1,0,1)).floor()
 	if tile_id != previous_tile_id:
 		for data in grass_multimeshes:
@@ -86,7 +88,8 @@ func _setup_grass_instances() -> void:
 	for i in range(-MAP_RADIUS, MAP_RADIUS, TILE_SIZE):
 		for j in range(-MAP_RADIUS, MAP_RADIUS, TILE_SIZE):
 			var instance := MultiMeshInstance3D.new()
-			instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+			#instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+			instance.cast_shadow = 0
 			instance.material_override = GRASS_MAT
 			instance.position = Vector3(i, 0.0, j)
 			instance.extra_cull_margin = 1.0

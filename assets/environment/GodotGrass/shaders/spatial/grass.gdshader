@@ -73,18 +73,15 @@ void vertex() {
 	VERTEX.y *= height_offset;
 	vec3 vertex_model = VERTEX; // Vertex in model space before any rotations are applied
 
-
-	// --- CUSTOM OFFSET ---
-	// NOTE: To get this to work with a non seamless NoiseTexture2D, I removed the crush factor
-
 	// --- WIND ---
-	float heightmap_offset = (texture(heightmap, NODE_POSITION_WORLD.xz / vec2(textureSize(heightmap, 0))).x - 0.5) * heightmap_scale;
+	vec2 heightmap_uv = (NODE_POSITION_WORLD.xz + vec2(256.0)) / 512.0;
+	float heightmap_offset = (texture(heightmap, heightmap_uv).x - 0.5) * heightmap_scale;
 	float player_distance = length(player_position - (NODE_POSITION_WORLD + vec3(0, heightmap_offset, 0)));
-	//float crushed_factor = min(player_distance*player_distance*1.2, 1.0);
+	float crushed_factor = min(player_distance*player_distance*1.2, 1.0);
 
 	float turn_angle_base = (mix(-0.15, 0.15, hash0) + clump2*clumping_factor)*TAU;
 	float wind_direction = texture(wind_noise, NODE_POSITION_WORLD.zx*0.005/wind_speed + TIME*0.005*wind_speed).x*TAU;
-	float wind_strength = mix(0.25, 1.0, texture(wind_noise, NODE_POSITION_WORLD.xz*0.025/wind_speed + TIME*0.05).x);
+	float wind_strength = mix(0.25, 1.0, texture(wind_noise, NODE_POSITION_WORLD.xz*0.025/wind_speed + TIME*0.05).x)*crushed_factor;
 	wind_strength *= wind_strength;
 	wind_strength *= mix(0.6, 0.7, hash1) * wind_speed;
 	mat3 grass_rotate = rotate_y(mix(turn_angle_base, wind_direction, wind_strength));
@@ -95,7 +92,7 @@ void vertex() {
 	float wind_strength_turbulence = mix(0.25, 1.0, texture(wind_noise, NODE_POSITION_WORLD.xz*0.025/wind_speed + (TIME + height_factor*height_factor*0.25)*0.05).x);
 	wind_strength_turbulence *= wind_strength_turbulence;
 	wind_strength_turbulence *= mix(0.16, 0.25*hash0, clump1)*PI * min(wind_speed, 1.0);
-	mat3 grass_bend = rotate_x(mix(0.45*PI, bend_angle_base + wind_strength_turbulence, 1.0));
+	mat3 grass_bend = rotate_x(mix(0.45*PI, bend_angle_base + wind_strength_turbulence, crushed_factor));
 
 	// Apply rotations to the vertex and normal
 	mat3 grass_rotation_matrix = grass_rotate * grass_bend;

@@ -7,6 +7,7 @@ extends Node3D
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
 
+
 func _ready():
 	# Check for -- server
 	var args = OS.get_cmdline_user_args()
@@ -23,6 +24,8 @@ func _ready():
 		
 	Network.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
+
+
 	
 func _on_player_connected(peer_id, player_info):
 	for id in Network.players.keys():
@@ -41,14 +44,14 @@ func _on_join_pressed():
 	Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
 	
 func _add_player(id: int, player_info : Dictionary):
-	# TODO: Proper loading signal / bus for users to load their scenery.
-	$EnvironmentInstanceRoot.grass.grass_ready()
+	# Skip a lot of nodes
 	if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
 		return
 	var player = player_scene.instantiate()
 	player.name = str(id)
 	player.position = get_spawn_point()
 	players_container.add_child(player, true)
+
 	
 	var nick = Network.players[id]["nick"]
 	player.rpc("change_nick", nick)
@@ -75,6 +78,8 @@ func sync_player_position(id: int, new_position: Vector3):
 	var player = players_container.get_node(str(id))
 	if player:
 		player.position = new_position
+		# TODO: Proper loading signal / bus for users to load their scenery.
+		$EnvironmentInstanceRoot.set_new_root(player)
 		
 @rpc("any_peer", "call_local")
 func sync_player_skin(id: int, skin_name: String):
@@ -82,6 +87,7 @@ func sync_player_skin(id: int, skin_name: String):
 	#if id == 1: return # ignore host
 	#var player = players_container.get_node(str(id))
 	#if player:
+		#environment_instance.environment_root_tracker = player
 		#player.set_player_skin(skin_name)
 		
 func _on_quit_pressed() -> void:

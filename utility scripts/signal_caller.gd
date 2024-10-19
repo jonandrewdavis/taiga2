@@ -24,5 +24,6 @@ func _ready():
 
 func _on_signal(_arg = null,_arg2 = null, _arg3 = null):
 		var node_to_toggle = get_parent()
+		print(node_to_toggle, method_to_call)
 		if node_to_toggle.has_method(method_to_call):
-			node_to_toggle.call(method_to_call,args_separated_by_commas)
+			node_to_toggle.call(method_to_call, args_separated_by_commas)

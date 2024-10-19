@@ -24,6 +24,7 @@ buses/default_bus_layout="res://audio/default_bus_layout.tres"
 
 Network="*res://level/scripts/network.gd"
 DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
+Hub="*res://utility scripts/hub.gd"
 
 [debug]
 
@@ -208,7 +209,7 @@ change_item={
 
 heightmap={
 "type": "sampler2D",
-"value": "res://assets/environment_instances/DUPE_SEEM_LESS_environment_hmap.tres"
+"value": "res://assets/environment_instances/environment_instance_root_hmap.tres"
 }
 heightmap_scale={
 "type": "float",

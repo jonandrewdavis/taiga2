@@ -12,5 +12,4 @@ albedo_texture = ExtResource("1_wjxew")
 roughness_texture = ExtResource("4_myvfu")
 normal_enabled = true
 normal_texture = ExtResource("3_haj0a")
-heightmap_enabled = true
 heightmap_texture = ExtResource("2_1gfcf")

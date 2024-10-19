@@ -2,5 +2,10 @@
 
 [ext_resource type="Script" path="res://assets/environment/GodotGrass/main.gd" id="1_m6jck"]
 
-[node name="GrassMain" type="Node3D"]
+[node name="GrassMain" type="Node3D" node_paths=PackedStringArray("player")]
 script = ExtResource("1_m6jck")
+player = NodePath("Marker3D")
+
+[node name="Marker3D" type="Marker3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="."]

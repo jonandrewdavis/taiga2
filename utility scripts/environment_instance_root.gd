@@ -34,16 +34,14 @@ func signal_children():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	if (environment_root_tracker && ground_chunk_mesh && heightmap):
-		print("DEBUG: Attempting Env Instances ready up:")
-		signal_children()
-	elif Engine.is_editor_hint(): 
+	if Engine.is_editor_hint(): 
 		print("DEBUG: Creating EnvironmentInstance")
 		create_editor_nodes()
 		signal_children()
-	else:
-		print("DEBUG: EnvInstanceFailed to ready")
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+# TODO: Signals
+func set_new_root(node: Node3D):
+	print('NEW NODE', node)
+	environment_root_tracker = node
+	signal_children()
+	Hub.emit_signal("_hello_world", node.name)

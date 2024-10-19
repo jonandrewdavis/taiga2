@@ -52,7 +52,6 @@ func parent_ready():
 		global_position = Vector3(0,0,0)
 		if Engine.is_editor_hint():
 			if heightmap && environment_root_tracker && ground_chunk_mesh:
-				print('DEBUG: Instancer: ', name)
 				global_position = Vector3(0,0,0)
 				create_multimesh()
 			return
@@ -63,6 +62,7 @@ func parent_ready():
 		print('DEBUG: Instancer FAILED:', name)
 	
 func create_multimesh():
+	print('DEBUG: Instancer Created: ', name)
 	#grab horizontal scale on the terrain mesh so match the scale of the heightmap in case your terrain is resized
 	h_scale = get_node(ground_chunk_mesh).scale.x # could be x or z, doesn not matter as they should be the same
 	v_scale = get_node(ground_chunk_mesh).scale.y
@@ -74,14 +74,23 @@ func create_multimesh():
 	multi_mesh.transform_format = MultiMesh.TRANSFORM_3D
 	multi_mesh.instance_count = instance_amount
 	multi_mesh.mesh = instance_mesh 
+	@warning_ignore("narrowing_conversion")
 	instance_rows = sqrt(instance_amount) #rounded down to integer
+	@warning_ignore("integer_division")
 	offset = round(instance_amount/instance_rows) #rounded up/down to nearest integer
 
 	# TODO: What does this do.	Stops the editor from working because it's getting from InstanceRoot
+	# THIS HAS CAUSED SEVERAL BUGS WITH EMITTED DELAYS
 	#wait for map to load before continuing
-	await heightmap.changed
+	#if !Engine.is_editor_hint():
+		#await heightmap.changed
 
 	hmap_img = heightmap.get_image()
+
+	# We're not ready yet, return early. May require editor refresh
+	if Engine.is_editor_hint() && !hmap_img:
+		return
+		
 	width = hmap_img.get_width()
 	height = hmap_img.get_height()
 	
@@ -175,7 +184,9 @@ func distribute_meshes():
  
 func get_heightmap_y(x, z):
 	# Sample the heightmap texture to get the Y position based on X and Z coordinates
+	@warning_ignore("integer_division")
 	var pixel_x = (width / 2) + x / h_scale 
+	@warning_ignore("integer_division")
 	var pixel_z = (height / 2) + z / h_scale 
 	
 	if pixel_x > width: pixel_x -= width 
@@ -187,7 +198,8 @@ func get_heightmap_y(x, z):
 	var color = Color(heightmap.noise.get_noise_2d(pixel_x, pixel_z) * 10.0, 0., 0., 1.)
 	
 	#return heightmap.noise.get_noise_2d(x, z) * 10.0
-	return color.r * terrain_height * v_scale
+	# STATIC ADJUSTER
+	return color.r * terrain_height * v_scale - 0.2
 
  
 func random(x,z):
@@ -198,7 +210,6 @@ func spawn_colliders():
 	collision_parent = StaticBody3D.new()
 	add_child(collision_parent)
 	collision_parent.set_as_top_level(true)
-	var c_shape = instance_collision
 	
 	for i in range(instance_amount):
 		if colliders_to_spawn.has(i):
