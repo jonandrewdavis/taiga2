@@ -7,7 +7,6 @@ extends Node3D
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
 
-
 func _ready():
 	# Check for -- server
 	var args = OS.get_cmdline_user_args()
@@ -25,8 +24,6 @@ func _ready():
 	Network.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
 
-
-	
 func _on_player_connected(peer_id, player_info):
 	for id in Network.players.keys():
 		var player_data = Network.players[id]
@@ -52,7 +49,6 @@ func _add_player(id: int, player_info : Dictionary):
 	player.position = get_spawn_point()
 	players_container.add_child(player, true)
 
-	
 	var nick = Network.players[id]["nick"]
 	player.rpc("change_nick", nick)
 	
@@ -60,7 +56,6 @@ func _add_player(id: int, player_info : Dictionary):
 	rpc("sync_player_skin", id, skin_name)
 	
 	rpc("sync_player_position", id, player.position)
-	
 	
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
@@ -84,6 +79,7 @@ func sync_player_position(id: int, new_position: Vector3):
 @rpc("any_peer", "call_local")
 func sync_player_skin(id: int, skin_name: String):
 	print('JOINED RPC', id, skin_name)
+	return skin_name
 	#if id == 1: return # ignore host
 	#var player = players_container.get_node(str(id))
 	#if player:

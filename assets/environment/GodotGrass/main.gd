@@ -4,62 +4,50 @@ extends Node3D
 const GRASS_MESH_HIGH := preload('res://assets/environment/GodotGrass/grass/grass_high.obj')
 const GRASS_MESH_LOW := preload('res://assets/environment/GodotGrass/grass/grass_low.obj')
 const GRASS_MAT := preload('res://assets/environment/GodotGrass/grass/mat_grass.tres')
-const HEIGHTMAP := preload('res://assets/environment_instances/environment_instance_root_hmap.tres')
+const HEIGHTMAP := preload('res://assets/environment/heightmap_grass_main.tres')
+
+@export var player: Node3D
 
 const TILE_SIZE := 5.0
 const MAP_RADIUS := 200.0
-const HEIGHTMAP_SCALE := 1.0
+const HEIGHTMAP_SCALE := 20.0
 
 var grass_multimeshes : Array[Array] = []
 var previous_tile_id := Vector3.ZERO
-var should_render_imgui := false
+var should_render_imgui := true
 
-@onready var camera := get_viewport().get_camera_3d()
-@onready var camera_fov := [camera.fov]
-@onready var should_render_fog := false
-@onready var should_render_shadows := false
+# TODO: add back camera
+#@onready var camera := get_viewport().get_camera_3d()
+#@onready var camera_fov := [camera.fov]
+
+#@onready var should_render_fog := [$Environment.environment.volumetric_fog_enabled]
+@onready var should_render_shadows := [true]
 @onready var density_modifier := [0.8 if Engine.is_editor_hint() else 1.0]
 @onready var clumping_factor := [GRASS_MAT.get_shader_parameter('clumping_factor')]
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
 
-@export var player: Node3D
-
 func _init() -> void:
-	#DisplayServer.window_set_size(DisplayServer.screen_get_size() * 0.75)
-	#DisplayServer.window_set_position(DisplayServer.screen_get_size() * 0.25 / 2.0)
+	DisplayServer.window_set_size(DisplayServer.screen_get_size() * 0.75)
+	DisplayServer.window_set_position(DisplayServer.screen_get_size() * 0.25 / 2.0)
 	RenderingServer.global_shader_parameter_set('heightmap', HEIGHTMAP)
 	RenderingServer.global_shader_parameter_set('heightmap_scale', HEIGHTMAP_SCALE)
 	
 func _ready() -> void:
-	Hub.connect("_hello_world", helloWorld) 
-	if Engine.is_editor_hint(): 
-		helloWorld(1)
-
-func helloWorld(peer_id):
-
-	camera = get_viewport().get_camera_3d()
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
-	should_render_imgui = not Engine.is_editor_hint()
-	#_setup_heightmap_collision()
-	if get_parent() && get_parent().has_method('create_editor_nodes'):
-		player = get_parent().environment_root_tracker
-	else:
-		if Engine.is_editor_hint(): 
-			player = $Marker3D
-	
-	# TODO: PROPER SIGNAL BUS TO HOOK THIS UP
+	await get_tree().create_timer(0.5).timeout
+	_setup_heightmap_collision()
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
-
-	var find_player = get_tree().get_root().get_node("Level").get_node('PlayersContainer').get_node(str(peer_id))
-	if find_player:
-		player = find_player
-
-func _physics_process(_delta: float) -> void:
+	
+func set_tracker(node):
+	player = node
+	
+func _physics_process(delta: float) -> void:
 	if !player:
 		return
-	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
-	
+	else:
+		RenderingServer.global_shader_parameter_set('player_position', player.global_position)
+
 	# Correct LOD by repositioning tiles when the player moves into a new tile
 	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else player
 	var tile_id : Vector3 = ((lod_target.global_position + Vector3.ONE*TILE_SIZE*0.5) / TILE_SIZE * Vector3(1,0,1)).floor()
@@ -81,18 +69,22 @@ func _setup_heightmap_collision() -> void:
 	heightmap_shape.map_width = dims.x
 	heightmap_shape.map_depth = dims.y
 	heightmap_shape.map_data = map_data
-	#$Floor/CollisionShape3D.shape = heightmap_shape
+	$Ground/CollisionShape3D.shape = heightmap_shape
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:
 	for i in range(-MAP_RADIUS, MAP_RADIUS, TILE_SIZE):
 		for j in range(-MAP_RADIUS, MAP_RADIUS, TILE_SIZE):
 			var instance := MultiMeshInstance3D.new()
-			#instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-			instance.cast_shadow = 0
+			instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if should_render_shadows[0] else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			instance.material_override = GRASS_MAT
 			instance.position = Vector3(i, 0.0, j)
-			instance.extra_cull_margin = 1.0
+			
+			# TODO:adjust
+			# AVOIDS CULLING TO SOON higher
+			# THIS CAN EFFECT PERF. If you have not too many hills, you can turn it down
+			
+			instance.extra_cull_margin = 5.00
 			add_child(instance)
 			
 			grass_multimeshes.append([instance, instance.position])
@@ -110,7 +102,7 @@ func _generate_grass_multimeshes() -> void:
 	for data in grass_multimeshes:
 		var distance = data[1].length() # Distance from center tile
 		if distance > MAP_RADIUS: continue
-		#if distance < 12.0:    data[0].multimesh = multimesh_lods[0]
+		if distance < 12.0:    data[0].multimesh = multimesh_lods[0]
 		elif distance < 40.0:  data[0].multimesh = multimesh_lods[1]
 		elif distance < 70.0:  data[0].multimesh = multimesh_lods[2]
 		elif distance < 100.0: data[0].multimesh = multimesh_lods[3]

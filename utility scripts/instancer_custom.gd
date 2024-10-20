@@ -3,8 +3,13 @@ extends Node3D
 
 # Inherit from EnvironemntInstanceRoot 
 var environment_root_tracker: Node3D 
-var ground_chunk_mesh: NodePath
 var heightmap : Texture2D
+
+# Instance vars from Grass
+const TILE_SIZE = 5.0
+const MAP_RADIUS = 200.0
+const HEIGHTMAP_SCALE = 20.0
+
 
 @export var instance_amount : int = 100  # Number of instances to generate
 @export var generate_colliders: bool = false
@@ -45,27 +50,27 @@ var v_scale: float = 1
  
 func parent_ready():
 	environment_root_tracker = get_parent().environment_root_tracker
-	ground_chunk_mesh = get_parent().ground_chunk_mesh.get_as_property_path()
 	heightmap = get_parent().heightmap
+	global_position = Vector3(0,0,0)
 
-	if (environment_root_tracker && heightmap && ground_chunk_mesh): 
-		global_position = Vector3(0,0,0)
+	if (environment_root_tracker && heightmap): 
 		if Engine.is_editor_hint():
-			if heightmap && environment_root_tracker && ground_chunk_mesh:
-				global_position = Vector3(0,0,0)
+			if heightmap && environment_root_tracker:
 				create_multimesh()
 			return
 		else:
-			global_position = Vector3(0,0,0)
 			create_multimesh()
 	else:
 		print('DEBUG: Instancer FAILED:', name)
 	
 func create_multimesh():
 	print('DEBUG: Instancer Created: ', name)
+	
+	# REMOVE GROUND CHUNK MESH, SET SCALE OTHER WAYS.
+	
 	#grab horizontal scale on the terrain mesh so match the scale of the heightmap in case your terrain is resized
-	h_scale = get_node(ground_chunk_mesh).scale.x # could be x or z, doesn not matter as they should be the same
-	v_scale = get_node(ground_chunk_mesh).scale.y
+	#h_scale = get_node(ground_chunk_mesh).scale.x # could be x or z, doesn not matter as they should be the same
+	#v_scale = get_node(ground_chunk_mesh).scale.y
 	
 	# Create a MultiMeshInstance3D and set its MultiMesh
 	multi_mesh_instance = MultiMeshInstance3D.new()
@@ -76,24 +81,22 @@ func create_multimesh():
 	multi_mesh.mesh = instance_mesh 
 	@warning_ignore("narrowing_conversion")
 	instance_rows = sqrt(instance_amount) #rounded down to integer
+	print(instance_rows)
 	@warning_ignore("integer_division")
 	offset = round(instance_amount/instance_rows) #rounded up/down to nearest integer
 
 	# TODO: What does this do.	Stops the editor from working because it's getting from InstanceRoot
 	# THIS HAS CAUSED SEVERAL BUGS WITH EMITTED DELAYS
 	#wait for map to load before continuing
-	#if !Engine.is_editor_hint():
-		#await heightmap.changed
+	#await heightmap.changed
+	await get_tree().create_timer(1.0).timeout
 
-	hmap_img = heightmap.get_image()
-
-	# We're not ready yet, return early. May require editor refresh
-	if Engine.is_editor_hint() && !hmap_img:
-		return
-		
+	#wait for map to load before continuing
+	hmap_img = heightmap.noise.get_image(512, 512)
 	width = hmap_img.get_width()
 	height = hmap_img.get_height()
-	
+
+
 	print('HEIGHTMAP LOADING...: ', hmap_img, width, height)
 	
 	# Add the MultiMeshInstance3D as a child of the instancer
@@ -108,7 +111,7 @@ func create_multimesh():
  
 func _update():
 	#on each update, move the center to player
-	self.global_position = Vector3(environment_root_tracker.global_position.x,0.0,environment_root_tracker.global_position.z).snapped(Vector3(1,0,1));
+	global_position = Vector3(environment_root_tracker.global_position.x,0.0,environment_root_tracker.global_position.z);
 	multi_mesh_instance.multimesh = distribute_meshes()
 	timer.wait_time = update_frequency
 	timer.start()
@@ -182,6 +185,12 @@ func distribute_meshes():
 	last_pos = global_position
 	return multi_mesh
  
+# TODO: This took months. Maybe write a blog post or something
+# TODO: The bugs on this were insane. 
+# TODO: Currently set up to use seamless texture from GodotGrass
+# TODO: try it out with HTerrain. Should work... somehwat.
+# LEARNINGS: Make sure you are sampling the SAME WAY in each script
+# Set an image height / width when you get_image
 func get_heightmap_y(x, z):
 	# Sample the heightmap texture to get the Y position based on X and Z coordinates
 	@warning_ignore("integer_division")
@@ -195,11 +204,11 @@ func get_heightmap_y(x, z):
 	if pixel_z < 0: pixel_z += height 
  
 	#var color = hmap_img.get_pixel(pixel_x, pixel_z)
-	var color = Color(heightmap.noise.get_noise_2d(pixel_x, pixel_z) * 10.0, 0., 0., 1.)
-	
-	#return heightmap.noise.get_noise_2d(x, z) * 10.0
-	# STATIC ADJUSTER
-	return color.r * terrain_height * v_scale - 0.2
+	var color = (hmap_img.get_pixel(pixel_x, pixel_z).r - 0.5)* HEIGHTMAP_SCALE
+	#return color.r * terrain_height * v_scale
+	return color
+
+
 
  
 func random(x,z):

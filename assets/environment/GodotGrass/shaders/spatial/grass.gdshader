@@ -74,10 +74,11 @@ void vertex() {
 	vec3 vertex_model = VERTEX; // Vertex in model space before any rotations are applied
 
 	// --- WIND ---
-	vec2 heightmap_uv = (NODE_POSITION_WORLD.xz + vec2(256.0)) / 512.0;
-	float heightmap_offset = (texture(heightmap, heightmap_uv).x - 0.5) * heightmap_scale;
+	float heightmap_offset = (texture(heightmap, NODE_POSITION_WORLD.xz / vec2(textureSize(heightmap, 0))).x - 0.5) * heightmap_scale;
 	float player_distance = length(player_position - (NODE_POSITION_WORLD + vec3(0, heightmap_offset, 0)));
-	float crushed_factor = min(player_distance*player_distance*1.2, 1.0);
+
+	// AD NOTE: ADJUSTED CRUSH FACTOR SLIGHTLY: 1.2 original values
+	float crushed_factor = min(player_distance*player_distance*2.0, 1.0);
 
 	float turn_angle_base = (mix(-0.15, 0.15, hash0) + clump2*clumping_factor)*TAU;
 	float wind_direction = texture(wind_noise, NODE_POSITION_WORLD.zx*0.005/wind_speed + TIME*0.005*wind_speed).x*TAU;

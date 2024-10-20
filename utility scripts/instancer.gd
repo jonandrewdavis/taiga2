@@ -67,7 +67,7 @@ func create_multimesh():
 	offset = round(instance_amount/instance_rows) #rounded up/down to nearest integer
 	
 	#wait for map to load before continuing
-	await heightmap.changed
+	#await heightmap.changed
 	hmap_img = heightmap.get_image()
 	width = hmap_img.get_width()
 	height = hmap_img.get_height()

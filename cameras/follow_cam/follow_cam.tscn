@@ -1,9 +1,30 @@
-[gd_scene load_steps=3 format=3 uid="uid://b65t1v7qe0rb3"]
+[gd_scene load_steps=8 format=3 uid="uid://b65t1v7qe0rb3"]
 
 [ext_resource type="Script" path="res://cameras/follow_cam/follow_cam_3d.gd" id="1_y42mi"]
+[ext_resource type="Shader" path="res://utility scripts/psx.gdshader" id="2_0k4cg"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_m6qse"]
 margin = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8e2y5"]
+render_priority = 0
+shader = ExtResource("2_0k4cg")
+shader_parameter/luminance = Color(0.3086, 0.6094, 0.082, 1)
+shader_parameter/brightness = 0.26
+shader_parameter/contrast = 3.0
+shader_parameter/scale = 2.0
+shader_parameter/rotation = 0.08
+shader_parameter/resolution_downsampling = 0.8
+
+[sub_resource type="QuadMesh" id="QuadMesh_4cak7"]
+material = SubResource("ShaderMaterial_8e2y5")
+flip_faces = true
+size = Vector2(2, 2)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_dva7x"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_umbb8"]
+albedo_color = Color(1, 0.352941, 1, 1)
 
 [node name="FollowCam" type="SpringArm3D" node_paths=PackedStringArray("camera_3d")]
 top_level = true
@@ -15,3 +36,13 @@ camera_3d = NodePath("Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 h_offset = 0.6
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.823974)
+mesh = SubResource("QuadMesh_4cak7")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+visible = false
+mesh = SubResource("CylinderMesh_dva7x")
+surface_material_override/0 = SubResource("StandardMaterial3D_umbb8")

@@ -1,3 +1,5 @@
+# CUSTOM COLLISION SHAPE: DO NOT USE. 
+
 @tool
 
 extends StaticBody3D
@@ -39,7 +41,7 @@ func _ready():
 	var hmap_data_image: Image = Image.create(size, size, false, Image.FORMAT_RF)
 	for x in size:
 		for y in size:
-			hmap_data_image.set_pixel(x, y, Color(heightmap.noise.get_noise_2d(x, y) * 9.5, 0., 0., 1.))
+			hmap_data_image.set_pixel(x, y, Color(heightmap.noise.get_noise_2d(x, y), 0., 0., 1.))
 			
 	print('DEBUG: COLLISION MAP GEN', hmap_data_image)
 	shape.map_width = hmap_data_image.get_width()

@@ -207,10 +207,6 @@ change_item={
 
 [shader_globals]
 
-heightmap={
-"type": "sampler2D",
-"value": "res://assets/environment_instances/environment_instance_root_hmap.tres"
-}
 heightmap_scale={
 "type": "float",
 "value": 5.0
@@ -218,4 +214,8 @@ heightmap_scale={
 player_position={
 "type": "vec3",
 "value": Vector3(0, 0, 0)
+}
+heightmap={
+"type": "sampler2D",
+"value": "res://assets/environment/heightmap_grass_main.tres"
 }
