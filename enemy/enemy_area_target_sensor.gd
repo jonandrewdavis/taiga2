@@ -8,7 +8,7 @@ class_name AreaEnemyTargetSensor
 
 @onready var player_node : CharacterBody3D = get_parent()
 @onready var eyeline : RayCast3D = $Eyeline
-@export var target_group_name : String = "player"
+@export var target_group_name : String = "players"
 @export_flags_3d_physics var dectection_layer_mask
 @onready var check_interval = $CheckInterval
 

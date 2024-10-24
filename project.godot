@@ -39,6 +39,11 @@ window/size/viewport_height=778
 
 enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
 
+[global_group]
+
+targets="enemies and such"
+players=""
+
 [input]
 
 ui_select={

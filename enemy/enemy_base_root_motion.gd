@@ -25,7 +25,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 @onready var hurt_cool_down = Timer.new() # while running, player can't be hurt
 @export var ragdoll_death :bool = true
-@onready var general_skeleton = $mannyquin/godot_rig/GeneralSkeleton
+@onready var general_skeleton = $vampire/GeneralSkeleton
 
 signal hurt_started
 signal damage_taken
@@ -147,13 +147,9 @@ func attack():
 func retreat(): # Back away for a period of time
 	retreat_started.emit()
 
-func set_default_target(): ## Creates a node to return to after patrolling if 
-	## no default target is set.
-	add_child(spawn_location)
-	spawn_location.top_level = true
-	spawn_location.global_position = to_global(Vector3(0,0,.2))
+func set_default_target(): 
 	if not default_target:
-		default_target = spawn_location
+		default_target = $EnemyMarkerSpawn
 	if !target:
 		target = default_target
 

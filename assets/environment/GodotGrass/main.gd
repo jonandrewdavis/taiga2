@@ -27,8 +27,9 @@ var should_render_imgui := true
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
 
 func _init() -> void:
-	DisplayServer.window_set_size(DisplayServer.screen_get_size() * 0.75)
-	DisplayServer.window_set_position(DisplayServer.screen_get_size() * 0.25 / 2.0)
+	# TOOD: Re-enable to resize nicely? or fullscreen.
+	#DisplayServer.window_set_size(DisplayServer.screen_get_size() * 0.75)
+	#DisplayServer.window_set_position(DisplayServer.screen_get_size() * 0.25 / 2.0)
 	RenderingServer.global_shader_parameter_set('heightmap', HEIGHTMAP)
 	RenderingServer.global_shader_parameter_set('heightmap_scale', HEIGHTMAP_SCALE)
 	
@@ -38,7 +39,9 @@ func _ready() -> void:
 	_setup_heightmap_collision()
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
-	
+
+
+
 func set_tracker(node):
 	player = node
 	
@@ -66,7 +69,9 @@ func _setup_heightmap_collision() -> void:
 	heightmap_shape.map_width = dims.x
 	heightmap_shape.map_depth = dims.y
 	heightmap_shape.map_data = map_data
-	$Ground/CollisionShape3D.shape = heightmap_shape
+	$NavigationRegion3D/Ground/CollisionShape3D.shape = heightmap_shape
+	$NavigationRegion3D.bake_navigation_mesh()
+	
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:

@@ -6,7 +6,7 @@
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="3_icc4p"]
 [ext_resource type="Environment" uid="uid://cslvvwcb7yhg0" path="res://assets/environment/ForestEnvironment.tres" id="5_ksnxb"]
 [ext_resource type="PackedScene" uid="uid://8njjisb8vun0" path="res://assets/environment_instances/environment_instance_root.tscn" id="9_1ql06"]
-[ext_resource type="ArrayMesh" uid="uid://cp43ypq4lvewt" path="res://assets/environment_objects/bushes/fern_bush/fern_bush_mesh.res" id="14_4u3fn"]
+[ext_resource type="Script" path="res://utility scripts/spawn_enemies_root.gd" id="11_tcdp6"]
 [ext_resource type="AudioStream" uid="uid://dw4bplkv57i6i" path="res://assets/environment/GodotGrass/grass_loop.wav" id="21_m577m"]
 [ext_resource type="AudioStream" uid="uid://6irapns2oeis" path="res://assets/environment/GodotGrass/wind_loop.wav" id="22_cvn7w"]
 [ext_resource type="AudioStream" uid="uid://d4mv7rx862p3o" path="res://assets/environment/GodotGrass/insects_loop.wav" id="23_aoolo"]
@@ -202,12 +202,6 @@ theme_override_font_sizes/font_size = 35
 text = "QUIT"
 flat = true
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://level/scenes/player.tscn", "res://player/player_charbody3d.tscn")
-spawn_path = NodePath("../PlayersContainer")
-
-[node name="PlayersContainer" type="Node3D" parent="."]
-
 [node name="AudioStreamPlayer2" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("21_m577m")
 volume_db = -25.0
@@ -223,11 +217,25 @@ stream = ExtResource("23_aoolo")
 volume_db = -30.0
 autoplay = true
 
+[node name="Marker3D" type="Marker3D" parent="."]
+
 [node name="EnvironmentInstanceRoot" parent="." instance=ExtResource("9_1ql06")]
 
-[node name="FernBushMesh" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -11.1344, 0, -6.96386)
-mesh = ExtResource("14_4u3fn")
+[node name="EnemiesContainer" type="Node" parent="."]
+script = ExtResource("11_tcdp6")
+
+[node name="PlayersContainer" type="Node" parent="."]
+
+[node name="SpawnerEnemies" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://enemy/enemy_base_root_motion.tscn")
+spawn_path = NodePath("../EnemiesContainer")
+
+[node name="SpawnerPlayers" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://player/player_charbody3d.tscn")
+spawn_path = NodePath("../PlayersContainer")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.936819, 0.349815, 0, -0.349815, 0.936819, 0, 6.39523, 17.2204)
 
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]

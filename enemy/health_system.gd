@@ -10,7 +10,7 @@ class_name HealthSystem
 ## on-screen healthbar for a few seconds after being hit or healed.
 
 @export var total_health : int = 5
-@onready var current_health = total_health
+@export var current_health = total_health
 @export var hit_reporting_node : Node
 @export var damage_signal :String = "damage_taken"
 

@@ -26,16 +26,17 @@ func _process(_delta):
 func set_movement():
 	var speed : Vector2 = Vector2.ZERO
 	var near
+	var enemy_target = enemy.target
 	#if enemy.current_state:
 	match enemy.current_state:
 		enemy.state.FREE:
-			near = (enemy.target.global_position.distance_to(enemy.global_position) < .2)
+			near = (enemy_target.global_position.distance_to(enemy.global_position) < .2)
 			if near:
 				speed.y = 0.0
 			else:
 				speed.y = .5
 		enemy.state.CHASE:
-			near = (enemy.target.global_position.distance_to(enemy.global_position) < 4.0)
+			near = (enemy_target.global_position.distance_to(enemy.global_position) < 4.0)
 			if near:
 				speed.y = .5
 			else:

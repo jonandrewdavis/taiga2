@@ -44,7 +44,6 @@ var v_scale: float = 1
 func _ready():
 	if Engine.is_editor_hint():
 		if heightmap && player_node:
-			print('TESTING INSTANCER')
 			global_position = Vector3(0,0,0)
 			create_multimesh()
 		return

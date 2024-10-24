@@ -121,7 +121,6 @@ func _process(_delta):
 
 # RPC THIS? 
 func request_oneshot(oneshot:String):
-	#print('GOT ONESHOT', oneshot)
 	last_oneshot = oneshot
 	set("parameters/" + oneshot + "/request", true)
 	if is_multiplayer_authority():

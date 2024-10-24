@@ -64,7 +64,6 @@ func parent_ready():
 		print('DEBUG: Instancer FAILED:', name)
 	
 func create_multimesh():
-	print('DEBUG: Instancer Created: ', name)
 	
 	# REMOVE GROUND CHUNK MESH, SET SCALE OTHER WAYS.
 	
@@ -81,7 +80,7 @@ func create_multimesh():
 	multi_mesh.mesh = instance_mesh 
 	@warning_ignore("narrowing_conversion")
 	instance_rows = sqrt(instance_amount) #rounded down to integer
-	print(instance_rows)
+	print('DEBUG: Instancer Created: ', name, ', with rows: ', instance_rows)
 	@warning_ignore("integer_division")
 	offset = round(instance_amount/instance_rows) #rounded up/down to nearest integer
 
@@ -96,8 +95,6 @@ func create_multimesh():
 	width = hmap_img.get_width()
 	height = hmap_img.get_height()
 
-	print('HEIGHTMAP LOADING...: ', hmap_img, width, height)
-	
 	# Add the MultiMeshInstance3D as a child of the instancer
 	add_child(multi_mesh_instance)
 	

@@ -3,9 +3,10 @@ extends Node3D
 @onready var skin_input: LineEdit = $Menu/MainContainer/MainMenu/Option2/SkinInput
 @onready var nick_input: LineEdit = $Menu/MainContainer/MainMenu/Option1/NickInput
 @onready var address_input: LineEdit = $Menu/MainContainer/MainMenu/Option3/AddressInput
-@onready var players_container: Node3D = $PlayersContainer
+@onready var players_container: Node = $PlayersContainer
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
+
 
 func _ready():
 	# Check for -- server
@@ -23,6 +24,8 @@ func _ready():
 		
 	Network.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
+	
+
 
 func _on_player_connected(peer_id, player_info):
 	for id in Network.players.keys():
@@ -74,7 +77,7 @@ func sync_player_position(id: int, new_position: Vector3):
 	if player:
 		player.position = new_position
 		# TODO: Proper loading signal / bus for users to load their scenery.
-		$EnvironmentInstanceRoot.set_new_root(player)
+		#$EnvironmentInstanceRoot.set_new_root(player)
 		
 @rpc("any_peer", "call_local")
 func sync_player_skin(id: int, skin_name: String):
