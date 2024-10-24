@@ -8,7 +8,7 @@ var heightmap : Texture2D
 # Instance vars from Grass
 const TILE_SIZE = 5.0
 const MAP_RADIUS = 200.0
-const HEIGHTMAP_SCALE = 20.0
+const HEIGHTMAP_SCALE = 5.0
 
 
 @export var instance_amount : int = 100  # Number of instances to generate
@@ -87,15 +87,14 @@ func create_multimesh():
 
 	# TODO: What does this do.	Stops the editor from working because it's getting from InstanceRoot
 	# THIS HAS CAUSED SEVERAL BUGS WITH EMITTED DELAYS
-	#wait for map to load before continuing
-	#await heightmap.changed
-	await get_tree().create_timer(1.0).timeout
+	#wait for map to load before continuing, ONLY ON LIVE.
+	if !Engine.is_editor_hint():
+		await heightmap.changed
 
 	#wait for map to load before continuing
 	hmap_img = heightmap.noise.get_image(512, 512)
 	width = hmap_img.get_width()
 	height = hmap_img.get_height()
-
 
 	print('HEIGHTMAP LOADING...: ', hmap_img, width, height)
 	
@@ -104,12 +103,14 @@ func create_multimesh():
 	
 	#Add timer for updates
 	timer = Timer.new()
-	$"..".add_child(timer)
+	get_parent().add_child(timer)
 	timer.timeout.connect(_update)
 	timer.wait_time = update_frequency 
 	_update()
  
 func _update():
+	if (!timer):
+		return
 	#on each update, move the center to player
 	global_position = Vector3(environment_root_tracker.global_position.x,0.0,environment_root_tracker.global_position.z);
 	multi_mesh_instance.multimesh = distribute_meshes()

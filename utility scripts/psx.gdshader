@@ -31,9 +31,9 @@ void fragment() {
 	float grey = dot(color, luminance) * contrast;
 	color = vec3(grey + dot_matrix(UV * resolution));
 	float vignette = smoothstep(0.95, 0.1, distance(UV, vec2(0.5))) * 1.0;
-	
+
 	float v_x = smoothstep(0.45, 0.1, distance(UV.x, 0.5));
 	float v_y = smoothstep(0.45, 0.1, distance(UV.y, 0.5));
-	
+
 	ALBEDO = vec3(texture(screen_texture, UV_new).rgb);
 }

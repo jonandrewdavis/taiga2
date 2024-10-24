@@ -12,9 +12,9 @@ shader = ExtResource("2_0k4cg")
 shader_parameter/luminance = Color(0.3086, 0.6094, 0.082, 1)
 shader_parameter/brightness = 0.26
 shader_parameter/contrast = 3.0
-shader_parameter/scale = 2.0
+shader_parameter/scale = 1.5
 shader_parameter/rotation = 0.08
-shader_parameter/resolution_downsampling = 0.8
+shader_parameter/resolution_downsampling = 2.0
 
 [sub_resource type="QuadMesh" id="QuadMesh_4cak7"]
 material = SubResource("ShaderMaterial_8e2y5")

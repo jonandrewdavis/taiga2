@@ -10,7 +10,7 @@ const HEIGHTMAP := preload('res://assets/environment/heightmap_grass_main.tres')
 
 const TILE_SIZE := 5.0
 const MAP_RADIUS := 200.0
-const HEIGHTMAP_SCALE := 20.0
+const HEIGHTMAP_SCALE := 5.0
 
 var grass_multimeshes : Array[Array] = []
 var previous_tile_id := Vector3.ZERO
@@ -34,7 +34,7 @@ func _init() -> void:
 	
 func _ready() -> void:
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(1.0).timeout
 	_setup_heightmap_collision()
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
@@ -42,11 +42,8 @@ func _ready() -> void:
 func set_tracker(node):
 	player = node
 	
-func _physics_process(delta: float) -> void:
-	if !player:
-		return
-	else:
-		RenderingServer.global_shader_parameter_set('player_position', player.global_position)
+func _physics_process(_delta: float) -> void:
+	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
 
 	# Correct LOD by repositioning tiles when the player moves into a new tile
 	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else player
@@ -84,7 +81,7 @@ func _setup_grass_instances() -> void:
 			# AVOIDS CULLING TO SOON higher
 			# THIS CAN EFFECT PERF. If you have not too many hills, you can turn it down
 			
-			instance.extra_cull_margin = 5.00
+			instance.extra_cull_margin = 2.00
 			add_child(instance)
 			
 			grass_multimeshes.append([instance, instance.position])
@@ -102,7 +99,7 @@ func _generate_grass_multimeshes() -> void:
 	for data in grass_multimeshes:
 		var distance = data[1].length() # Distance from center tile
 		if distance > MAP_RADIUS: continue
-		if distance < 12.0:    data[0].multimesh = multimesh_lods[0]
+		if distance < 18.0:    data[0].multimesh = multimesh_lods[0]
 		elif distance < 40.0:  data[0].multimesh = multimesh_lods[1]
 		elif distance < 70.0:  data[0].multimesh = multimesh_lods[2]
 		elif distance < 100.0: data[0].multimesh = multimesh_lods[3]

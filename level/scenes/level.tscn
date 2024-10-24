@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=13 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
@@ -6,6 +6,7 @@
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="3_icc4p"]
 [ext_resource type="Environment" uid="uid://cslvvwcb7yhg0" path="res://assets/environment/ForestEnvironment.tres" id="5_ksnxb"]
 [ext_resource type="PackedScene" uid="uid://8njjisb8vun0" path="res://assets/environment_instances/environment_instance_root.tscn" id="9_1ql06"]
+[ext_resource type="ArrayMesh" uid="uid://cp43ypq4lvewt" path="res://assets/environment_objects/bushes/fern_bush/fern_bush_mesh.res" id="14_4u3fn"]
 [ext_resource type="AudioStream" uid="uid://dw4bplkv57i6i" path="res://assets/environment/GodotGrass/grass_loop.wav" id="21_m577m"]
 [ext_resource type="AudioStream" uid="uid://6irapns2oeis" path="res://assets/environment/GodotGrass/wind_loop.wav" id="22_cvn7w"]
 [ext_resource type="AudioStream" uid="uid://d4mv7rx862p3o" path="res://assets/environment/GodotGrass/insects_loop.wav" id="23_aoolo"]
@@ -36,11 +37,12 @@ grow_vertical = 2
 environment = ExtResource("5_ksnxb")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
-transform = Transform3D(1, 0, 0, 0, -0.495611, 0.868545, 0, -0.868545, -0.495611, 0, 4, 0)
-light_energy = 3.0
+transform = Transform3D(1, 0, 0, 0, -0.685565, 0.728012, 0, -0.728012, -0.685565, 0, 4, 0)
+light_energy = 0.8
 shadow_enabled = true
+shadow_normal_bias = 3.0
+shadow_opacity = 0.9
 directional_shadow_mode = 0
-directional_shadow_blend_splits = true
 sky_mode = 1
 
 [node name="Menu" type="Control" parent="."]
@@ -222,6 +224,10 @@ volume_db = -30.0
 autoplay = true
 
 [node name="EnvironmentInstanceRoot" parent="." instance=ExtResource("9_1ql06")]
+
+[node name="FernBushMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -11.1344, 0, -6.96386)
+mesh = ExtResource("14_4u3fn")
 
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]
