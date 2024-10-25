@@ -47,25 +47,25 @@ var v_scale: float = 1
 @onready var colliders_to_spawn: Array
 @onready var last_pos: Vector3
 @onready var first_update= true
+
  
-func parent_ready():
+
+func _ready():
 	environment_root_tracker = get_parent().environment_root_tracker
 	heightmap = get_parent().heightmap
 	global_position = Vector3(0,0,0)
+	
+	if get_parent().has_signal("environment_tracker_changed"):
+		get_parent().environment_tracker_changed.connect(change_instance_tracker)
+	
 
-	if (environment_root_tracker && heightmap): 
-		if Engine.is_editor_hint():
-			if heightmap && environment_root_tracker:
-				create_multimesh()
-			return
-		else:
-			create_multimesh()
-	else:
-		print('DEBUG: Instancer FAILED:', name)
-	
+func change_instance_tracker(new_tracker_node):
+	environment_root_tracker = new_tracker_node
+	if (environment_root_tracker && heightmap):
+		create_multimesh()
+
 func create_multimesh():
-	
-	# REMOVE GROUND CHUNK MESH, SET SCALE OTHER WAYS.
+	# TODO: REMOVE GROUND CHUNK MESH, SET SCALE OTHER WAYS.
 	
 	#grab horizontal scale on the terrain mesh so match the scale of the heightmap in case your terrain is resized
 	#h_scale = get_node(ground_chunk_mesh).scale.x # could be x or z, doesn not matter as they should be the same
@@ -106,13 +106,11 @@ func create_multimesh():
 	_update()
  
 func _update():
-	if (!timer):
-		return
-	#on each update, move the center to player
-	global_position = Vector3(environment_root_tracker.global_position.x,0.0,environment_root_tracker.global_position.z);
-	multi_mesh_instance.multimesh = distribute_meshes()
-	timer.wait_time = update_frequency
-	timer.start()
+	if timer:
+		global_position = Vector3(environment_root_tracker.global_position.x,0.0,environment_root_tracker.global_position.z);
+		multi_mesh_instance.multimesh = distribute_meshes()
+		timer.wait_time = update_frequency
+		timer.start()
  
 func distribute_meshes():
 	randomize()

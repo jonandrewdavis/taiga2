@@ -34,7 +34,8 @@ signal death_started
 signal attack_started
 signal retreat_started
 
-@onready var current_state = state.FREE : set = update_current_state # Enemy states controlled by enum PlayerStates
+# Added multiplayer for this
+@export var current_state = state.FREE : set = update_current_state # Enemy states controlled by enum PlayerStates
 enum state {
 	FREE,
 	CHASE,
@@ -44,6 +45,8 @@ enum state {
 }
 signal state_changed
 
+func _enter_tree() -> void:
+	set_multiplayer_authority(1)
 
 func _ready():
 	if animation_tree:
@@ -57,7 +60,8 @@ func _ready():
 	collision_layer = 5
 	if target_sensor:
 		target_sensor.target_spotted.connect(_on_target_spotted)
-		target_sensor.target_lost.connect(_on_target_lost)
+		# Target lost can make it spin in circles.
+		#target_sensor.target_lost.connect(_on_target_lost)
 	
 	if health_system:
 		health_system.died.connect(death)
@@ -148,20 +152,30 @@ func retreat(): # Back away for a period of time
 	retreat_started.emit()
 
 func set_default_target(): 
+	add_child(spawn_location)
+	spawn_location.top_level = true
+	spawn_location.global_position = to_global(Vector3(0,0,.2))
 	if not default_target:
-		default_target = $EnemyMarkerSpawn
+		default_target = spawn_location
 	if !target:
 		target = default_target
 
+func _target_to_player_node(_spotted_target: Node3D):
+	for player in Hub.players_container.get_children():
+		if player.name == _spotted_target.name:
+			return player
+
 func _on_target_spotted(_spotted_target): # Updates from a TargetSensor if a target is found.
-	if target != _spotted_target:
+	if target.name != _spotted_target.name:
 		target = _spotted_target
 	chase_timer.start()
 	
-func _on_target_lost():
-	if is_instance_valid(target):
-		if is_instance_valid(chase_timer): # just trying to quiet some errors
-			chase_timer.start()
+# NOTE: Target lost can make it spin in circles in multiplayer.
+# TODO: Restore.
+#func _on_target_lost():
+	#if is_instance_valid(target):
+		#if is_instance_valid(chase_timer): # just trying to quiet some errors
+			#chase_timer.start()
 
 func _on_chase_timer_timeout():
 	give_up()
@@ -176,11 +190,13 @@ func apply_gravity(_delta):
 		move_and_slide()
 
 func hit(_by_who, _by_what):
-	target = _by_who
-	if hurt_cool_down.is_stopped():
-		hurt_cool_down.start()
-		hurt_started.emit()
-		damage_taken.emit(_by_what)
+	var get_player_targeted = _target_to_player_node(_by_who)
+	if (get_player_targeted):
+		target = get_player_targeted
+		if hurt_cool_down.is_stopped():
+			hurt_cool_down.start()
+			hurt_started.emit()
+			damage_taken.emit(_by_what)
 		
 func parried():
 	if hurt_cool_down.is_stopped():

@@ -10,8 +10,6 @@ var player_info = {
 	"skin" : "blue"
 }
 
-signal player_connected(peer_id, player_info)
-signal server_disconnected
 
 func _process(_delta):
 	if Input.is_action_just_pressed("ui_cancel"):
@@ -31,8 +29,8 @@ func start_host():
 		return error
 	multiplayer.multiplayer_peer = peer
 	
-	players[1] = player_info
-	player_connected.emit(1, player_info)
+	#players[1] = player_info
+	#Hub.player_connected.emit(1, player_info)
 	
 func join_game(nickname: String, skin_color: String, address: String = SERVER_ADDRESS):
 	var peer = ENetMultiplayerPeer.new()
@@ -50,7 +48,7 @@ func join_game(nickname: String, skin_color: String, address: String = SERVER_AD
 func _on_connected_ok():
 	var peer_id = multiplayer.get_unique_id()
 	players[peer_id] = player_info
-	player_connected.emit(peer_id, player_info)
+	Hub.player_connected.emit(peer_id, player_info)
 	
 func _on_player_connected(id):
 	_register_player.rpc_id(id, player_info)
@@ -59,7 +57,7 @@ func _on_player_connected(id):
 func _register_player(new_player_info):
 	var new_player_id = multiplayer.get_remote_sender_id()
 	players[new_player_id] = new_player_info
-	player_connected.emit(new_player_id, new_player_info)
+	Hub.player_connected.emit(new_player_id, new_player_info)
 	print("debug _register_player ", players)
 	
 func _on_player_disconnected(id):
@@ -71,5 +69,5 @@ func _on_connection_failed():
 func _on_server_disconnected():
 	multiplayer.multiplayer_peer = null
 	players.clear()
-	server_disconnected.emit()
+	Hub.server_disconnected.emit()
 	

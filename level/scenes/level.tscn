@@ -1,12 +1,12 @@
-[gd_scene load_steps=13 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=14 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
 [ext_resource type="Shader" path="res://level/scenes/filmgrain.gdshader" id="3_1ypwr"]
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="3_icc4p"]
+[ext_resource type="Shader" path="res://utility scripts/horror_pixels.gdshader" id="4_mglur"]
 [ext_resource type="Environment" uid="uid://cslvvwcb7yhg0" path="res://assets/environment/ForestEnvironment.tres" id="5_ksnxb"]
 [ext_resource type="PackedScene" uid="uid://8njjisb8vun0" path="res://assets/environment_instances/environment_instance_root.tscn" id="9_1ql06"]
-[ext_resource type="Script" path="res://utility scripts/spawn_enemies_root.gd" id="11_tcdp6"]
 [ext_resource type="AudioStream" uid="uid://dw4bplkv57i6i" path="res://assets/environment/GodotGrass/grass_loop.wav" id="21_m577m"]
 [ext_resource type="AudioStream" uid="uid://6irapns2oeis" path="res://assets/environment/GodotGrass/wind_loop.wav" id="22_cvn7w"]
 [ext_resource type="AudioStream" uid="uid://d4mv7rx862p3o" path="res://assets/environment/GodotGrass/insects_loop.wav" id="23_aoolo"]
@@ -15,6 +15,15 @@
 shader = ExtResource("3_1ypwr")
 shader_parameter/grain_amount = 0.04
 shader_parameter/grain_size = 0.8
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bpqhk"]
+shader = ExtResource("4_mglur")
+shader_parameter/luminance = Color(0.3086, 0.6094, 0.082, 1)
+shader_parameter/brightness = 0.26
+shader_parameter/contrast = 3.0
+shader_parameter/scale = 1.5
+shader_parameter/rotation = 0.08
+shader_parameter/resolution_downsampling = 1.5
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_npnbc"]
 color = Color(0, 0, 0, 0)
@@ -25,6 +34,14 @@ player_scene = ExtResource("2_5wxyk")
 
 [node name="FilmGrain" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_tqduw")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DownSample" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_bpqhk")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -218,24 +235,22 @@ volume_db = -30.0
 autoplay = true
 
 [node name="Marker3D" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.662592, 0, 0)
 
-[node name="EnvironmentInstanceRoot" parent="." instance=ExtResource("9_1ql06")]
+[node name="EnvironmentInstanceRoot" parent="." node_paths=PackedStringArray("environment_root_tracker") instance=ExtResource("9_1ql06")]
+environment_root_tracker = NodePath("../Marker3D")
 
 [node name="EnemiesContainer" type="Node" parent="."]
-script = ExtResource("11_tcdp6")
 
 [node name="PlayersContainer" type="Node" parent="."]
-
-[node name="SpawnerEnemies" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://enemy/enemy_base_root_motion.tscn")
-spawn_path = NodePath("../EnemiesContainer")
 
 [node name="SpawnerPlayers" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://player/player_charbody3d.tscn")
 spawn_path = NodePath("../PlayersContainer")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.936819, 0.349815, 0, -0.349815, 0.936819, 0, 6.39523, 17.2204)
+[node name="SpawnerEnemies" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://enemy/enemy_base_root_motion.tscn")
+spawn_path = NodePath("../EnemiesContainer")
 
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]

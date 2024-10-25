@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=4 uid="uid://8njjisb8vun0"]
+[gd_scene load_steps=19 format=4 uid="uid://8njjisb8vun0"]
 
 [ext_resource type="Script" path="res://utility scripts/environment_instance_root.gd" id="1_fepr5"]
 [ext_resource type="Texture2D" uid="uid://ckp2tungibla7" path="res://assets/environment/heightmap_grass_main.tres" id="2_712a3"]
@@ -14,6 +14,10 @@
 [ext_resource type="ArrayMesh" uid="uid://jdgtoup3ace0" path="res://assets/environment_objects/trees/arbol9.res" id="12_ossvq"]
 [ext_resource type="ArrayMesh" uid="uid://cyarbgytbuoay" path="res://assets/environment_objects/trees/arbol8.res" id="13_ltu1w"]
 [ext_resource type="ArrayMesh" uid="uid://cp43ypq4lvewt" path="res://assets/environment_objects/bushes/fern_bush/fern_bush_mesh.res" id="14_eel8a"]
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_accmv"]
+geometry_parsed_geometry_type = 1
+geometry_collision_mask = 1
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_phdkx"]
 _surfaces = [{
@@ -48,12 +52,13 @@ _surfaces = [{
 blend_shape_mode = 0
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kvtob"]
-radius = 0.1
+radius = 0.05
 height = 4.0
 
-[node name="EnvironmentInstanceRoot" type="Node3D" node_paths=PackedStringArray("environment_root_tracker")]
+[node name="EnvironmentInstanceRoot" type="NavigationRegion3D" node_paths=PackedStringArray("environment_root_tracker")]
+navigation_mesh = SubResource("NavigationMesh_accmv")
 script = ExtResource("1_fepr5")
-environment_root_tracker = NodePath("Marker3D")
+environment_root_tracker = NodePath("TEMP_ROOT_TRACKER")
 heightmap = ExtResource("2_712a3")
 
 [node name="moss_rock_08" type="Node3D" parent="."]
@@ -84,7 +89,6 @@ instance_mesh = SubResource("ArrayMesh_vrmt5")
 instance_collision = ExtResource("7_yewy6")
 
 [node name="arbol1" type="Node3D" parent="."]
-visible = false
 script = ExtResource("2_o747f")
 instance_amount = 150
 generate_colliders = true
@@ -97,7 +101,6 @@ instance_mesh = ExtResource("3_hqwlf")
 instance_collision = SubResource("CapsuleShape3D_kvtob")
 
 [node name="arbol2" type="Node3D" parent="."]
-visible = false
 script = ExtResource("2_o747f")
 instance_amount = 80
 pos_randomize = 9.0
@@ -109,7 +112,6 @@ rot_y_randomize = 7.0
 instance_mesh = ExtResource("11_505i2")
 
 [node name="arbol3" type="Node3D" parent="."]
-visible = false
 script = ExtResource("2_o747f")
 pos_randomize = 13.0
 instance_min_scale = 0.4
@@ -119,7 +121,6 @@ rot_y_randomize = 4.0
 instance_mesh = ExtResource("12_ossvq")
 
 [node name="arbol4" type="Node3D" parent="."]
-visible = false
 script = ExtResource("2_o747f")
 pos_randomize = 6.0
 instance_min_scale = 0.2
@@ -131,7 +132,6 @@ rot_y_randomize = 4.0
 instance_mesh = ExtResource("13_ltu1w")
 
 [node name="thyme" type="Node3D" parent="."]
-visible = false
 script = ExtResource("2_o747f")
 instance_amount = 50
 pos_randomize = 3.0
@@ -145,7 +145,6 @@ instance_Z_rot = 0.08
 instance_mesh = ExtResource("12_bgi6p")
 
 [node name="fern" type="Node3D" parent="."]
-visible = false
 script = ExtResource("2_o747f")
 instance_amount = 50
 pos_randomize = 11.0
@@ -155,6 +154,9 @@ scale_randomize = 0.2
 rot_y_randomize = 0.4
 instance_mesh = ExtResource("14_eel8a")
 
-[node name="GrassMain" parent="." instance=ExtResource("12_in6vh")]
+[node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
+player = NodePath("../TEMP_ROOT_TRACKER")
 
-[node name="Marker3D" type="Marker3D" parent="."]
+[node name="BakeTimer" type="Timer" parent="."]
+wait_time = 10.0
+autostart = true

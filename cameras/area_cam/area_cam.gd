@@ -1,5 +1,7 @@
 extends Area3D
 
+# NOTE: Do not rename target groups to "targets" next time... Yikes.
+
 ## This node can use a built in camera or use one you've determined
 ## The builtin camera will queue_free at runtime if a new camera is used. 
 @export var camera_3d : Camera3D

@@ -1,58 +1,34 @@
 @tool
-extends Node3D
+extends NavigationRegion3D
 
 @export var environment_root_tracker: Node3D
 @export var heightmap : Texture2D
-@export var update_frequency: float = 0.2
 
-@onready var grass = $GrassMain
-@onready var timer = Timer.new()
+signal environment_tracker_changed
 
-func create_editor_nodes():
+func _ready():
 	if !environment_root_tracker:
 		var root_marker = Marker3D.new()
-		root_marker.name = 'RootMarker'
+		root_marker.name = 'TEMP_ROOT_TRACKER'
 		add_child(root_marker)
-		environment_root_tracker = get_node('RootMarker')
+		environment_root_tracker = root_marker
 
-	#if !heightmap:
-		#var noise = NoiseTexture2D.new()
-		#var fast_noise = FastNoiseLite.new()
-		#noise.noise = fast_noise
-		#heightmap = noise
-	
-func signal_children():
-	for child in get_children():
-		if child.has_method('parent_ready'):
-			child.parent_ready()
-	
+	environment_tracker_changed.connect(set_new_root)
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	timer.wait_time = update_frequency 
-	add_child(timer)
-	timer.start()
-	timer.timeout.connect(_update)
-
-	if Engine.is_editor_hint(): 
-		print("DEBUG: Creating EnvironmentInstance")
-		create_editor_nodes()
-
-	if Engine.is_editor_hint() && is_inside_tree():
-		signal_children()
-	else:
-		signal_children()
+	# This helps the instancer_custom children have a little buffer
+	# to set up before creating the meshes.
+	if environment_root_tracker && Engine.is_editor_hint():
+		environment_tracker_changed.emit(environment_root_tracker)
 
 
-func _update():
-	timer.wait_time = update_frequency 
-	timer.start()
+# TODO: (optional) Rebake nav mesh for smarter enemies.
+# Could just use a flat plane. To do so, use a group & target grass.
+#func _rebake_root():
+	#bake_navigation_mesh()
 
-
-# TODO: Signals
+# Once past initialization, this shouldn't need to be here.
+# All children scripts now connect to "environment_tracker_changed"
+# Nothing is consuming this, so let's just add a debug statement
 func set_new_root(node: Node3D):
-	print('NEW NODE', node)
+	print("DEBUG: environment_root_tracker changed: ", node)
 	environment_root_tracker = node
-	signal_children()
-	Hub.emit_signal("_hello_world", node.name)
-	$GrassMain.set_tracker(environment_root_tracker)

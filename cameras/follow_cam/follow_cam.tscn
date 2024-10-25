@@ -39,6 +39,7 @@ h_offset = 0.6
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.823974)
+visible = false
 mesh = SubResource("QuadMesh_4cak7")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]

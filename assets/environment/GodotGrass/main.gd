@@ -16,15 +16,12 @@ var grass_multimeshes : Array[Array] = []
 var previous_tile_id := Vector3.ZERO
 var should_render_imgui := true
 
-# TODO: add back camera
-#@onready var camera := get_viewport().get_camera_3d()
-#@onready var camera_fov := [camera.fov]
-
-#@onready var should_render_fog := [$Environment.environment.volumetric_fog_enabled]
 @onready var should_render_shadows := [true]
 @onready var density_modifier := [0.8 if Engine.is_editor_hint() else 1.0]
 @onready var clumping_factor := [GRASS_MAT.get_shader_parameter('clumping_factor')]
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
+
+@onready var grass_collision_shape = $Ground/GrassCollisionShape
 
 func _init() -> void:
 	# TOOD: Re-enable to resize nicely? or fullscreen.
@@ -32,19 +29,31 @@ func _init() -> void:
 	#DisplayServer.window_set_position(DisplayServer.screen_get_size() * 0.25 / 2.0)
 	RenderingServer.global_shader_parameter_set('heightmap', HEIGHTMAP)
 	RenderingServer.global_shader_parameter_set('heightmap_scale', HEIGHTMAP_SCALE)
+
+	# This prevents accessing a nil value in _physics_process
+	if !player:
+		var root_marker = Marker3D.new()
+		root_marker.name = 'TEMP_GRASS_TRACKER'
+		add_child(root_marker)
+		player = root_marker
+
 	
 func _ready() -> void:
+	# Listen for changes to the node to follow / track
+	if get_parent().has_signal("environment_tracker_changed"):
+		get_parent().environment_tracker_changed.connect(set_new_grass_tracker)
+
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	await get_tree().create_timer(1.0).timeout
 	_setup_heightmap_collision()
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
-
-
-
-func set_tracker(node):
+	
+func set_new_grass_tracker(node):
 	player = node
 	
+	
+# Tracks the "player" position. If the player leaves a tile, it shifts everything
 func _physics_process(_delta: float) -> void:
 	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
 
@@ -69,9 +78,7 @@ func _setup_heightmap_collision() -> void:
 	heightmap_shape.map_width = dims.x
 	heightmap_shape.map_depth = dims.y
 	heightmap_shape.map_data = map_data
-	$NavigationRegion3D/Ground/CollisionShape3D.shape = heightmap_shape
-	$NavigationRegion3D.bake_navigation_mesh()
-	
+	grass_collision_shape.shape = heightmap_shape
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:
@@ -82,9 +89,9 @@ func _setup_grass_instances() -> void:
 			instance.material_override = GRASS_MAT
 			instance.position = Vector3(i, 0.0, j)
 			
-			# TODO:adjust
-			# AVOIDS CULLING TO SOON higher
-			# THIS CAN EFFECT PERF. If you have not too many hills, you can turn it down
+			# TODO: Adjust grass "extra_cull_margin" in final build
+			# AVOID CULLING TOO SOON BY TURNING THIS UP
+			# Can effect performance. If you have mostly flat terrain, it can be lower.
 			
 			instance.extra_cull_margin = 2.00
 			add_child(instance)

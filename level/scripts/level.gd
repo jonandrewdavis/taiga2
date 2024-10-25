@@ -7,6 +7,8 @@ extends Node3D
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
 
+const enemy_scene := preload('res://enemy/enemy_base_root_motion.tscn')
+
 
 func _ready():
 	# Check for -- server
@@ -22,10 +24,19 @@ func _ready():
 	if not multiplayer.is_server():
 		return
 		
-	Network.connect("player_connected", Callable(self, "_on_player_connected"))
+	Hub.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
-	
+	Hub.players_container = $PlayersContainer
+	Hub.enemies_container = $EnemiesContainer
 
+
+@rpc("authority", "call_local")
+func _spawn_enemy(): 
+	await get_tree().create_timer(5.0).timeout
+	print('DEBUG: ONE ENMEY SPAWN')
+	var enemy = enemy_scene.instantiate()
+	$EnemiesContainer.add_child(enemy)
+	enemy.global_position = Vector3(5.0, 2.0, 5.0)
 
 func _on_player_connected(peer_id, player_info):
 	for id in Network.players.keys():
@@ -38,6 +49,7 @@ func _on_player_connected(peer_id, player_info):
 func _on_host_pressed():
 	menu.hide()
 	Network.start_host()
+	_spawn_enemy.rpc()
 
 func _on_join_pressed():
 	menu.hide()
@@ -88,7 +100,7 @@ func sync_player_skin(id: int, skin_name: String):
 	#if player:
 		#environment_instance.environment_root_tracker = player
 		#player.set_player_skin(skin_name)
-		
+	
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 	

@@ -26,6 +26,7 @@ func _ready():
 	if player_node:
 		if player_node.has_signal("chase_ended"):
 			player_node.chase_ended.connect(_on_chase_ended)
+			
 ## Lookat a sensed body's direction, if there is a clean line of site
 ## return that node to be assigned as a target
 func eyeline_check():
@@ -37,7 +38,6 @@ func eyeline_check():
 			if potential_target == new_vista:
 				target_spotted.emit(potential_target)
 
-
 ## When a player body is in the field of view, check if they're in
 ## the enemy's eyeline, and if so, mark them as the current target
 func _on_body_entered(_body):
@@ -47,8 +47,9 @@ func _on_body_entered(_body):
 		eyeline_check()
 
 func _on_body_exited(_body):
-	if _body.is_in_group(target_group_name):
-		target_lost.emit()
+	pass
+	#if _body.is_in_group(target_group_name):
+		#target_lost.emit()
 
 func _on_chase_ended():
 	potential_target = null
