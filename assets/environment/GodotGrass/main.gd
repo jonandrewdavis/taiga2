@@ -42,7 +42,8 @@ func _ready() -> void:
 	# Listen for changes to the node to follow / track
 	if get_parent().has_signal("environment_tracker_changed"):
 		get_parent().environment_tracker_changed.connect(set_new_grass_tracker)
-
+	
+	# TODO: Ready on signal instead of by default and we can remove the ! player check in physics
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	await get_tree().create_timer(1.0).timeout
 	_setup_heightmap_collision()
@@ -52,9 +53,10 @@ func _ready() -> void:
 func set_new_grass_tracker(node):
 	player = node
 	
-	
 # Tracks the "player" position. If the player leaves a tile, it shifts everything
 func _physics_process(_delta: float) -> void:
+	if !player:
+		return
 	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
 
 	# Correct LOD by repositioning tiles when the player moves into a new tile

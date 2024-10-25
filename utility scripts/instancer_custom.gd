@@ -48,12 +48,10 @@ var v_scale: float = 1
 @onready var last_pos: Vector3
 @onready var first_update= true
 
- 
 
 func _ready():
-	environment_root_tracker = get_parent().environment_root_tracker
-	heightmap = get_parent().heightmap
-	global_position = Vector3(0,0,0)
+	#environment_root_tracker = get_parent().environment_root_tracker
+	#global_position = Vector3(0,0,0)
 	
 	if get_parent().has_signal("environment_tracker_changed"):
 		get_parent().environment_tracker_changed.connect(change_instance_tracker)
@@ -61,6 +59,7 @@ func _ready():
 
 func change_instance_tracker(new_tracker_node):
 	environment_root_tracker = new_tracker_node
+	heightmap = get_parent().heightmap
 	if (environment_root_tracker && heightmap):
 		create_multimesh()
 
@@ -87,8 +86,8 @@ func create_multimesh():
 	# TODO: What does this do.	Stops the editor from working because it's getting from InstanceRoot
 	# THIS HAS CAUSED SEVERAL BUGS WITH EMITTED DELAYS
 	#wait for map to load before continuing, ONLY ON LIVE.
-	if !Engine.is_editor_hint():
-		await heightmap.changed
+	#if !Engine.is_editor_hint():
+		#await heightmap.changed
 
 	#wait for map to load before continuing
 	hmap_img = heightmap.noise.get_image(512, 512)

@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://brcob4a2vngyt"]
+
+[ext_resource type="PackedScene" uid="uid://bdiwt6qndl0qy" path="res://assets/interactable/medieval_carriage/carriage.gltf" id="1_0i6nf"]
+[ext_resource type="Script" path="res://assets/interactable/medieval_carriage/cart.gd" id="1_kp5fv"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_heayx"]
+radius = 1.5
+
+[node name="Cart" type="RigidBody3D"]
+mass = 30.0
+script = ExtResource("1_kp5fv")
+
+[node name="CartCam" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.792439, 0.609952, 0, -0.609952, 0.792439, 0, 9.10514, 14.8495)
+top_level = true
+current = true
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_0i6nf")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35921, 0)
+shape = SubResource("SphereShape3D_heayx")

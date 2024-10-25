@@ -7,8 +7,9 @@ extends Node3D
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
 
-const enemy_scene := preload('res://enemy/enemy_base_root_motion.tscn')
-
+const environment_instance_root_scene = preload("res://assets/environment_instances/environment_instance_root.tscn")
+const enemy_scene = preload('res://enemy/enemy_base_root_motion.tscn')
+const cart_scene = preload("res://assets/interactable/medieval_carriage/cart.tscn")
 
 func _ready():
 	# Check for -- server
@@ -41,15 +42,18 @@ func _spawn_enemy():
 func _on_player_connected(peer_id, player_info):
 	for id in Network.players.keys():
 		var player_data = Network.players[id]
-		if id != peer_id:
-			rpc_id(peer_id, "sync_player_skin", id, player_data["skin"])
-			
+		#if id != peer_id:
+			# These are client only syncs, to set player properties.
+			#rpc_id(peer_id, "sync_player_skin", id, player_data["skin"])
+			#rpc_id(peer_id, "sync_player_skin", id, player_data["skin"])
+				
 	_add_player(peer_id, player_info)
+
 	
 func _on_host_pressed():
 	menu.hide()
 	Network.start_host()
-	_spawn_enemy.rpc()
+	#_spawn_enemy.rpc()
 
 func _on_join_pressed():
 	menu.hide()
@@ -59,6 +63,7 @@ func _add_player(id: int, player_info : Dictionary):
 	# Skip a lot of nodes
 	if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
 		return
+	
 	var player = player_scene.instantiate()
 	player.name = str(id)
 	player.position = get_spawn_point()
@@ -72,6 +77,11 @@ func _add_player(id: int, player_info : Dictionary):
 	
 	rpc("sync_player_position", id, player.position)
 	
+	rpc_id(id, "sync_player_client_only_nodes", id)
+	
+	add_server_only_nodes()
+
+
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
 	return Vector3(spawn_point.x, 10.0, spawn_point.y)
@@ -93,7 +103,6 @@ func sync_player_position(id: int, new_position: Vector3):
 		
 @rpc("any_peer", "call_local")
 func sync_player_skin(id: int, skin_name: String):
-	print('JOINED RPC', id, skin_name)
 	return skin_name
 	#if id == 1: return # ignore host
 	#var player = players_container.get_node(str(id))
@@ -104,3 +113,20 @@ func sync_player_skin(id: int, skin_name: String):
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 	
+
+# Prepare client only nodes.
+@rpc("any_peer", "call_local")
+func sync_player_client_only_nodes(peer_id):
+	var prepare_environment = environment_instance_root_scene.instantiate()
+	add_child(prepare_environment)
+	prepare_environment.environment_tracker_changed.emit(Hub.get_player(peer_id)) 
+
+
+func add_server_only_nodes():
+	var cart = cart_scene.instantiate()
+	var prepare_environment = environment_instance_root_scene.instantiate()
+
+	add_child(cart)
+	add_child(prepare_environment)
+	prepare_environment.environment_tracker_changed.emit(cart) 
+	cart.get_node("CartCam").current = true

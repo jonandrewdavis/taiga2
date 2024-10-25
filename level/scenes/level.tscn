@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=13 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
@@ -6,7 +6,6 @@
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="3_icc4p"]
 [ext_resource type="Shader" path="res://utility scripts/horror_pixels.gdshader" id="4_mglur"]
 [ext_resource type="Environment" uid="uid://cslvvwcb7yhg0" path="res://assets/environment/ForestEnvironment.tres" id="5_ksnxb"]
-[ext_resource type="PackedScene" uid="uid://8njjisb8vun0" path="res://assets/environment_instances/environment_instance_root.tscn" id="9_1ql06"]
 [ext_resource type="AudioStream" uid="uid://dw4bplkv57i6i" path="res://assets/environment/GodotGrass/grass_loop.wav" id="21_m577m"]
 [ext_resource type="AudioStream" uid="uid://6irapns2oeis" path="res://assets/environment/GodotGrass/wind_loop.wav" id="22_cvn7w"]
 [ext_resource type="AudioStream" uid="uid://d4mv7rx862p3o" path="res://assets/environment/GodotGrass/insects_loop.wav" id="23_aoolo"]
@@ -233,12 +232,6 @@ autoplay = true
 stream = ExtResource("23_aoolo")
 volume_db = -30.0
 autoplay = true
-
-[node name="Marker3D" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.662592, 0, 0)
-
-[node name="EnvironmentInstanceRoot" parent="." node_paths=PackedStringArray("environment_root_tracker") instance=ExtResource("9_1ql06")]
-environment_root_tracker = NodePath("../Marker3D")
 
 [node name="EnemiesContainer" type="Node" parent="."]
 

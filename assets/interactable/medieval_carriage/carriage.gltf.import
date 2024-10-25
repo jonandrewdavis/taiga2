@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://bdiwt6qndl0qy"
-path="res://.godot/imported/scene.gltf-3dbaf5b1971387d5df74bf067142c6e1.scn"
+path="res://.godot/imported/carriage.gltf-417eba9d80e40b2d641ba160c1c0ccd4.scn"
 
 [deps]
 
-source_file="res://assets/interactable/medieval_carriage/scene.gltf"
-dest_files=["res://.godot/imported/scene.gltf-3dbaf5b1971387d5df74bf067142c6e1.scn"]
+source_file="res://assets/interactable/medieval_carriage/carriage.gltf"
+dest_files=["res://.godot/imported/carriage.gltf-417eba9d80e40b2d641ba160c1c0ccd4.scn"]
 
 [params]
 

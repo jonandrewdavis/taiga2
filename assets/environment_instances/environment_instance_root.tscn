@@ -52,7 +52,7 @@ _surfaces = [{
 blend_shape_mode = 0
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kvtob"]
-radius = 0.05
+radius = 0.01
 height = 4.0
 
 [node name="EnvironmentInstanceRoot" type="NavigationRegion3D" node_paths=PackedStringArray("environment_root_tracker")]
