@@ -233,6 +233,8 @@ stream = ExtResource("23_aoolo")
 volume_db = -30.0
 autoplay = true
 
+[node name="EnvironmentContainer" type="Node" parent="."]
+
 [node name="EnemiesContainer" type="Node" parent="."]
 
 [node name="PlayersContainer" type="Node" parent="."]
@@ -244,6 +246,10 @@ spawn_path = NodePath("../PlayersContainer")
 [node name="SpawnerEnemies" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://enemy/enemy_base_root_motion.tscn")
 spawn_path = NodePath("../EnemiesContainer")
+
+[node name="SpawnerEnvironment" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://assets/interactable/medieval_carriage/cart.tscn")
+spawn_path = NodePath("../EnvironmentContainer")
 
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]

@@ -264,8 +264,8 @@ func set_free_move():
 
 
 func _on_animation_started(anim_name):
+	print("DEBUG Animation Started: " + str(anim_name))
 	anim_length = get_node(anim_player).get_animation(anim_name).length
-	#print("animation name: " + str(anim_name))
 	animation_measured.emit(anim_length)
 
 func _on_attack_timer_timeout():

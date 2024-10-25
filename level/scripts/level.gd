@@ -125,8 +125,7 @@ func sync_player_client_only_nodes(peer_id):
 func add_server_only_nodes():
 	var cart = cart_scene.instantiate()
 	var prepare_environment = environment_instance_root_scene.instantiate()
-
-	add_child(cart)
+	$EnvironmentContainer.add_child(cart)
 	add_child(prepare_environment)
 	prepare_environment.environment_tracker_changed.emit(cart) 
 	cart.get_node("CartCam").current = true
