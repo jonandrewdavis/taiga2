@@ -1,7 +1,7 @@
-[gd_scene load_steps=19 format=4 uid="uid://8njjisb8vun0"]
+[gd_scene load_steps=18 format=4 uid="uid://8njjisb8vun0"]
 
 [ext_resource type="Script" path="res://utility scripts/environment_instance_root.gd" id="1_fepr5"]
-[ext_resource type="Texture2D" uid="uid://ckp2tungibla7" path="res://assets/environment/heightmap_grass_main.tres" id="2_712a3"]
+[ext_resource type="Texture2D" uid="uid://ckp2tungibla7" path="res://assets/environment/heightmap_grass_main.tres" id="2_3f4kl"]
 [ext_resource type="Script" path="res://utility scripts/instancer_custom.gd" id="2_o747f"]
 [ext_resource type="ArrayMesh" uid="uid://bq73t5hoanj0l" path="res://assets/environment_objects/trees/arbol1.res" id="3_hqwlf"]
 [ext_resource type="Material" uid="uid://c06lrg6iohyf7" path="res://assets/environment_objects/rocks/moss_rock_08/moss_rock_08_material.tres" id="4_e7m07"]
@@ -14,10 +14,6 @@
 [ext_resource type="ArrayMesh" uid="uid://jdgtoup3ace0" path="res://assets/environment_objects/trees/arbol9.res" id="12_ossvq"]
 [ext_resource type="ArrayMesh" uid="uid://cyarbgytbuoay" path="res://assets/environment_objects/trees/arbol8.res" id="13_ltu1w"]
 [ext_resource type="ArrayMesh" uid="uid://cp43ypq4lvewt" path="res://assets/environment_objects/bushes/fern_bush/fern_bush_mesh.res" id="14_eel8a"]
-
-[sub_resource type="NavigationMesh" id="NavigationMesh_accmv"]
-geometry_parsed_geometry_type = 1
-geometry_collision_mask = 1
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_phdkx"]
 _surfaces = [{
@@ -55,11 +51,10 @@ blend_shape_mode = 0
 radius = 0.01
 height = 4.0
 
-[node name="EnvironmentInstanceRoot" type="NavigationRegion3D" node_paths=PackedStringArray("environment_root_tracker")]
-navigation_mesh = SubResource("NavigationMesh_accmv")
+[node name="EnvironmentInstanceRoot" type="Node3D" node_paths=PackedStringArray("environment_root_tracker")]
 script = ExtResource("1_fepr5")
 environment_root_tracker = NodePath("TEMP_ROOT_TRACKER")
-heightmap = ExtResource("2_712a3")
+heightmap = ExtResource("2_3f4kl")
 
 [node name="moss_rock_08" type="Node3D" parent="."]
 script = ExtResource("2_o747f")
@@ -154,9 +149,9 @@ scale_randomize = 0.2
 rot_y_randomize = 0.4
 instance_mesh = ExtResource("14_eel8a")
 
-[node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
-player = NodePath("../TEMP_ROOT_TRACKER")
-
 [node name="BakeTimer" type="Timer" parent="."]
 wait_time = 10.0
 autostart = true
+
+[node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
+player = NodePath("../TEMP_ROOT_TRACKER")

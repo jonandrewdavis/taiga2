@@ -34,7 +34,7 @@ class_name AnimationTreeSoulsBase
 ## MULTIPLAYER TEMPLATE FUNCS 
 ## MULTIPLAYER TEMPLATE FUNCS
 
-@export var max_attack_count : int = 2 ## how many attacks you have in the attack tree
+@export var max_attack_count : int = 3 ## how many attacks you have in the attack tree
 @onready var attack_count = 1 ## Used in the anim state tree. The oneShot for the
 ## ATTACK_tree, under SLASH and HEAVY each route to an animation will use this 
 ## variable under it's advanced expression to know which route to take.
@@ -105,6 +105,9 @@ func _ready():
 	_on_gadget_change_ended(player_node.gadget_type)
 	_on_item_change_ended(player_node.current_item)
 	
+
+	
+	
 func _process(_delta):
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: Required for all authorities
@@ -144,9 +147,11 @@ func _on_parry_started():
 
 func _on_attack_started():
 	request_oneshot("Attack")
+	print(animation_measured)
 	await animation_measured
-	attack_timer.start(anim_length +.2)
-	attack_count +=1
+	print(animation_measured)
+	attack_timer.start(anim_length + 0.5)
+	attack_count += 1
 	if attack_count > max_attack_count:
 		attack_count = 1
 
@@ -264,13 +269,14 @@ func set_free_move():
 
 
 func _on_animation_started(anim_name):
-	print("DEBUG Animation Started: " + str(anim_name))
 	anim_length = get_node(anim_player).get_animation(anim_name).length
+	print("DEBUG Animation Started: " + str(anim_name), anim_length)
 	animation_measured.emit(anim_length)
 
 func _on_attack_timer_timeout():
 	attack_count = 1
-	
+	print(attack_count)
+
 ## MULTIPLAYER RPCs
 ## MULTIPLAYER RPCs
 ## MULTIPLAYER RPCs

@@ -29,9 +29,9 @@ void fragment() {
 	//float grey = dot(color, luminance) * contrast;
 	//color = vec3(color + dot_matrix(UV * resolution));
 	//float vignette = smoothstep(0.45, 0.1, distance(UV, vec2(0.5))) * 1.0;
-	
+
 	//float v_x = smoothstep(0.45, 0.1, distance(UV.x, 0.5));
 	//float v_y = smoothstep(0.45, 0.1, distance(UV.y, 0.5));
-	
+
 	COLOR = vec4(color, 1.0);
 }

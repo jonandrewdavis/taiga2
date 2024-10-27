@@ -1,5 +1,5 @@
 @tool
-extends NavigationRegion3D
+extends Node3D
 
 @export var environment_root_tracker: Node3D
 @export var heightmap : Texture2D
@@ -16,7 +16,7 @@ func _ready():
 	environment_tracker_changed.connect(set_new_root)
 
 	# This helps the instancer_custom children have a little buffer
-	# to set up before creating the meshes.
+	# to set up before creating the meshes.	
 	if environment_root_tracker && Engine.is_editor_hint():
 		environment_tracker_changed.emit(environment_root_tracker)
 

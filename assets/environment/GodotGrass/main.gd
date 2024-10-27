@@ -21,7 +21,9 @@ var should_render_imgui := true
 @onready var clumping_factor := [GRASS_MAT.get_shader_parameter('clumping_factor')]
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
 
-@onready var grass_collision_shape = $Ground/GrassCollisionShape
+@onready var grass_collision_shape = $NavigationRegion3D/Ground/GrassCollisionShape
+
+# TODO: I adjusted the collision shape up 0.2...
 
 func _init() -> void:
 	# TOOD: Re-enable to resize nicely? or fullscreen.

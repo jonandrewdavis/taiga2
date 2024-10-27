@@ -9,7 +9,7 @@ class_name MeshStreak
 @onready var mesh_array = []
 @export var emitting : bool = false : set = _set_emitting
 ## Will stop emitting after the lifetime. Set to 0 to never stop emitting.
-@export var lifetime = .5
+var lifetime = 0.2
 
 ## Node where the mesh will base its the offset origins vertext points. If left
 ## empty, then a get_parent() will be used, and offest will be based on that parent's
@@ -37,7 +37,7 @@ func _set_emitting(_new_value):
 	emitting = _new_value
 	if lifetime != 0:
 		await get_tree().create_timer(lifetime).timeout
-		emitting = !emitting
+		emitting = false
 
 func _ready():
 	global_transform = Transform3D.IDENTITY

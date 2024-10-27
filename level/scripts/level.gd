@@ -41,7 +41,7 @@ func _spawn_enemy():
 
 func _on_player_connected(peer_id, player_info):
 	for id in Network.players.keys():
-		var player_data = Network.players[id]
+		var _player_data = Network.players[id]
 		#if id != peer_id:
 			# These are client only syncs, to set player properties.
 			#rpc_id(peer_id, "sync_player_skin", id, player_data["skin"])
@@ -53,7 +53,7 @@ func _on_player_connected(peer_id, player_info):
 func _on_host_pressed():
 	menu.hide()
 	Network.start_host()
-	#_spawn_enemy.rpc()
+	_spawn_enemy.rpc()
 
 func _on_join_pressed():
 	menu.hide()
@@ -102,7 +102,7 @@ func sync_player_position(id: int, new_position: Vector3):
 		#$EnvironmentInstanceRoot.set_new_root(player)
 		
 @rpc("any_peer", "call_local")
-func sync_player_skin(id: int, skin_name: String):
+func sync_player_skin(_id: int, skin_name: String):
 	return skin_name
 	#if id == 1: return # ignore host
 	#var player = players_container.get_node(str(id))

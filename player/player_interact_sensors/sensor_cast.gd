@@ -27,4 +27,3 @@ func _on_update_timer_timeout():
 	else: # Clear interactable and reset to looking forward
 		player.interactable = null
 		rotation = Vector3.ZERO
-

@@ -11,13 +11,6 @@ extends CharacterBody3D
 #@export var _body: Node3D = null
 #@export var _spring_arm_offset: Node3D = null
 
-@export_category("Skin Colors")
-@export var blue_texture : CompressedTexture2D
-@export var yellow_texture : CompressedTexture2D
-@export var green_texture : CompressedTexture2D
-@export var red_texture : CompressedTexture2D
-
-
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
 
@@ -500,8 +493,8 @@ func end_guard():
 	guarding = false
 	parry_active = false
 	slowed = false
-	set_strafe_targeting()
-
+	strafing = false
+	strafe_toggled.emit(false)
 
 func use_gadget(): # emits to start the gadget, and runs some timers before stopping the gadget
 	trigger_event("gadget_started")
@@ -651,14 +644,6 @@ func calc_direction_based_on_camera() -> Vector3:
 func change_nick(new_nick: String):
 	if nickname:
 		nickname.text = new_nick
-		
-func get_texture_from_name(skin_name: String) -> CompressedTexture2D:
-	match skin_name:
-		"blue": return blue_texture
-		"green": return green_texture
-		"red": return red_texture
-		"yellow": return yellow_texture
-		_: return blue_texture
 		
 #@rpc("any_peer", "reliable")
 #func set_player_skin(skin_name: String) -> void:

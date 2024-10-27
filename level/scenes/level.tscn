@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
-[ext_resource type="Shader" path="res://level/scenes/filmgrain.gdshader" id="3_1ypwr"]
+[ext_resource type="Shader" path="res://utility scripts/filmgrain.gdshader" id="3_1ypwr"]
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="3_icc4p"]
 [ext_resource type="Shader" path="res://utility scripts/horror_pixels.gdshader" id="4_mglur"]
 [ext_resource type="Environment" uid="uid://cslvvwcb7yhg0" path="res://assets/environment/ForestEnvironment.tres" id="5_ksnxb"]
