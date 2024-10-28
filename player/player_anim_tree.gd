@@ -39,6 +39,7 @@ class_name AnimationTreeSoulsBase
 ## ATTACK_tree, under SLASH and HEAVY each route to an animation will use this 
 ## variable under it's advanced expression to know which route to take.
 @onready var attack_timer = Timer.new()
+@onready var attack_requested_timer = Timer.new()
 @onready var hurt_count = 1
 
 @export var anim_length = 0.0
@@ -63,13 +64,19 @@ signal animation_measured
 ## MULTIPLAYER TEMPLATE FUNCS
 
 
+@onready var anim_player_node: AnimationPlayer = get_node(anim_player)
+
+
 func _ready():
 	if not is_multiplayer_authority(): 
 		return
 
 	add_child(attack_timer)
 	attack_timer.one_shot = true
-	attack_timer.timeout.connect(_on_attack_timer_timeout)
+	#attack_timer.timeout.connect(_on_attack_timer_timeout)
+	add_child(attack_requested_timer)
+	attack_requested_timer.one_shot = true
+	attack_requested_timer.timeout.connect(_on_attack_requested_timeout)
 	
 	if !player_node:
 		push_warning(str(self) + ": Player node must be set")
@@ -86,6 +93,8 @@ func _ready():
 	player_node.weapon_change_started.connect(_on_weapon_change_started)
 	player_node.weapon_change_ended.connect(_on_weapon_change_ended)
 	player_node.attack_started.connect(_on_attack_started)
+	# Added. - AD
+	player_node.attack_requested.connect(_on_attack_requested)
 	
 	player_node.gadget_change_started.connect(_on_gadget_change_started)
 	player_node.gadget_change_ended.connect(_on_gadget_change_ended)
@@ -127,7 +136,7 @@ func request_oneshot(oneshot:String):
 	last_oneshot = oneshot
 	set("parameters/" + oneshot + "/request", true)
 	if is_multiplayer_authority():
-		sync_player_one_shot.rpc(oneshot)	
+		sync_player_oneshot.rpc(oneshot)	
 	
 
 func _on_landed_fall(_hard_or_soft = "HARD"):
@@ -145,16 +154,48 @@ func set_guarding():
 func _on_parry_started():
 	request_oneshot("Parry")
 
+var is_combo = false
+
+# TODO: do we need stop here?
+func _on_attack_requested():
+	print('ISOMBO', is_combo)
+	is_combo = true
+	attack_requested_timer.start(0.8)
+
+func _on_attack_requested_timeout():
+	is_combo = false
+	attack_count = 1
+	
 func _on_attack_started():
 	request_oneshot("Attack")
-	print(animation_measured)
 	await animation_measured
-	print(animation_measured)
-	attack_timer.start(anim_length + 0.5)
-	attack_count += 1
-	if attack_count > max_attack_count:
-		attack_count = 1
+	await get_tree().create_timer(player_node.anim_length).timeout
+	_continue_attacking()
+	
 
+# Checks if combo, if not. let the timer move to timeout
+func _continue_attacking():
+	print("CONTINE ATTACKING", attack_count)
+	if is_combo == true:
+		attack_count = attack_count + 1
+	if is_combo == true && attack_count == 2:
+		print("SOMETHING WRONG??")
+		await animation_measured
+		await get_tree().create_timer(player_node.anim_length).timeout
+		print("HERE??")
+		_continue_attacking()
+	elif is_combo == true && attack_count == 3:
+		await animation_measured
+		await get_tree().create_timer(player_node.anim_length).timeout
+		_continue_attacking()
+	else:
+		attack_count = 1
+		player_node.busy = false
+		player_node.current_state = player_node.state.FREE
+
+#func _on_attack_timer_timeout():
+	#player_node.busy = false
+	#player_node.current_state = player_node.state.FREE
 
 func _on_block_started():
 	request_oneshot("Block")
@@ -241,8 +282,9 @@ func set_ladder():
 	#elif ladder_frame < 0:
 		#ladder_frame = 1
 	#set("parameters/MovementStates/LADDER_tree/LadderBlender/blend_position",ladder_frame - (player_node.input_dir.y * .015)) # otherwise, play the animation at the speed of player input (* a speed if climb anim is slow)
-	print(player_node.input_dir.y)
 	set("parameters/MovementStates/LADDER_tree/LadderTime/scale",-player_node.input_dir.y)
+			
+			
 			
 func set_strafe():
 	# Strafe left and right animations run by the player's velocity cross product
@@ -270,19 +312,16 @@ func set_free_move():
 
 func _on_animation_started(anim_name):
 	anim_length = get_node(anim_player).get_animation(anim_name).length
-	print("DEBUG Animation Started: " + str(anim_name), anim_length)
+	print("DEBUG Animation Measured, emit: " + str(anim_name), anim_length)
 	animation_measured.emit(anim_length)
 
-func _on_attack_timer_timeout():
-	attack_count = 1
-	print(attack_count)
 
 ## MULTIPLAYER RPCs
 ## MULTIPLAYER RPCs
 ## MULTIPLAYER RPCs
 	
 @rpc("any_peer", "reliable")
-func sync_player_one_shot(one_shot) -> void:
+func sync_player_oneshot(one_shot) -> void:
 	request_oneshot(one_shot)
 
 @rpc("any_peer", "reliable")

@@ -15,11 +15,11 @@ extends CharacterBody3D
 # MULTIPLAYER TEMPLATE VARS
 
 
-
-
 @onready var sensor_cast : ShapeCast3D
 @export var animation_tree : AnimationTree
-@onready var anim_length = .5 # updates as new animnations start
+
+# Mutliplayer : Exported - AD. for combo attacks
+@export var anim_length = .5 # updates as new animnations start
 signal event_finished
 ## default/1st camera is a follow cam.
 @onready var current_camera = get_viewport().get_camera_3d()
@@ -46,6 +46,7 @@ var weapon_type :String = "SLASH"
 signal weapon_change_started ## to start the animation
 signal weapon_change_ended(weapon_type:String) ## informing the change is complete
 signal attack_started ## to start the animation
+signal attack_requested
 
 
 ## A helper variable for keyboard events across 2 key inputs "shift+ attack", etc.
@@ -94,7 +95,7 @@ signal item_used
 
 # Jump and Gravity
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
-@export var jump_velocity = 4.5
+@export var jump_velocity = 7
 @onready var last_altitude = global_position
 @export var hard_landing_height :float = 4 # how far they can fall before 'hard landing'
 signal landed_fall(hard_or_soft:String)
@@ -260,13 +261,15 @@ func _input(_event:InputEvent):
 		secondary_action = true
 	else:
 		secondary_action = false
+
+	if _event.is_action_pressed("use_weapon_light"):
+		emit_signal("attack_requested")
 	
 	if current_state == state.FREE:
 		if _event.is_action_pressed("use_weapon_light"):
 			attack()
 		elif _event.is_action_pressed("use_weapon_strong"):
 			attack_strong()
-				
 		if is_on_floor():
 			# if interactable exists, activate its action
 			if _event.is_action_pressed("interact"):
@@ -370,19 +373,26 @@ func attack_face_forward():
 	strafe_cross_product = -forward_vector.cross(new_direction).y
 	move_dot_product = forward_vector.dot(new_direction)
 
+# NOTE: Add a if busy return before trigger event if you want to disallow rotatation while attacking  - AD
 func attack():
 	attack_face_forward()
-	trigger_event("attack_started")
-	
+	if busy == false:
+		busy = true
+		emit_signal("attack_started")	
+
+
+# TODO: Implement
 func attack_strong():
-	if busy or dodging:
-		return
-	secondary_action = true
-	trigger_event("attack_started")
-	await attack_started
-	secondary_action = false
-	
-	
+	pass
+	#attack_face_forward()
+	#if busy or dodging:
+		#return
+	#secondary_action = true
+	#trigger_event("attack_started")
+	#await attack_started
+	#secondary_action = false
+
+
 func fall_check():
 	## If you leave the floor, store last position.
 	## When you land again, compare the distances of both location y values, if greater
@@ -425,10 +435,10 @@ func dodge():
 	
 	strafing = strafe_status
 	dodging = false
-
-
+ 
+# NOTE: removed offset of 0.05  # offset slightly for the process frame - AD
 func _on_animation_measured(_new_length):
-	anim_length = _new_length - .05 # offset slightly for the process frame
+	anim_length = _new_length
 
 func interact():
 	if is_on_floor() && !busy:
@@ -580,7 +590,7 @@ func jump():
 	# Handle jump.
 	if is_on_floor():
 		jump_started.emit()
-		await get_tree().create_timer(.2).timeout # for the windup
+		await get_tree().create_timer(.1).timeout # for the windup
 		velocity.y = jump_velocity
 
 func set_root_move(delta):
@@ -630,7 +640,8 @@ func calc_direction() -> Vector3 :
 	var new_direction = (current_camera.global_transform.basis.z * input_dir.y + \
 	current_camera.global_transform.basis.x * input_dir.x)
 	return new_direction
-	
+
+# New: - AD
 func calc_direction_based_on_camera() -> Vector3: 
 	var new_camera_direction = current_camera.global_transform.basis.z + current_camera.global_transform.basis.x
 	return new_camera_direction

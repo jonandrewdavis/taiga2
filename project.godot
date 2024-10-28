@@ -207,6 +207,7 @@ change_item={
 [physics]
 
 3d/physics_engine="JoltPhysics3D"
+3d/default_gravity=12.8
 
 [shader_globals]
 
