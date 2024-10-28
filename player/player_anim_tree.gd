@@ -172,7 +172,6 @@ func _on_attack_started():
 	await get_tree().create_timer(player_node.anim_length).timeout
 	_continue_attacking()
 	
-
 # Checks if combo, if not. let the timer move to timeout
 func _continue_attacking():
 	print("CONTINE ATTACKING", attack_count)
@@ -180,13 +179,12 @@ func _continue_attacking():
 		attack_count = attack_count + 1
 	if is_combo == true && attack_count == 2:
 		print("SOMETHING WRONG??")
-		await animation_measured
-		await get_tree().create_timer(player_node.anim_length).timeout
+		await get_tree().create_timer(1.399).timeout
 		print("HERE??")
 		_continue_attacking()
 	elif is_combo == true && attack_count == 3:
 		await animation_measured
-		await get_tree().create_timer(player_node.anim_length).timeout
+		await get_tree().create_timer(1.33).timeout
 		_continue_attacking()
 	else:
 		attack_count = 1
