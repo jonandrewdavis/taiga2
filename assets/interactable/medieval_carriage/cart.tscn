@@ -6,12 +6,11 @@
 [sub_resource type="SphereShape3D" id="SphereShape3D_heayx"]
 radius = 1.5
 
-[node name="Cart" type="RigidBody3D"]
-mass = 30.0
+[node name="Cart" type="StaticBody3D"]
 script = ExtResource("1_kp5fv")
 
 [node name="CartCam" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.792439, 0.609952, 0, -0.609952, 0.792439, 0, 9.10514, 14.8495)
+transform = Transform3D(1, 0, 0, 0, 0.818099, 0.575077, 0, -0.575077, 0.818099, 0, 7.38646, 11.7882)
 top_level = true
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_0i6nf")]

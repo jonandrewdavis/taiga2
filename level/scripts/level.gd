@@ -36,7 +36,8 @@ func _spawn_enemy():
 	await get_tree().create_timer(5.0).timeout
 	print('DEBUG: ONE ENMEY SPAWN')
 	var enemy = enemy_scene.instantiate()
-	$EnemiesContainer.add_child(enemy)
+	enemy.network_randi_seed = 123 + $EnemiesContainer.get_children().size()
+	$EnemiesContainer.add_child(enemy) 
 	enemy.global_position = Vector3(5.0, 2.0, 5.0)
 
 func _on_player_connected(peer_id, player_info):

@@ -34,8 +34,8 @@ class_name AnimationTreeSoulsBase
 ## MULTIPLAYER TEMPLATE FUNCS 
 ## MULTIPLAYER TEMPLATE FUNCS
 
-@export var max_attack_count : int = 3 ## how many attacks you have in the attack tree
-@onready var attack_count = 1 ## Used in the anim state tree. The oneShot for the
+@onready var max_attack_count : int = 3 ## how many attacks you have in the attack tree
+@export var attack_count = 1 ## Used in the anim state tree. The oneShot for the
 ## ATTACK_tree, under SLASH and HEAVY each route to an animation will use this 
 ## variable under it's advanced expression to know which route to take.
 @onready var attack_timer = Timer.new()
@@ -70,7 +70,7 @@ signal animation_measured
 func _ready():
 	if not is_multiplayer_authority(): 
 		return
-
+	
 	add_child(attack_timer)
 	attack_timer.one_shot = true
 	#attack_timer.timeout.connect(_on_attack_timer_timeout)
@@ -154,46 +154,60 @@ func set_guarding():
 func _on_parry_started():
 	request_oneshot("Parry")
 
-var is_combo = false
+@export var is_combo = false
 
 # TODO: do we need stop here?
 func _on_attack_requested():
 	print('ISOMBO', is_combo)
 	is_combo = true
-	attack_requested_timer.start(0.8)
+	attack_requested_timer.start(0.5)
 
 func _on_attack_requested_timeout():
 	is_combo = false
-	attack_count = 1
 	
-func _on_attack_started():
-	request_oneshot("Attack")
-	await animation_measured
-	await get_tree().create_timer(player_node.anim_length).timeout
-	_continue_attacking()
-	
-# Checks if combo, if not. let the timer move to timeout
-func _continue_attacking():
-	print("CONTINE ATTACKING", attack_count)
-	if is_combo == true:
-		attack_count = attack_count + 1
-	if is_combo == true && attack_count == 2:
-		print("SOMETHING WRONG??")
-		await get_tree().create_timer(1.399).timeout
-		print("HERE??")
-		_continue_attacking()
-	elif is_combo == true && attack_count == 3:
-		await animation_measured
-		await get_tree().create_timer(1.33).timeout
-		_continue_attacking()
-	else:
-		attack_count = 1
-		player_node.busy = false
-		player_node.current_state = player_node.state.FREE
+# TODO: refactor this to emit properly. The first request Attack to the player perhaps... Its tough.
+# It would allow allow attack to emit more freely
+# NOTE: Doesn't work over RPC yet.
 
-#func _on_attack_timer_timeout():
-	#player_node.busy = false
-	#player_node.current_state = player_node.state.FREE
+# TODO: this is a mess and needs to be seperated out from the signal.
+# calling emit should only turn it on, not retrigger this function.
+func _on_attack_started():
+	if player_node.is_on_floor() == false:
+		await animation_measured
+		await get_tree().create_timer(player_node.anim_length).timeout
+		_on_attack_end()
+		return
+
+	if attack_count == 1:
+		await animation_measured
+		await get_tree().create_timer(player_node.anim_length).timeout
+		attack_count = 2
+		player_node.attack_started.emit()
+	elif is_combo == true && attack_count == 2:
+		await animation_measured
+		get("parameters/ATTACK_tree/SLASH/playback").travel('Slash' + str(attack_count))
+		sync_combo_attack.rpc(attack_count)
+		await get_tree().create_timer(get("parameters/ATTACK_tree/SLASH/playback").get_current_length()).timeout
+		attack_count = 3
+		player_node.attack_started.emit()
+	elif is_combo == true && attack_count == 3:
+		sync_combo_attack.rpc(attack_count)
+		get("parameters/ATTACK_tree/SLASH/playback"	).travel('Slash' + str(attack_count))
+		await get_tree().create_timer(get("parameters/ATTACK_tree/SLASH/playback").get_current_length()).timeout
+		_on_attack_end()
+	else:
+		_on_attack_end()
+
+@rpc("any_peer", "call_remote", "reliable")
+func sync_combo_attack(number):
+	player_node.attack_started.emit()
+	animation_measured.emit()
+	get("parameters/ATTACK_tree/SLASH/playback").travel("Slash" + str(number))
+
+func _on_attack_end():
+	current_weapon_tree.start("MoveStrafe")
+	player_node.busy = false
+	attack_count = 1
 
 func _on_block_started():
 	request_oneshot("Block")
@@ -208,6 +222,7 @@ func _on_hurt_started(): ## Picks a hurt animation between "Hurt1" and "Hurt2"
 		current_weapon_tree.start("MoveStrafe")
 		
 func abort_oneshot(_last_oneshot:String):
+	print(_last_oneshot)
 	set("parameters/" + _last_oneshot + "/request",AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
 
 	

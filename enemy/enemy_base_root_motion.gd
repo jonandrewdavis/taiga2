@@ -24,7 +24,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var chase_timer = $ChaseTimer
 
 @onready var hurt_cool_down = Timer.new() # while running, player can't be hurt
-@export var ragdoll_death :bool = true
+@onready var ragdoll_death :bool = false
 @onready var general_skeleton = $vampire/GeneralSkeleton
 
 signal hurt_started
@@ -48,7 +48,10 @@ signal state_changed
 func _enter_tree() -> void:
 	set_multiplayer_authority(1)
 
+@export var network_randi_seed = 1
+
 func _ready():
+	seed(network_randi_seed)
 	if animation_tree:
 		animation_tree.animation_measured.connect(_on_animation_measured)
 	
@@ -135,19 +138,23 @@ func evaluate_state(): ## depending on distance to target, run or walk
 					current_state = state.COMBAT
 
 func _on_combat_timer_timeout():
-	if current_state == state.COMBAT:
+	if current_state == state.COMBAT && is_multiplayer_authority():
 		combat_randomizer()
 			
 func combat_randomizer():
-	var random_choice = randi_range(1,10)
-	if random_choice <= 3:
-		retreat()
-	else:
-		attack()
-		
+	if is_multiplayer_authority():
+		var random_choice = randi_range(1,10)
+		if random_choice <= 3:
+			retreat.rpc()
+		else:
+			attack.rpc()
+
+# Multiplayer: changed to RPCs so the emits activate the equipment.
+@rpc("authority", "call_remote")
 func attack():
 	attack_started.emit()
-	
+
+@rpc("authority", "call_remote")
 func retreat(): # Back away for a period of time
 	retreat_started.emit()
 
@@ -189,6 +196,7 @@ func apply_gravity(_delta):
 		velocity.y -= gravity * _delta
 		move_and_slide()
 
+
 func hit(_by_who, _by_what):
 	var get_player_targeted = _target_to_player_node(_by_who)
 	if (get_player_targeted):
@@ -197,14 +205,41 @@ func hit(_by_who, _by_what):
 			hurt_cool_down.start()
 			hurt_started.emit()
 			damage_taken.emit(_by_what)
-		
+	if is_multiplayer_authority():
+		hit_sync.rpc(_by_who, _by_what)
+
+@rpc("authority", "call_remote")
+func hit_sync(_by_who, _by_what):
+	var get_player_targeted = _target_to_player_node(_by_who)
+	if (get_player_targeted):
+		target = get_player_targeted
+		if hurt_cool_down.is_stopped():
+			hurt_cool_down.start()
+			hurt_started.emit()
+			damage_taken.emit(_by_what)
+			
 func parried():
 	if hurt_cool_down.is_stopped():
 		hurt_cool_down.start()
 		parried_started.emit()
+		parried_sync.rpc()
 	
+@rpc("any_peer")
+func parried_sync():
+	hurt_cool_down.start()
+	parried_started.emit()
+
 func death():
-	current_state = state.DEAD
+	hurt_cool_down.start(10)
+	remove_from_group(group_name)
+	if ragdoll_death:
+		apply_ragdoll()
+	else:
+		death_started.emit()
+	death_sync.rpc()
+
+@rpc("any_peer", "call_local")
+func death_sync():
 	hurt_cool_down.start(10)
 	remove_from_group(group_name)
 	if ragdoll_death:
@@ -212,8 +247,8 @@ func death():
 	else:
 		death_started.emit()
 	await get_tree().create_timer(4).timeout
-	queue_free()
-	
+	if is_multiplayer_authority():
+		queue_free()
 
 func apply_ragdoll():
 	general_skeleton.physical_bones_start_simulation()

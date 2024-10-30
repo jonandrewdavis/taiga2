@@ -84,6 +84,7 @@ instance_mesh = SubResource("ArrayMesh_vrmt5")
 instance_collision = ExtResource("7_yewy6")
 
 [node name="arbol1" type="Node3D" parent="."]
+visible = false
 script = ExtResource("2_o747f")
 instance_amount = 150
 generate_colliders = true
@@ -96,6 +97,7 @@ instance_mesh = ExtResource("3_hqwlf")
 instance_collision = SubResource("CapsuleShape3D_kvtob")
 
 [node name="arbol2" type="Node3D" parent="."]
+visible = false
 script = ExtResource("2_o747f")
 instance_amount = 80
 pos_randomize = 9.0
@@ -107,6 +109,7 @@ rot_y_randomize = 7.0
 instance_mesh = ExtResource("11_505i2")
 
 [node name="arbol3" type="Node3D" parent="."]
+visible = false
 script = ExtResource("2_o747f")
 pos_randomize = 13.0
 instance_min_scale = 0.4
@@ -116,6 +119,7 @@ rot_y_randomize = 4.0
 instance_mesh = ExtResource("12_ossvq")
 
 [node name="arbol4" type="Node3D" parent="."]
+visible = false
 script = ExtResource("2_o747f")
 pos_randomize = 6.0
 instance_min_scale = 0.2
@@ -127,6 +131,7 @@ rot_y_randomize = 4.0
 instance_mesh = ExtResource("13_ltu1w")
 
 [node name="thyme" type="Node3D" parent="."]
+visible = false
 script = ExtResource("2_o747f")
 instance_amount = 50
 pos_randomize = 3.0
@@ -140,6 +145,7 @@ instance_Z_rot = 0.08
 instance_mesh = ExtResource("12_bgi6p")
 
 [node name="fern" type="Node3D" parent="."]
+visible = false
 script = ExtResource("2_o747f")
 instance_amount = 50
 pos_randomize = 11.0
@@ -149,9 +155,9 @@ scale_randomize = 0.2
 rot_y_randomize = 0.4
 instance_mesh = ExtResource("14_eel8a")
 
+[node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
+player = NodePath("../TEMP_ROOT_TRACKER")
+
 [node name="BakeTimer" type="Timer" parent="."]
 wait_time = 10.0
 autostart = true
-
-[node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
-player = NodePath("../TEMP_ROOT_TRACKER")

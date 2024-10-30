@@ -378,8 +378,10 @@ func attack():
 	attack_face_forward()
 	if busy == false:
 		busy = true
-		emit_signal("attack_started")	
-
+		animation_tree.request_oneshot("Attack")
+		# Sends a signal to animation tree. Could really just call down.
+		# BUT: it also activates the weapon. So, multiple uses. 
+		attack_started.emit()
 
 # TODO: Implement
 func attack_strong():
@@ -498,13 +500,13 @@ func start_guard(): # Guarding, and for a short window, parring is possible
 	await get_tree().create_timer(parry_window).timeout
 	parry_active = false
 
-	
 func end_guard():
 	guarding = false
 	parry_active = false
 	slowed = false
 	strafing = false
 	strafe_toggled.emit(false)
+
 
 func use_gadget(): # emits to start the gadget, and runs some timers before stopping the gadget
 	trigger_event("gadget_started")
@@ -578,6 +580,8 @@ func trigger_interact(interact_type:String):
 func trigger_event(signal_name:String):
 	if busy or dodging:
 		return
+	if is_multiplayer_authority(): 
+		trigger_event_sync.rpc(signal_name)
 	busy = true
 	emit_signal(signal_name)
 	await animation_tree.animation_measured
@@ -585,6 +589,12 @@ func trigger_event(signal_name:String):
 	event_finished.emit()
 	busy = false
 
+@rpc("call_remote")
+func trigger_event_sync(signal_name):
+	emit_signal(signal_name)
+	await animation_tree.animation_measured
+	await get_tree().create_timer(anim_length).timeout
+	event_finished.emit()
 
 func jump():
 	# Handle jump.

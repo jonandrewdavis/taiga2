@@ -6,12 +6,16 @@ extends AnimationTree
 @onready var state_machine_node : AnimationNodeStateMachinePlayback = self["parameters/Movement/playback"]
 signal animation_measured(anim_length)
 @export var max_attack_count : int = 2
-@onready var attack_count
+
+# Multiplayer note: This is used in the attack tree and needs to be sync'd to work properly
+@onready var attack_count = 1
+
 @onready var hurt_count :int = 1
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	seed(enemy.network_randi_seed)
 	enemy.attack_started.connect(_on_attack_started)
 	enemy.retreat_started.connect(_on_retreat_started)
 	enemy.hurt_started.connect(_on_hurt_started)
@@ -47,14 +51,23 @@ func set_movement():
 	var blend = lerp(get("parameters/Movement/Movement2D/blend_position"),speed,.1)
 	set("parameters/Movement/Movement2D/blend_position",blend)
 
+
 func _on_attack_started():
 	attack_count = randi_range(1,max_attack_count)
-	request_oneshot("attack")
+	request_oneshot("attack", attack_count)
 
 func _on_retreat_started():
 	request_oneshot("retreat")
 
-func request_oneshot(oneshot:String):
+func request_oneshot(oneshot:String, optional_param = null):
+	last_oneshot = oneshot
+	set("parameters/" + oneshot + "/request",true)
+	if optional_param:
+		attack_count = optional_param
+	request_oneshot_sync.rpc(oneshot)
+
+@rpc("any_peer", "call_local")
+func request_oneshot_sync(oneshot:String):
 	last_oneshot = oneshot
 	set("parameters/" + oneshot + "/request",true)
 
@@ -65,6 +78,7 @@ func _on_hurt_started():
 	hurt_count = randi_range(1,2)
 	abort_oneshot(last_oneshot)
 	request_oneshot("hurt")
+
 
 func _on_parried_started():
 	abort_oneshot(last_oneshot)
