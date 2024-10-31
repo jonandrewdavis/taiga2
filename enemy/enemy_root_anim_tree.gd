@@ -16,38 +16,48 @@ signal animation_measured(anim_length)
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	seed(enemy.network_randi_seed)
+	
 	enemy.attack_started.connect(_on_attack_started)
 	enemy.retreat_started.connect(_on_retreat_started)
-	enemy.hurt_started.connect(_on_hurt_started)
 	enemy.parried_started.connect(_on_parried_started)
+	enemy.hurt_started.connect(_on_hurt_started)
 	enemy.death_started.connect(_on_death_started)
-	
+
 	animation_started.connect(_on_animation_started)
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
+	if not is_multiplayer_authority():
+		return
+
 	set_movement()
 
 func set_movement():
 	var speed : Vector2 = Vector2.ZERO
 	var near
 	var enemy_target = enemy.target
+	
+	if not enemy_target:
+		return
+
 	#if enemy.current_state:
 	match enemy.current_state:
 		enemy.state.FREE:
-			near = (enemy_target.global_position.distance_to(enemy.global_position) < .2)
+			var target_pos = enemy_target.global_position *  Vector3(1,0,1)
+			near = (target_pos.distance_to(enemy.global_position)  < .2)
 			if near:
 				speed.y = 0.0
 			else:
 				speed.y = .5
 		enemy.state.CHASE:
-			near = (enemy_target.global_position.distance_to(enemy.global_position) < 4.0)
+			near = (enemy_target.global_position.distance_to(enemy.global_position)  < 4.0)
 			if near:
 				speed.y = .5
 			else:
 				speed.y = 1.0
 		enemy.state.DEAD:
 			speed.y = 0.0
-			
+	
 	var blend = lerp(get("parameters/Movement/Movement2D/blend_position"),speed,.1)
 	set("parameters/Movement/Movement2D/blend_position",blend)
 

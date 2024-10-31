@@ -11,6 +11,9 @@ const environment_instance_root_scene = preload("res://assets/environment_instan
 const enemy_scene = preload('res://enemy/enemy_base_root_motion.tscn')
 const cart_scene = preload("res://assets/interactable/medieval_carriage/cart.tscn")
 
+const environment_arena_scene = preload("res://level/scenes/arena.tscn")
+
+
 func _ready():
 	# Check for -- server
 	var args = OS.get_cmdline_user_args()
@@ -38,7 +41,7 @@ func _spawn_enemy():
 	var enemy = enemy_scene.instantiate()
 	enemy.network_randi_seed = 123 + $EnemiesContainer.get_children().size()
 	$EnemiesContainer.add_child(enemy) 
-	enemy.global_position = Vector3(5.0, 2.0, 5.0)
+	enemy.global_position = Vector3(-4.0, 2.0, -9.0)
 
 func _on_player_connected(peer_id, player_info):
 	for id in Network.players.keys():
@@ -55,6 +58,8 @@ func _on_host_pressed():
 	menu.hide()
 	Network.start_host()
 	_spawn_enemy.rpc()
+	var bus_idx = AudioServer.get_bus_index("Master")
+	AudioServer.set_bus_mute(bus_idx, true)
 
 func _on_join_pressed():
 	menu.hide()
@@ -118,15 +123,17 @@ func _on_quit_pressed() -> void:
 # Prepare client only nodes.
 @rpc("any_peer", "call_local")
 func sync_player_client_only_nodes(peer_id):
-	var prepare_environment = environment_instance_root_scene.instantiate()
+	var prepare_environment = environment_arena_scene.instantiate()
+	#var prepare_environment = environment_instance_root_scene.instantiate()
 	add_child(prepare_environment)
-	prepare_environment.environment_tracker_changed.emit(Hub.get_player(peer_id)) 
+	#prepare_environment.environment_tracker_changed.emit(Hub.get_player(peer_id)) 
 
 
 func add_server_only_nodes():
 	var cart = cart_scene.instantiate()
-	var prepare_environment = environment_instance_root_scene.instantiate()
+	var prepare_environment = environment_arena_scene.instantiate()
+	#var prepare_environment = environment_instance_root_scene.instantiate()
 	$EnvironmentContainer.add_child(cart)
 	add_child(prepare_environment)
-	prepare_environment.environment_tracker_changed.emit(cart) 
+	#prepare_environment.environment_tracker_changed.emit(cart) 
 	cart.get_node("CartCam").current = true

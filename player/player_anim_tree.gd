@@ -184,47 +184,40 @@ func attack_once():
 	_on_attack_end()
 	
 func attack_chain_current_length():
-	print('LEN',  get("parameters/ATTACK_tree/" + weapon_type +"/playback").get_current_length() )
 	return get("parameters/ATTACK_tree/" + weapon_type +"/playback").get_current_length()
 
 func attack_chain():
 	if attack_count == 1:
-		print('ATTACKCHAIN: ', weapon_type, " ", weapon_type.to_pascal_case(), " atac ", attack_count)
 		await animation_measured
 		player_node.attack_started.emit()
 		await get_tree().create_timer(player_node.anim_length).timeout
 		attack_count = 2
 		attack_chain()
 	elif is_combo == true && attack_count == 2:
-		print('ATTACKCHAIN: ', weapon_type, " ", weapon_type.to_pascal_case(), " atac ", attack_count)
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case()+ str(attack_count))
 		animation_measured.emit(attack_chain_current_length())
 		await animation_measured
 		player_node.attack_started.emit()
-		#sync_combo_attack.rpc(weapon_type, attack_count)
+		sync_combo_attack.rpc(weapon_type, attack_count)
 		await get_tree().create_timer(attack_chain_current_length()).timeout
 		attack_count = 3
 		attack_chain()
 	elif is_combo == true && attack_count == 3:
-		print('ATTACKCHAIN: ', weapon_type, " ", weapon_type.to_pascal_case(), " atac ", attack_count)
-
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case() + str(attack_count))
 		animation_measured.emit(attack_chain_current_length())
 		await animation_measured
 		player_node.attack_started.emit()
-		#sync_combo_attack.rpc(weapon_type, attack_count)
+		sync_combo_attack.rpc(weapon_type, attack_count)
 		await get_tree().create_timer(attack_chain_current_length()).timeout
 		_on_attack_end()
 	else:
 		_on_attack_end()
 
-
 func attack_air():
 	await animation_measured
 	player_node.attack_started.emit()
 	await get_tree().create_timer(player_node.anim_length).timeout
-	# Do not call _end
-	# AnimationTree Moves to end if on floor. - AD 10/30/2024
+	# Do not call _end. AnimationTree Moves to end if on floor. - AD 10/30/2024
 
 @rpc("authority", "call_remote", "reliable")
 func sync_combo_attack(weapon_type_rpc, number):
@@ -233,7 +226,6 @@ func sync_combo_attack(weapon_type_rpc, number):
 func _on_attack_end():
 	attack_count = 1
 	player_node.busy = false
-
 
 func _on_block_started():
 	request_oneshot("Block")
@@ -355,7 +347,7 @@ func set_free_move():
 
 func _on_animation_started(anim_name):
 	anim_length = get_node(anim_player).get_animation(anim_name).length
-	print("DEBUG Animation Measured, emit: " + str(anim_name), anim_length)
+	#print("DEBUG: Animation Measured, emit: " + str(anim_name), anim_length)
 	animation_measured.emit(anim_length)
 
 

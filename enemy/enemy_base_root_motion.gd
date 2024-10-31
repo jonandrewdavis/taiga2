@@ -23,7 +23,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var combat_timer : Timer = $CombatTimer
 @onready var chase_timer = $ChaseTimer
 
-@onready var hurt_cool_down = Timer.new() # while running, player can't be hurt
+@onready var hurt_cool_down = $HurtTimer
 @onready var ragdoll_death :bool = false
 @onready var general_skeleton = $vampire/GeneralSkeleton
 
@@ -52,30 +52,32 @@ func _enter_tree() -> void:
 
 func _ready():
 	seed(network_randi_seed)
+
 	if animation_tree:
 		animation_tree.animation_measured.connect(_on_animation_measured)
 	
 	hurt_cool_down.one_shot = true
 	hurt_cool_down.wait_time = .4
-	add_child(hurt_cool_down)
 	
 	add_to_group(group_name)
 	collision_layer = 5
-	if target_sensor:
-		target_sensor.target_spotted.connect(_on_target_spotted)
-		# Target lost can make it spin in circles.
-		#target_sensor.target_lost.connect(_on_target_lost)
-	
+
 	if health_system:
 		health_system.died.connect(death)
-	
-	set_default_target()
-
-	combat_timer.timeout.connect(_on_combat_timer_timeout)
-	chase_timer.timeout.connect(_on_chase_timer_timeout)
 
 	
+	if is_multiplayer_authority():
+		combat_timer.timeout.connect(_on_combat_timer_timeout)
+		chase_timer.timeout.connect(_on_chase_timer_timeout)
+		set_default_target.call_deferred()
+		if target_sensor:
+			target_sensor.target_spotted.connect(_on_target_spotted)
+			target_sensor.target_lost.connect(_on_target_lost)
+		
 func _process(delta):
+	if not is_multiplayer_authority():
+		return
+
 	apply_gravity(delta)
 	if current_state == state.DEAD:
 		return
@@ -119,8 +121,10 @@ func navigation():
 		direction = new_dir
 		
 func rotate_character():
-	var rate = .2
-	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position())
+	if nav_agent_3d.is_navigation_finished():
+		return
+	var rate = .05
+	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position() * Vector3(1,0,1))
 	var current_rotation = global_transform.basis.get_rotation_quaternion()
 	var target_rotation = current_rotation.slerp(Quaternion(Vector3.UP, atan2(new_direction.x, new_direction.z)), rate)
 	global_transform.basis = Basis(target_rotation)
@@ -142,7 +146,7 @@ func _on_combat_timer_timeout():
 		combat_randomizer()
 			
 func combat_randomizer():
-	if is_multiplayer_authority():
+	if multiplayer.is_server():
 		var random_choice = randi_range(1,10)
 		if random_choice <= 3:
 			retreat.rpc()
@@ -159,14 +163,13 @@ func retreat(): # Back away for a period of time
 	retreat_started.emit()
 
 func set_default_target(): 
-	add_child(spawn_location)
-	spawn_location.top_level = true
-	spawn_location.global_position = to_global(Vector3(0,0,.2))
+	$EnemyMarkerSpawn.global_position = global_position
 	if not default_target:
-		default_target = spawn_location
+		default_target = $EnemyMarkerSpawn
 	if !target:
 		target = default_target
-
+			
+			
 func _target_to_player_node(_spotted_target: Node3D):
 	for player in Hub.players_container.get_children():
 		if player.name == _spotted_target.name:
@@ -179,10 +182,9 @@ func _on_target_spotted(_spotted_target): # Updates from a TargetSensor if a tar
 	
 # NOTE: Target lost can make it spin in circles in multiplayer.
 # TODO: Restore.
-#func _on_target_lost():
-	#if is_instance_valid(target):
-		#if is_instance_valid(chase_timer): # just trying to quiet some errors
-			#chase_timer.start()
+func _on_target_lost():
+	print('TARGET LOST')
+	pass
 
 func _on_chase_timer_timeout():
 	give_up()
@@ -196,54 +198,49 @@ func apply_gravity(_delta):
 		velocity.y -= gravity * _delta
 		move_and_slide()
 
-func hit(_by_who, _by_what):
-	var get_player_targeted = _target_to_player_node(_by_who)
-	if (get_player_targeted):
-		target = get_player_targeted
-		if hurt_cool_down.is_stopped():
-			hurt_cool_down.start()
-			hurt_started.emit()
-			damage_taken.emit(_by_what)
-	if is_multiplayer_authority():
-		hit_sync.rpc(_by_who, _by_what)
 
-@rpc("authority", "call_remote")
-func hit_sync(_by_who, _by_what):
-	var get_player_targeted = _target_to_player_node(_by_who)
-	if (get_player_targeted):
-		target = get_player_targeted
-		if hurt_cool_down.is_stopped():
-			hurt_cool_down.start()
-			hurt_started.emit()
-			damage_taken.emit(_by_what)
-			
+func hit(_by_who, _by_what):
+	#var get_player_targeted = _target_to_player_node(_by_who)
+	#if (get_player_targeted):
+		#target = get_player_targeted
+		#if hurt_cool_down.is_stopped():
+			#hurt_cool_down.start()
+			#hurt_started.emit()
+			#damage_taken.emit(_by_what)
+	if (_by_who.name && _by_what.power):
+		hit_sync.rpc(_by_who.name, _by_what.power)
+
+@rpc("any_peer")
+func hit_sync(_by_who_name: String, power: int):
+	if multiplayer.is_server():
+		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
+		var get_player_targeted = Hub.get_player_by_name(_by_who_name)
+		if (get_player_targeted):
+			target = get_player_targeted
+			if hurt_cool_down.is_stopped():
+				hurt_cool_down.start()
+				hurt_started.emit()
+				damage_taken.emit(power)
+
 func parried():
 	if hurt_cool_down.is_stopped():
 		hurt_cool_down.start()
 		parried_started.emit()
-		parried_sync.rpc()
-	
-@rpc("any_peer")
-func parried_sync():
-	hurt_cool_down.start()
-	parried_started.emit()
 
 func death():
-	death_started.emit()
-	current_state = state.DEAD
-	death_sync.rpc()
-
-@rpc("any_peer", "call_local")
-func death_sync():
 	hurt_cool_down.start(10)
+	await get_tree().create_timer(4).timeout
+	if multiplayer.is_server():
+		queue_free()
+		
+@rpc("authority", "call_local")
+func death_sync():
 	remove_from_group(group_name)
 	if ragdoll_death:
 		apply_ragdoll()
 	else:
 		death_started.emit()
-	await get_tree().create_timer(4).timeout
-	if is_multiplayer_authority():
-		queue_free()
+
 
 func apply_ragdoll():
 	general_skeleton.physical_bones_start_simulation()

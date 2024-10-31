@@ -432,13 +432,19 @@ func dodge_or_sprint():
 func end_sprint():
 	sprinting = false
 		
-	
+		
+			
+var guard_local	
+var strafe_local
+
 func dodge(): 
 	if dodging:
 		return
-		
-	var strafe_status = strafing
-	var guard_status = guarding
+	
+	# While dodging, save out theese locals	
+	guard_local = guarding
+	strafe_local = strafing
+	
 	guarding = false
 	strafing = false
 	dodging = true
@@ -454,8 +460,8 @@ func dodge():
 		await animation_tree.animation_measured
 	hurt_cool_down.start(anim_length*.7)
 	await get_tree().create_timer(anim_length).timeout
-	guarding = guard_status
-	strafing = strafe_status
+	guarding = guard_local
+	strafing = strafe_local
 	dodging = false
  
 func _on_animation_measured(_new_length ):
@@ -514,6 +520,7 @@ func item_change():
 func start_guard(): # Guarding, and for a short window, parring is possible
 	set_strafe_targeting()
 	slowed = true
+	guard_local = true
 	guarding = true
 	parry_active = true
 	await get_tree().create_timer(parry_window).timeout
@@ -521,9 +528,13 @@ func start_guard(): # Guarding, and for a short window, parring is possible
 
 func end_guard():
 	guarding = false
+	guard_local = false
+
 	parry_active = false
 	slowed = false
+
 	strafing = false
+	strafe_local = false
 	strafe_toggled.emit(false)
 
 
@@ -541,7 +552,7 @@ func hit(_who, _by_what):
 	elif guarding:
 		block()
 	else:
-		damage_taken.emit(_by_what)
+		damage_taken.emit(_by_what.power)
 		hurt()
 
 func heal(_by_what):

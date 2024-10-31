@@ -45,16 +45,21 @@ func _physics_process(_delta):
 	if show_timer:
 		if show_timer.time_left:
 			show_health()
-		
-func _on_damage_signal(_by_what):
-	#print("hurt by " + str(_by_what))
+
+func _on_damage_signal(_power_from_emit):
+	if _power_from_emit:
+		_on_damage_signal_sync.rpc(_power_from_emit)
+
+@rpc("any_peer", "call_local")
+func _on_damage_signal_sync(_power):
 	if health_bar_control:
 		show_timer.start()
-	var damage_power = _by_what.power
+	var damage_power = _power
 	current_health -= damage_power
-	health_updated.emit(current_health)
-	if current_health <= 0:
-		died.emit()
+	if is_multiplayer_authority():
+		health_updated.emit(current_health)
+		if current_health <= 0:
+			died.emit()
 
 func _on_health_signal(_by_what):
 	if health_bar_control:
