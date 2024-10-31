@@ -68,12 +68,12 @@ func _ready():
 	
 	if health_system:
 		health_system.died.connect(death)
+	
+	set_default_target()
 
 	combat_timer.timeout.connect(_on_combat_timer_timeout)
 	chase_timer.timeout.connect(_on_chase_timer_timeout)
-	
-	set_default_target()
-	
+
 	
 func _process(delta):
 	apply_gravity(delta)
@@ -150,11 +150,11 @@ func combat_randomizer():
 			attack.rpc()
 
 # Multiplayer: changed to RPCs so the emits activate the equipment.
-@rpc("authority", "call_remote")
+@rpc("authority", "call_local")
 func attack():
 	attack_started.emit()
 
-@rpc("authority", "call_remote")
+@rpc("authority", "call_local")
 func retreat(): # Back away for a period of time
 	retreat_started.emit()
 
@@ -196,7 +196,6 @@ func apply_gravity(_delta):
 		velocity.y -= gravity * _delta
 		move_and_slide()
 
-
 func hit(_by_who, _by_what):
 	var get_player_targeted = _target_to_player_node(_by_who)
 	if (get_player_targeted):
@@ -230,12 +229,8 @@ func parried_sync():
 	parried_started.emit()
 
 func death():
-	hurt_cool_down.start(10)
-	remove_from_group(group_name)
-	if ragdoll_death:
-		apply_ragdoll()
-	else:
-		death_started.emit()
+	death_started.emit()
+	current_state = state.DEAD
 	death_sync.rpc()
 
 @rpc("any_peer", "call_local")

@@ -44,6 +44,7 @@ class_name EquipmentSystem
 signal hit_target
 signal hit_world
 signal equipment_changed(new_equipment : EquipmentObject)
+signal deactivate
 
 func _ready():
 	
@@ -56,6 +57,9 @@ func _ready():
 		## needed to turn off monitoring if hurt mid-attack
 		if player_node.has_signal(deactivate_signal):
 			player_node.connect(deactivate_signal,_on_stop_signal)
+			
+		deactivate.connect(_on_stop_signal)
+
 
 	## update what weapon we're starting with
 	if held_mount_point:

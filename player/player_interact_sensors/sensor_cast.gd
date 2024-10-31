@@ -15,7 +15,6 @@ func _ready():
 	target_position = Vector3(0,0,1.5)
 
 
-
 func _on_update_timer_timeout():
 	if player.interactable: # try ot maintain the currently set interacactble
 		look_at(Vector3(player.interactable.global_position.x,global_position.y,player.interactable.global_position.z),Vector3.UP,true)

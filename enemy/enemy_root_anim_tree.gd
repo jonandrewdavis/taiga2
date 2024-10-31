@@ -8,7 +8,7 @@ signal animation_measured(anim_length)
 @export var max_attack_count : int = 2
 
 # Multiplayer note: This is used in the attack tree and needs to be sync'd to work properly
-@onready var attack_count = 1
+@export var attack_count = 1
 
 @onready var hurt_count :int = 1
 
@@ -53,10 +53,11 @@ func set_movement():
 
 
 func _on_attack_started():
-	attack_count = randi_range(1,max_attack_count)
+	attack_count = randi_range(1, max_attack_count)
 	request_oneshot("attack", attack_count)
 
 func _on_retreat_started():
+	attack_count = randi_range(1, max_attack_count)
 	request_oneshot("retreat")
 
 func request_oneshot(oneshot:String, optional_param = null):
@@ -64,21 +65,35 @@ func request_oneshot(oneshot:String, optional_param = null):
 	set("parameters/" + oneshot + "/request",true)
 	if optional_param:
 		attack_count = optional_param
-	request_oneshot_sync.rpc(oneshot)
+	if is_multiplayer_authority():
+		request_oneshot_sync.rpc(oneshot)
 
-@rpc("any_peer", "call_local")
+@rpc("authority", "call_remote")
 func request_oneshot_sync(oneshot:String):
 	last_oneshot = oneshot
 	set("parameters/" + oneshot + "/request",true)
 
 func abort_oneshot(oneshot):
 	set("parameters/"+ str(oneshot) + "/request",AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+	if is_multiplayer_authority():
+		abort_oneshot_sync.rpc(oneshot)
+
+@rpc("authority", "call_remote")
+func abort_oneshot_sync(oneshot):
+	set("parameters/"+ str(oneshot) + "/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
 
 func _on_hurt_started():
 	hurt_count = randi_range(1,2)
 	abort_oneshot(last_oneshot)
 	request_oneshot("hurt")
-
+	if is_multiplayer_authority():
+		_on_hurt_started_sync.rpc()
+	
+@rpc("authority", "call_remote")
+func _on_hurt_started_sync():
+	hurt_count = randi_range(1,2)
+	abort_oneshot(last_oneshot)
+	request_oneshot("hurt")
 
 func _on_parried_started():
 	abort_oneshot(last_oneshot)

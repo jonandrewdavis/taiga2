@@ -92,7 +92,8 @@ func _ready():
 
 	player_node.weapon_change_started.connect(_on_weapon_change_started)
 	player_node.weapon_change_ended.connect(_on_weapon_change_ended)
-	player_node.attack_started.connect(_on_attack_started)
+	# NOTE: Disabled - AD
+	#player_node.attack_started.connect(_on_attack_started)
 	# Added. - AD
 	player_node.attack_requested.connect(_on_attack_requested)
 	
@@ -158,7 +159,6 @@ func _on_parry_started():
 
 # TODO: do we need stop here?
 func _on_attack_requested():
-	print('ISOMBO', is_combo)
 	is_combo = true
 	attack_requested_timer.start(0.5)
 
@@ -171,43 +171,69 @@ func _on_attack_requested_timeout():
 
 # TODO: this is a mess and needs to be seperated out from the signal.
 # calling emit should only turn it on, not retrigger this function.
-func _on_attack_started():
-	if player_node.is_on_floor() == false:
-		await animation_measured
-		await get_tree().create_timer(player_node.anim_length).timeout
-		_on_attack_end()
-		return
 
+# NOTE: Emitting attack now only handles things outside animation tree, like turning weapons
+# on and off
+func _on_attack_started():
+	pass
+
+func attack_once():
+	await animation_measured
+	player_node.attack_started.emit()
+	await get_tree().create_timer(player_node.anim_length).timeout
+	_on_attack_end()
+	
+func attack_chain_current_length():
+	print('LEN',  get("parameters/ATTACK_tree/" + weapon_type +"/playback").get_current_length() )
+	return get("parameters/ATTACK_tree/" + weapon_type +"/playback").get_current_length()
+
+func attack_chain():
 	if attack_count == 1:
+		print('ATTACKCHAIN: ', weapon_type, " ", weapon_type.to_pascal_case(), " atac ", attack_count)
 		await animation_measured
+		player_node.attack_started.emit()
 		await get_tree().create_timer(player_node.anim_length).timeout
 		attack_count = 2
-		player_node.attack_started.emit()
+		attack_chain()
 	elif is_combo == true && attack_count == 2:
+		print('ATTACKCHAIN: ', weapon_type, " ", weapon_type.to_pascal_case(), " atac ", attack_count)
+		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case()+ str(attack_count))
+		animation_measured.emit(attack_chain_current_length())
 		await animation_measured
-		get("parameters/ATTACK_tree/SLASH/playback").travel('Slash' + str(attack_count))
-		sync_combo_attack.rpc(attack_count)
-		await get_tree().create_timer(get("parameters/ATTACK_tree/SLASH/playback").get_current_length()).timeout
-		attack_count = 3
 		player_node.attack_started.emit()
+		#sync_combo_attack.rpc(weapon_type, attack_count)
+		await get_tree().create_timer(attack_chain_current_length()).timeout
+		attack_count = 3
+		attack_chain()
 	elif is_combo == true && attack_count == 3:
-		sync_combo_attack.rpc(attack_count)
-		get("parameters/ATTACK_tree/SLASH/playback"	).travel('Slash' + str(attack_count))
-		await get_tree().create_timer(get("parameters/ATTACK_tree/SLASH/playback").get_current_length()).timeout
+		print('ATTACKCHAIN: ', weapon_type, " ", weapon_type.to_pascal_case(), " atac ", attack_count)
+
+		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case() + str(attack_count))
+		animation_measured.emit(attack_chain_current_length())
+		await animation_measured
+		player_node.attack_started.emit()
+		#sync_combo_attack.rpc(weapon_type, attack_count)
+		await get_tree().create_timer(attack_chain_current_length()).timeout
 		_on_attack_end()
 	else:
 		_on_attack_end()
 
-@rpc("any_peer", "call_remote", "reliable")
-func sync_combo_attack(number):
+
+func attack_air():
+	await animation_measured
 	player_node.attack_started.emit()
-	animation_measured.emit()
-	get("parameters/ATTACK_tree/SLASH/playback").travel("Slash" + str(number))
+	await get_tree().create_timer(player_node.anim_length).timeout
+	# Do not call _end
+	# AnimationTree Moves to end if on floor. - AD 10/30/2024
+
+@rpc("authority", "call_remote", "reliable")
+func sync_combo_attack(weapon_type_rpc, number):
+	get("parameters/ATTACK_tree/" + weapon_type_rpc +"/playback").travel(weapon_type_rpc.to_pascal_case()  + str(number))
 
 func _on_attack_end():
-	current_weapon_tree.start("MoveStrafe")
-	player_node.busy = false
 	attack_count = 1
+	player_node.busy = false
+
 
 func _on_block_started():
 	request_oneshot("Block")
@@ -216,13 +242,14 @@ func _on_hurt_started(): ## Picks a hurt animation between "Hurt1" and "Hurt2"
 	if player_node.current_state == player_node.state.CLIMB:
 		hurt_count = 3
 	else:
+		# AD - Added
+		_on_attack_end()
 		abort_oneshot(last_oneshot)
 		hurt_count = randi_range(1,2)
 		request_oneshot("Hurt")
 		current_weapon_tree.start("MoveStrafe")
 		
 func abort_oneshot(_last_oneshot:String):
-	print(_last_oneshot)
 	set("parameters/" + _last_oneshot + "/request",AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
 
 	
@@ -241,6 +268,9 @@ func _on_sprint_started():
 		sync_player_sprinting.rpc()
 	
 func _on_dodge_started():
+	if player_node.busy:
+		abort_oneshot(last_oneshot)
+		_on_attack_end()
 	request_oneshot("Dodge")
 
 func _on_interact_started(_new_interact_type):

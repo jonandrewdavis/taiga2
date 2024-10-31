@@ -373,15 +373,27 @@ func attack_face_forward():
 	strafe_cross_product = -forward_vector.cross(new_direction).y
 	move_dot_product = forward_vector.dot(new_direction)
 
-# NOTE: Add a if busy return before trigger event if you want to disallow rotatation while attacking  - AD
+
+# TODO: Enum
+var combo_enabled_weapons = ['SLASH', 'HEAVY']
+
+
+# AD Notes:
+# Lots of changes to attacking to enable combos and face forward on start.
+# Signals still used to emit effects & enable weapons
 func attack():
 	attack_face_forward()
-	if busy == false:
-		busy = true
-		animation_tree.request_oneshot("Attack")
-		# Sends a signal to animation tree. Could really just call down.
-		# BUT: it also activates the weapon. So, multiple uses. 
-		attack_started.emit()
+	if busy == true:
+		return
+	busy = true
+	animation_tree.request_oneshot("Attack")
+	if not is_on_floor():
+		animation_tree.attack_air()
+	if is_on_floor() && combo_enabled_weapons.has(weapon_type):
+		animation_tree.attack_count = 1
+		animation_tree.attack_chain()
+	else:
+		animation_tree.attack_once()
 
 # TODO: Implement
 func attack_strong():
@@ -426,21 +438,28 @@ func dodge():
 		return
 		
 	var strafe_status = strafing
+	var guard_status = guarding
+	guarding = false
 	strafing = false
 	dodging = true
 	sprint_timer.stop()
 	dodge_started.emit()
+	
+	# Stop the weapon from being active during dodge since we allow dodge interrupts
+	# to attacks - AD 10/30/2024
+	if weapon_system:
+		weapon_system.deactivate.emit()
+	
 	if animation_tree:
 		await animation_tree.animation_measured
 	hurt_cool_down.start(anim_length*.7)
 	await get_tree().create_timer(anim_length).timeout
-	
+	guarding = guard_status
 	strafing = strafe_status
 	dodging = false
  
-# NOTE: removed offset of 0.05  # offset slightly for the process frame - AD
-func _on_animation_measured(_new_length):
-	anim_length = _new_length
+func _on_animation_measured(_new_length ):
+	anim_length = _new_length - .05
 
 func interact():
 	if is_on_floor() && !busy:
@@ -539,6 +558,8 @@ func parry():
 	hurt_cool_down.start(anim_length)
 
 func hurt():
+	if not is_multiplayer_authority():
+		return
 	hurt_started.emit() # before state change in case on ladder,etc
 	if animation_tree:
 		await animation_tree.animation_measured
@@ -681,3 +702,8 @@ func change_nick(new_nick: String):
 	
 # MULTIPLAYER TEMPLATE RPCS
 # MULTIPLAYER TEMPLATE RPCS
+
+
+# So that we're not in falling state during engine hint
+func prevent_engine():
+	return not Engine.is_editor_hint()
