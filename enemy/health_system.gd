@@ -56,12 +56,13 @@ func _on_damage_signal_sync(_power):
 		show_timer.start()
 	var damage_power = _power
 	current_health -= damage_power
-	if is_multiplayer_authority():
-		health_updated.emit(current_health)
-		if current_health <= 0:
-			died.emit()
+	health_updated.emit(current_health)
+	if current_health <= 0:
+		died.emit()
 
 func _on_health_signal(_by_what):
+	if not is_multiplayer_authority():
+		return
 	if health_bar_control:
 		show_timer.start()
 	var healing_power = _by_what.power

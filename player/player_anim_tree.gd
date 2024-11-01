@@ -269,7 +269,6 @@ func _on_interact_started(_new_interact_type):
 	interact_type = _new_interact_type
 	await get_tree().process_frame
 	request_oneshot("Interacts")
-			
 
 func _on_jump_started():
 	request_oneshot("Jump")

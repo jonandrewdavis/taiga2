@@ -389,11 +389,17 @@ func attack():
 	animation_tree.request_oneshot("Attack")
 	if not is_on_floor():
 		animation_tree.attack_air()
-	if is_on_floor() && combo_enabled_weapons.has(weapon_type):
+		return
+
+	if sprinting:
+		animation_tree.attack_once()
+		return
+
+	if combo_enabled_weapons.has(weapon_type):
 		animation_tree.attack_count = 1
 		animation_tree.attack_chain()
-	else:
-		animation_tree.attack_once()
+		return
+
 
 # TODO: Implement
 func attack_strong():
@@ -420,7 +426,11 @@ func fall_check():
 		if fall_distance > hard_landing_height:
 			trigger_event("landed_fall")
 		last_altitude = null
-
+		# Helps air attacks "land"
+		if busy:
+			busy = false
+			
+			
 func dodge_or_sprint():
 	if sprint_timer.is_stopped():
 		sprint_timer.start(.3)
@@ -541,19 +551,22 @@ func end_guard():
 func use_gadget(): # emits to start the gadget, and runs some timers before stopping the gadget
 	trigger_event("gadget_started")
 
+
 func hit(_who, _by_what):
-	if hurt_cool_down.time_left > 0:
-		return
-	if parry_active:
-		parry()
-		if _who.has_method("parried"):
-			_who.parried()
-		return
-	elif guarding:
-		block()
-	else:
-		damage_taken.emit(_by_what.power)
-		hurt()
+	# only get hit by things on your client.
+	if is_multiplayer_authority(): 
+		if hurt_cool_down.time_left > 0:
+			return
+		if parry_active:
+			parry()
+			if _who.has_method("parried"):
+				_who.parried()
+			return
+		elif guarding:
+			block()
+		else:
+			damage_taken.emit(_by_what.power)
+			hurt()
 
 func heal(_by_what):
 	health_received.emit(_by_what)
@@ -630,7 +643,8 @@ func trigger_event_sync(signal_name):
 
 func jump():
 	# Handle jump.
-	if is_on_floor():
+	# Added some extra checks to prevent nonsense - AD.
+	if is_on_floor() && busy == false && dodging == false && guarding == false:
 		jump_started.emit()
 		await get_tree().create_timer(.1).timeout # for the windup
 		velocity.y = jump_velocity

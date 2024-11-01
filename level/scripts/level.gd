@@ -34,14 +34,14 @@ func _ready():
 	Hub.enemies_container = $EnemiesContainer
 
 
-@rpc("authority", "call_local")
 func _spawn_enemy(): 
 	await get_tree().create_timer(5.0).timeout
 	print('DEBUG: ONE ENMEY SPAWN')
 	var enemy = enemy_scene.instantiate()
 	enemy.network_randi_seed = 123 + $EnemiesContainer.get_children().size()
-	$EnemiesContainer.add_child(enemy) 
-	enemy.global_position = Vector3(-4.0, 2.0, -9.0)
+	$EnemiesContainer.add_child(enemy, true) 
+
+	enemy.global_position = get_spawn_point()
 
 func _on_player_connected(peer_id, player_info):
 	for id in Network.players.keys():
@@ -57,7 +57,14 @@ func _on_player_connected(peer_id, player_info):
 func _on_host_pressed():
 	menu.hide()
 	Network.start_host()
-	_spawn_enemy.rpc()
+
+	#_spawn_enemy()
+	#_spawn_enemy()
+	#_spawn_enemy()
+	#_spawn_enemy()
+	#_spawn_enemy()
+	#_spawn_enemy()
+
 	var bus_idx = AudioServer.get_bus_index("Master")
 	AudioServer.set_bus_mute(bus_idx, true)
 
@@ -90,7 +97,7 @@ func _add_player(id: int, player_info : Dictionary):
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
-	return Vector3(spawn_point.x, 10.0, spawn_point.y)
+	return Vector3(spawn_point.x, 5.0, spawn_point.y)
 	
 func _remove_player(id):
 	if not multiplayer.is_server() or not players_container.has_node(str(id)):

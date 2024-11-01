@@ -35,6 +35,7 @@ func _process(_delta):
 func set_movement():
 	var speed : Vector2 = Vector2.ZERO
 	var near
+	var target_pos
 	var enemy_target = enemy.target
 	
 	if not enemy_target:
@@ -42,8 +43,13 @@ func set_movement():
 
 	#if enemy.current_state:
 	match enemy.current_state:
+		enemy.state.CIRCLE:
+			target_pos = enemy_target.global_position *  Vector3(1,0,1)
+			near = (target_pos.distance_to(enemy.global_position)  < .2)
+			var dir = 1.0 if attack_count == 1 else -1.0
+			speed.x = dir
 		enemy.state.FREE:
-			var target_pos = enemy_target.global_position *  Vector3(1,0,1)
+			target_pos = enemy_target.global_position *  Vector3(1,0,1)
 			near = (target_pos.distance_to(enemy.global_position)  < .2)
 			if near:
 				speed.y = 0.0
@@ -64,21 +70,21 @@ func set_movement():
 
 func _on_attack_started():
 	attack_count = randi_range(1, max_attack_count)
-	request_oneshot("attack", attack_count)
+	request_oneshot("attack")
 
 func _on_retreat_started():
 	attack_count = randi_range(1, max_attack_count)
 	request_oneshot("retreat")
 
-func request_oneshot(oneshot:String, optional_param = null):
+func request_oneshot(oneshot:String):
 	last_oneshot = oneshot
 	set("parameters/" + oneshot + "/request",true)
-	if optional_param:
-		attack_count = optional_param
 	if is_multiplayer_authority():
+		# allows the attack_count to sync'd for the client animation trees to pick up - AD.
+		await get_tree().create_timer(.1).timeout 
 		request_oneshot_sync.rpc(oneshot)
 
-@rpc("authority", "call_remote")
+@rpc("any_peer", "call_remote")
 func request_oneshot_sync(oneshot:String):
 	last_oneshot = oneshot
 	set("parameters/" + oneshot + "/request",true)
@@ -88,7 +94,7 @@ func abort_oneshot(oneshot):
 	if is_multiplayer_authority():
 		abort_oneshot_sync.rpc(oneshot)
 
-@rpc("authority", "call_remote")
+@rpc("any_peer", "call_remote")
 func abort_oneshot_sync(oneshot):
 	set("parameters/"+ str(oneshot) + "/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
 
@@ -99,7 +105,7 @@ func _on_hurt_started():
 	if is_multiplayer_authority():
 		_on_hurt_started_sync.rpc()
 	
-@rpc("authority", "call_remote")
+@rpc("any_peer", "call_remote")
 func _on_hurt_started_sync():
 	hurt_count = randi_range(1,2)
 	abort_oneshot(last_oneshot)

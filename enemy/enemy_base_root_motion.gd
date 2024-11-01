@@ -41,7 +41,8 @@ enum state {
 	CHASE,
 	COMBAT,
 	ATTACK,
-	DEAD
+	DEAD,
+	CIRCLE
 }
 signal state_changed
 
@@ -57,7 +58,6 @@ func _ready():
 		animation_tree.animation_measured.connect(_on_animation_measured)
 	
 	hurt_cool_down.one_shot = true
-	hurt_cool_down.wait_time = .4
 	
 	add_to_group(group_name)
 	collision_layer = 5
@@ -84,7 +84,8 @@ func _process(delta):
 	rotate_character()
 	navigation()
 	free_movement(delta)
-	evaluate_state()
+	if current_state != state.CIRCLE:
+		evaluate_state()
 	
 func free_movement(delta):
 	#set_quaternion(get_quaternion() * animation_tree.get_root_motion_rotation())
@@ -119,6 +120,7 @@ func navigation():
 		var new_dir = (nav_agent_3d.get_next_path_position() - global_position).normalized()
 		new_dir *= Vector3(1,0,1) # strip the y value so enemy stays at current level
 		direction = new_dir
+
 		
 func rotate_character():
 	if nav_agent_3d.is_navigation_finished():
@@ -147,9 +149,11 @@ func _on_combat_timer_timeout():
 			
 func combat_randomizer():
 	if multiplayer.is_server():
-		var random_choice = randi_range(1,10)
-		if random_choice <= 3:
+		var random_choice = randi_range(1,20)
+		if random_choice <= 6:
 			retreat.rpc()
+		if random_choice <= 12:
+			circle.rpc()
 		else:
 			attack.rpc()
 
@@ -161,6 +165,15 @@ func attack():
 @rpc("authority", "call_local")
 func retreat(): # Back away for a period of time
 	retreat_started.emit()
+
+@rpc("authority", "call_local")
+func circle(): 
+	animation_tree.attack_count = randi_range(1, 2)
+	await get_tree().create_timer(.1).timeout 
+	update_current_state(state.CIRCLE)
+	await get_tree().create_timer(randi_range(2, 5)).timeout
+	update_current_state(state.COMBAT)
+
 
 func set_default_target(): 
 	$EnemyMarkerSpawn.global_position = global_position
@@ -190,7 +203,7 @@ func _on_chase_timer_timeout():
 	give_up()
 	
 func give_up():
-	await get_tree().create_timer(2).timeout
+	await get_tree().create_timer(4).timeout
 	target = default_target
 	
 func apply_gravity(_delta):
@@ -208,6 +221,8 @@ func hit(_by_who, _by_what):
 			#hurt_started.emit()
 			#damage_taken.emit(_by_what)
 	if (_by_who.name && _by_what.power):
+		hurt_cool_down.start()
+		hurt_started.emit()
 		hit_sync.rpc(_by_who.name, _by_what.power)
 
 @rpc("any_peer")
@@ -228,20 +243,24 @@ func parried():
 		parried_started.emit()
 
 func death():
+	update_current_state(state.DEAD)
 	hurt_cool_down.start(10)
+	death_sync.rpc()
+	# Note: always queue_free on the server. - AD
 	await get_tree().create_timer(4).timeout
 	if multiplayer.is_server():
 		queue_free()
 		
-@rpc("authority", "call_local")
+@rpc("any_peer", "call_local")
 func death_sync():
+	update_current_state(state.DEAD)
 	remove_from_group(group_name)
 	if ragdoll_death:
 		apply_ragdoll()
 	else:
 		death_started.emit()
 
-
+# TODO: Ragdoll on the clients
 func apply_ragdoll():
 	general_skeleton.physical_bones_start_simulation()
 	animation_tree.active = false
