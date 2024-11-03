@@ -14,6 +14,7 @@ config/name="Taiga"
 config/version="2.0.0"
 run/main_scene="res://level/scenes/level.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
+run/max_fps=60
 config/icon="res://taiga.png"
 
 [audio]
@@ -32,8 +33,11 @@ gdscript/warnings/unused_signal=0
 
 [display]
 
-window/size/viewport_width=1382
-window/size/viewport_height=778
+window/size/viewport_width=2073
+window/size/viewport_height=1167
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/vsync/vsync_mode=2
 
 [editor_plugins]
 

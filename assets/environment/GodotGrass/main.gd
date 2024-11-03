@@ -96,8 +96,9 @@ func _setup_grass_instances() -> void:
 			# TODO: Adjust grass "extra_cull_margin" in final build
 			# AVOID CULLING TOO SOON BY TURNING THIS UP
 			# Can effect performance. If you have mostly flat terrain, it can be lower.
+			# 2.00
 			
-			instance.extra_cull_margin = 2.00
+			instance.extra_cull_margin = 1.00
 			add_child(instance)
 			
 			grass_multimeshes.append([instance, instance.position])

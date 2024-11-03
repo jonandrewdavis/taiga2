@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cl8ww5f5k3m6l"
-path.s3tc="res://.godot/imported/Koster1_normal.png-0c63e5dff976c0da183837da8e96791f.s3tc.ctex"
+uid="uid://b1gqp60juf0ay"
+path.s3tc="res://.godot/imported/Koster1_metallicRoughness.png-7bd55cf22d56e015d95f45eac6f2c7a4.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/interactable/bonfire/textures/Koster1_normal.png"
-dest_files=["res://.godot/imported/Koster1_normal.png-0c63e5dff976c0da183837da8e96791f.s3tc.ctex"]
+source_file="res://assets/interactable/campfire/textures/Koster1_metallicRoughness.png"
+dest_files=["res://.godot/imported/Koster1_metallicRoughness.png-7bd55cf22d56e015d95f45eac6f2c7a4.s3tc.ctex"]
 
 [params]
 
@@ -20,11 +20,11 @@ compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=1
+compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
-roughness/mode=1
+roughness/mode=8
 roughness/src_normal="res://assets/interactable/bonfire/textures/Koster1_normal.png"
 process/fix_alpha_border=true
 process/premult_alpha=false

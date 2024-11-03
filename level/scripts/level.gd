@@ -1,8 +1,8 @@
 extends Node3D
 
-@onready var skin_input: LineEdit = $Menu/MainContainer/MainMenu/Option2/SkinInput
-@onready var nick_input: LineEdit = $Menu/MainContainer/MainMenu/Option1/NickInput
-@onready var address_input: LineEdit = $Menu/MainContainer/MainMenu/Option3/AddressInput
+@onready var skin_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option2/SkinInput
+@onready var nick_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option1/NickInput
+@onready var address_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option3/AddressInput
 @onready var players_container: Node = $PlayersContainer
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
@@ -32,7 +32,8 @@ func _ready():
 	multiplayer.peer_disconnected.connect(_remove_player)
 	Hub.players_container = $PlayersContainer
 	Hub.enemies_container = $EnemiesContainer
-
+	
+	
 
 func _spawn_enemy(): 
 	await get_tree().create_timer(5.0).timeout
@@ -68,6 +69,8 @@ func _on_host_pressed():
 	var bus_idx = AudioServer.get_bus_index("Master")
 	AudioServer.set_bus_mute(bus_idx, true)
 
+	add_server_only_nodes()
+
 func _on_join_pressed():
 	menu.hide()
 	Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
@@ -79,7 +82,6 @@ func _add_player(id: int, player_info : Dictionary):
 	
 	var player = player_scene.instantiate()
 	player.name = str(id)
-	player.position = get_spawn_point()
 	players_container.add_child(player, true)
 
 	var nick = Network.players[id]["nick"]
@@ -92,8 +94,6 @@ func _add_player(id: int, player_info : Dictionary):
 	
 	rpc_id(id, "sync_player_client_only_nodes", id)
 	
-	add_server_only_nodes()
-
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
@@ -126,21 +126,26 @@ func sync_player_skin(_id: int, skin_name: String):
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 	
-
 # Prepare client only nodes.
 @rpc("any_peer", "call_local")
 func sync_player_client_only_nodes(peer_id):
-	var prepare_environment = environment_arena_scene.instantiate()
-	#var prepare_environment = environment_instance_root_scene.instantiate()
+	remove_child($MenuArea)
+	var player_node = Hub.get_player(peer_id)
+	#var prepare_environment = environment_arena_scene.instantiate()
+	var prepare_environment = environment_instance_root_scene.instantiate()
 	add_child(prepare_environment)
-	#prepare_environment.environment_tracker_changed.emit(Hub.get_player(peer_id)) 
-
+	prepare_environment.environment_ignore_changed.emit($EnvironmentContainer/MeshInstance3D)
+	prepare_environment.environment_tracker_changed.emit(player_node) 
+	player_node.position = get_spawn_point()
 
 func add_server_only_nodes():
+	remove_child($MenuArea)
 	var cart = cart_scene.instantiate()
-	var prepare_environment = environment_arena_scene.instantiate()
-	#var prepare_environment = environment_instance_root_scene.instantiate()
-	$EnvironmentContainer.add_child(cart)
+	#var prepare_environment = environment_arena_scene.instantiate()
+	var prepare_environment = environment_instance_root_scene.instantiate()
 	add_child(prepare_environment)
-	#prepare_environment.environment_tracker_changed.emit(cart) 
-	cart.get_node("CartCam").current = true
+	$EnvironmentContainer.add_child(cart)
+	prepare_environment.environment_ignore_changed.emit($EnvironmentContainer/MeshInstance3D)
+	prepare_environment.environment_tracker_changed.emit(cart) 
+	cart.global_position = Vector3(-4.0, 0.0, 4.0)
+	#cart.get_node("CartCam").current = true

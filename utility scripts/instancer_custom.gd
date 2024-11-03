@@ -48,14 +48,15 @@ var v_scale: float = 1
 @onready var last_pos: Vector3
 @onready var first_update= true
 
+@onready var environment_root = get_parent()
 
+# TODO: Decouple from parent. Do not rely on get_parent to allow this to be used more freely?
+# My use case is that when I want one instancer, I want many, so the parent ties them all together as a package.
 func _ready():
 	#environment_root_tracker = get_parent().environment_root_tracker
-	#global_position = Vector3(0,0,0)
-	
+	#global_position = Vector3(0,0,0)	
 	if get_parent().has_signal("environment_tracker_changed"):
 		get_parent().environment_tracker_changed.connect(change_instance_tracker)
-	
 
 func change_instance_tracker(new_tracker_node):
 	environment_root_tracker = new_tracker_node
@@ -114,12 +115,13 @@ func _update():
 func distribute_meshes():
 	randomize()
 	for i in range(instance_amount):
+
 		# Generate positions on X and Z axes    
 		var pos = global_position
 		pos.z = i;
 		pos.x = (int(pos.z) % instance_rows);
 		pos.z = int((pos.z - pos.x) / instance_rows);
- 
+			
 		#center this
 		pos.x -= offset/2
 		pos.z -= offset/2
@@ -140,6 +142,20 @@ func distribute_meshes():
 		x = pos.x 
 		z = pos.z 
 		
+
+		var within_ignore_zone = false
+		
+		# TODO: Optimize the instancer code, especially this.
+		# This this adds n to each loop.
+		# TODO: Use a node & get children to easily track these? 
+		for aabb in environment_root.environment_ignore:
+			if (aabb.has_point(Vector3(x, 0.0, z))):
+				within_ignore_zone = true
+				break
+
+		if within_ignore_zone == true:
+			continue
+	
 		# Sample the heightmap texture to determine the Y position
 		var y = get_heightmap_y(x, z)
 		#var y = get_heightmap_s(x, z)
@@ -166,7 +182,7 @@ func distribute_meshes():
  
 		# Set the instance data
 		multi_mesh.set_instance_transform(i, t.scaled_local(sc))
- 
+
 		#Collisions
 		if generate_colliders:
 			if first_update:
@@ -229,6 +245,6 @@ func generate_subset():
 	for i in range(instance_amount):
 		var t = multi_mesh.get_instance_transform(i)
 		if t.origin.distance_squared_to(environment_root_tracker.global_position) < pow(collider_coverage_dist,2):
-			colliders_to_spawn.append(i)        
+			colliders_to_spawn.append(i)
 		if i==instance_amount-1:
 			spawn_colliders()

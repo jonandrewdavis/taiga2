@@ -1,0 +1,39 @@
+[gd_scene load_steps=9 format=3 uid="uid://b6nuyrcy1rigj"]
+
+[ext_resource type="PackedScene" uid="uid://8njjisb8vun0" path="res://assets/environment_instances/environment_instance_root.tscn" id="1_7l6mc"]
+[ext_resource type="PackedScene" uid="uid://brcob4a2vngyt" path="res://assets/interactable/medieval_carriage/cart.tscn" id="2_nx6xq"]
+[ext_resource type="PackedScene" uid="uid://ch6528py03hat" path="res://assets/interactable/campfire/campfire.tscn" id="5_ef3ue"]
+[ext_resource type="Material" uid="uid://yduwfgw1haxq" path="res://assets/metal_black.tres" id="5_fxfyx"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_kw25f"]
+
+[sub_resource type="MeshTexture" id="MeshTexture_7iaut"]
+mesh = SubResource("PlaneMesh_kw25f")
+
+[sub_resource type="QuadMesh" id="QuadMesh_w6ptv"]
+material = ExtResource("5_fxfyx")
+size = Vector2(200, 200)
+
+[sub_resource type="MeshTexture" id="MeshTexture_vp0xe"]
+mesh = SubResource("QuadMesh_w6ptv")
+base_texture = SubResource("MeshTexture_7iaut")
+
+[node name="MenuArea" type="Node3D"]
+
+[node name="EnvironmentInstanceRoot" parent="." node_paths=PackedStringArray("environment_root_tracker") instance=ExtResource("1_7l6mc")]
+environment_root_tracker = NodePath("../Marker3D")
+
+[node name="Cart" parent="." instance=ExtResource("2_nx6xq")]
+transform = Transform3D(0.186078, 0, -0.982535, 0, 1, 0, 0.982535, 0, 0.186078, -13.614, -0.264, -18.155)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(-0.623279, -0.23385, 0.746215, 0, 0.95424, 0.299041, -0.781999, 0.186386, -0.594758, -0.546218, 5.04484, -19.8255)
+
+[node name="Marker3D" type="Marker3D" parent="."]
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.81016, 1.55236, -16.9902)
+texture = SubResource("MeshTexture_vp0xe")
+
+[node name="Campfire" parent="." instance=ExtResource("5_ef3ue")]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -8.04303, -0.44914, -18.3056)
