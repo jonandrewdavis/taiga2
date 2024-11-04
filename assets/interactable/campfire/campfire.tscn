@@ -1,6 +1,5 @@
-[gd_scene load_steps=13 format=3 uid="uid://ch6528py03hat"]
+[gd_scene load_steps=12 format=3 uid="uid://ch6528py03hat"]
 
-[ext_resource type="Script" path="res://assets/interactable/campfire/campfire.gd" id="1_1wcd6"]
 [ext_resource type="PackedScene" uid="uid://b13e1f13iy5t7" path="res://assets/interactable/campfire/campfire_asset.gltf" id="1_s7apb"]
 [ext_resource type="Shader" path="res://utility scripts/FireFromGameIdeaOrg.gdshader" id="2_eo14m"]
 [ext_resource type="PackedScene" uid="uid://dvs3icvtoe84r" path="res://player/equipment_system/equipment/torch_gadget.tscn" id="4_ldrb6"]
@@ -69,7 +68,6 @@ size = Vector2(2, 2)
 orientation = 0
 
 [node name="Campfire" type="Node3D"]
-script = ExtResource("1_1wcd6")
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_s7apb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, -0.5)
@@ -114,5 +112,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.122676, 0, -0.0265089)
 [node name="FlameParticles" parent="Torch_Gadget" index="2"]
 lifetime = 2.2
 randomness = 0.2
+
+[node name="TorchLight" parent="Torch_Gadget" index="3"]
+shadow_enabled = true
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.07731, 0)
+light_color = Color(1, 0.752941, 0.4, 1)
+light_energy = 4.072
+light_size = 3.0
+shadow_enabled = true
 
 [editable path="Torch_Gadget"]

@@ -179,7 +179,8 @@ scale_randomize = 0.2
 rot_y_randomize = 0.4
 instance_mesh = ExtResource("14_eel8a")
 
-[node name="GrassMain" parent="." instance=ExtResource("12_in6vh")]
+[node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
+player = NodePath("../TEMP_ROOT_TRACKER")
 
 [node name="BakeTimer" type="Timer" parent="."]
 wait_time = 10.0

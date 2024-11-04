@@ -24,7 +24,7 @@ base_texture = SubResource("MeshTexture_7iaut")
 environment_root_tracker = NodePath("../Marker3D")
 
 [node name="Cart" parent="." instance=ExtResource("2_nx6xq")]
-transform = Transform3D(0.186078, 0, -0.982535, 0, 1, 0, 0.982535, 0, 0.186078, -13.614, -0.264, -18.155)
+transform = Transform3D(0.186078, 0, -0.982535, 0, 1, 0, 0.982535, 0, 0.186078, -13.614, -1, -18.155)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-0.623279, -0.23385, 0.746215, 0, 0.95424, 0.299041, -0.781999, 0.186386, -0.594758, -0.546218, 5.04484, -19.8255)

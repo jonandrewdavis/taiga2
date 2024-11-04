@@ -83,7 +83,7 @@ func _process(_delta):
 		$Rope2.visible = false
 		rope_end.global_position = $InteractionPoint.global_position
 
-	if not multiplayer.is_server():
+	if not is_multiplayer_authority():
 		return
 		
 	$CartCam.global_position = Vector3(global_position.x, $CartCam.global_position.y, global_position.z - 15.00)

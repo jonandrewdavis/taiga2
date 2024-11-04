@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=17 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
@@ -8,6 +8,7 @@
 [ext_resource type="Environment" uid="uid://c8oyix4qs0l7j" path="res://assets/environment/SecondForestEnv.tres" id="5_hv8je"]
 [ext_resource type="PackedScene" uid="uid://bnov3r3udtsa3" path="res://assets/environment/forest_sun.tscn" id="5_hyp44"]
 [ext_resource type="PackedScene" uid="uid://b6nuyrcy1rigj" path="res://level/scenes/menu_area.tscn" id="11_arsip"]
+[ext_resource type="Script" path="res://level/scripts/game_master.gd" id="12_1minq"]
 [ext_resource type="AudioStream" uid="uid://dw4bplkv57i6i" path="res://assets/environment/GodotGrass/grass_loop.wav" id="21_m577m"]
 [ext_resource type="AudioStream" uid="uid://6irapns2oeis" path="res://assets/environment/GodotGrass/wind_loop.wav" id="22_cvn7w"]
 [ext_resource type="AudioStream" uid="uid://d4mv7rx862p3o" path="res://assets/environment/GodotGrass/insects_loop.wav" id="23_aoolo"]
@@ -277,11 +278,19 @@ _spawnable_scenes = PackedStringArray("res://enemy/enemy_base_root_motion.tscn")
 spawn_path = NodePath("../EnemiesContainer")
 
 [node name="SpawnerEnvironment" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://assets/interactable/medieval_carriage/cart.tscn")
+_spawnable_scenes = PackedStringArray("res://assets/interactable/medieval_carriage/cart.tscn", "res://level/scenes/first_encounter.tscn")
 spawn_path = NodePath("../EnvironmentContainer")
 
 [node name="MenuArea" parent="." instance=ExtResource("11_arsip")]
 
+[node name="GameMaster" type="Node3D" parent="."]
+script = ExtResource("12_1minq")
+
+[node name="EncounterTimer" type="Timer" parent="GameMaster"]
+wait_time = 10.0
+
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Option4/Quit" to="." method="_on_quit_pressed"]
+
+[editable path="MenuArea"]

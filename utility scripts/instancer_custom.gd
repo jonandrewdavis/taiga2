@@ -141,7 +141,6 @@ func distribute_meshes():
 		
 		x = pos.x 
 		z = pos.z 
-		
 
 		var within_ignore_zone = false
 		
@@ -218,9 +217,6 @@ func get_heightmap_y(x, z):
 	var color = (hmap_img.get_pixel(pixel_x, pixel_z).r - 0.5)* HEIGHTMAP_SCALE
 	#return color.r * terrain_height * v_scale
 	return color
-
-
-
  
 func random(x,z):
 	var r = fposmod(sin(Vector2(x,z).dot(Vector2(12.9898,78.233)) * 43758.5453123),1.0)

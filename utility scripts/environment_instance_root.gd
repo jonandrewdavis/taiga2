@@ -15,17 +15,14 @@ func _ready():
 		root_marker.name = 'TEMP_ROOT_TRACKER'
 		add_child(root_marker)
 		environment_root_tracker = root_marker
-	else:
-		environment_tracker_changed.connect(set_new_root)
-		environment_ignore_changed.connect(set_new_ignore)
 
-		# This helps the instancer_custom children have a little buffer
-		# to set up before creating the meshes.	
-		if environment_root_tracker && Engine.is_editor_hint():
-			environment_tracker_changed.emit(environment_root_tracker)
-	
-		if environment_root_tracker:
-			environment_tracker_changed.emit(environment_root_tracker)
+	environment_tracker_changed.connect(set_new_root)
+	environment_ignore_changed.connect(set_new_ignore)
+
+	# This helps the instancer_custom children have a little buffer
+	# to set up before creating the meshes.	
+	if environment_root_tracker && Engine.is_editor_hint():
+		environment_tracker_changed.emit(environment_root_tracker)
 
 # TODO: (optional) Rebake nav mesh for smarter enemies.
 # Could just use a flat plane. To do so, use a group & target grass.

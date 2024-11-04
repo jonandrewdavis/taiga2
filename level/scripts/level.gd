@@ -13,7 +13,6 @@ const cart_scene = preload("res://assets/interactable/medieval_carriage/cart.tsc
 
 const environment_arena_scene = preload("res://level/scenes/arena.tscn")
 
-
 func _ready():
 	# Check for -- server
 	var args = OS.get_cmdline_user_args()
@@ -24,6 +23,9 @@ func _ready():
 				print('DEBUG: SERVER STARTING `-- server` found')
 				_on_host_pressed()
 
+	if get_node_or_null('MenuArea'):
+		get_node_or_null('MenuArea').get_node("EnvironmentInstanceRoot").environment_tracker_changed.emit(self)
+
 	# We're a client
 	if not multiplayer.is_server():
 		return
@@ -32,8 +34,7 @@ func _ready():
 	multiplayer.peer_disconnected.connect(_remove_player)
 	Hub.players_container = $PlayersContainer
 	Hub.enemies_container = $EnemiesContainer
-	
-	
+	Hub.environment_container = $EnvironmentContainer
 
 func _spawn_enemy(): 
 	await get_tree().create_timer(5.0).timeout
@@ -54,17 +55,9 @@ func _on_player_connected(peer_id, player_info):
 				
 	_add_player(peer_id, player_info)
 
-	
 func _on_host_pressed():
 	menu.hide()
 	Network.start_host()
-
-	#_spawn_enemy()
-	#_spawn_enemy()
-	#_spawn_enemy()
-	#_spawn_enemy()
-	#_spawn_enemy()
-	#_spawn_enemy()
 
 	var bus_idx = AudioServer.get_bus_index("Master")
 	AudioServer.set_bus_mute(bus_idx, true)
@@ -129,23 +122,29 @@ func _on_quit_pressed() -> void:
 # Prepare client only nodes.
 @rpc("any_peer", "call_local")
 func sync_player_client_only_nodes(peer_id):
-	remove_child($MenuArea)
+	$MenuArea.queue_free()
 	var player_node = Hub.get_player(peer_id)
 	#var prepare_environment = environment_arena_scene.instantiate()
 	var prepare_environment = environment_instance_root_scene.instantiate()
 	add_child(prepare_environment)
-	prepare_environment.environment_ignore_changed.emit($EnvironmentContainer/MeshInstance3D)
+	#prepare_environment.environment_ignore_changed.emit($EnvironmentContainer/MeshInstance3D)
 	prepare_environment.environment_tracker_changed.emit(player_node) 
 	player_node.position = get_spawn_point()
 
 func add_server_only_nodes():
-	remove_child($MenuArea)
+	$MenuArea.queue_free()
 	var cart = cart_scene.instantiate()
-	#var prepare_environment = environment_arena_scene.instantiate()
+	# var prepare_environment = environment_arena_scene.instantiate()
 	var prepare_environment = environment_instance_root_scene.instantiate()
 	add_child(prepare_environment)
 	$EnvironmentContainer.add_child(cart)
-	prepare_environment.environment_ignore_changed.emit($EnvironmentContainer/MeshInstance3D)
+	# prepare_environment.environment_ignore_changed.emit($EnvironmentContainer/MeshInstance3D)
 	prepare_environment.environment_tracker_changed.emit(cart) 
 	cart.global_position = Vector3(-4.0, 0.0, 4.0)
-	#cart.get_node("CartCam").current = true
+	# cart.get_node("CartCam").current = true
+	Hub.encounter_tracker_changed.emit(cart)
+	# cart
+	start_encounters()
+
+func start_encounters():
+	Hub.encounter_timer_start.emit()
