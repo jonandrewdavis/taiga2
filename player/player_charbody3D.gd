@@ -266,6 +266,10 @@ func _input(_event:InputEvent):
 		emit_signal("attack_requested")
 	
 	if current_state == state.FREE:
+		if _event.is_action_pressed("debug"):
+			print('Debug:')
+			print(global_transform.basis.z)
+
 		if _event.is_action_pressed("use_weapon_light"):
 			attack()
 		elif _event.is_action_pressed("use_weapon_strong"):

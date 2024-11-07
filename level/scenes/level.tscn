@@ -289,6 +289,8 @@ script = ExtResource("12_1minq")
 [node name="EncounterTimer" type="Timer" parent="GameMaster"]
 wait_time = 10.0
 
+[node name="RecentDirectionTimer" type="Timer" parent="GameMaster"]
+
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Option4/Quit" to="." method="_on_quit_pressed"]

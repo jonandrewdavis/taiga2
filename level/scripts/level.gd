@@ -127,9 +127,12 @@ func sync_player_client_only_nodes(peer_id):
 	#var prepare_environment = environment_arena_scene.instantiate()
 	var prepare_environment = environment_instance_root_scene.instantiate()
 	add_child(prepare_environment)
-	#prepare_environment.environment_ignore_changed.emit($EnvironmentContainer/MeshInstance3D)
 	prepare_environment.environment_tracker_changed.emit(player_node) 
 	player_node.position = get_spawn_point()
+	Hub.encounter_tracker_changed.emit(player_node)
+	# cart
+	start_encounters()
+
 
 func add_server_only_nodes():
 	$MenuArea.queue_free()
@@ -138,13 +141,9 @@ func add_server_only_nodes():
 	var prepare_environment = environment_instance_root_scene.instantiate()
 	add_child(prepare_environment)
 	$EnvironmentContainer.add_child(cart)
-	# prepare_environment.environment_ignore_changed.emit($EnvironmentContainer/MeshInstance3D)
 	prepare_environment.environment_tracker_changed.emit(cart) 
 	cart.global_position = Vector3(-4.0, 0.0, 4.0)
 	# cart.get_node("CartCam").current = true
-	Hub.encounter_tracker_changed.emit(cart)
-	# cart
-	start_encounters()
 
 func start_encounters():
 	Hub.encounter_timer_start.emit()

@@ -147,7 +147,7 @@ func distribute_meshes():
 		# TODO: Optimize the instancer code, especially this.
 		# This this adds n to each loop.
 		# TODO: Use a node & get children to easily track these? 
-		for aabb in environment_root.environment_ignore:
+		for aabb in environment_root.environment_ignore.values():
 			if (aabb.has_point(Vector3(x, 0.0, z))):
 				within_ignore_zone = true
 				break

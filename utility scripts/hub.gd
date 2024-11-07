@@ -7,9 +7,8 @@ signal server_disconnected
 signal encounter_timer_start
 signal encounter_tracker_changed
 
-
-signal environment_
 signal environment_ignore_add
+signal environment_ignore_remove
 
 # Nodes for spawning
 # Remember to add new Scenes to the Auto Spawn List

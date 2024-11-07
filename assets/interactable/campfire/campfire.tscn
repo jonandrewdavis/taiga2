@@ -114,7 +114,8 @@ lifetime = 2.2
 randomness = 0.2
 
 [node name="TorchLight" parent="Torch_Gadget" index="3"]
-shadow_enabled = true
+visible = false
+omni_attenuation = 1.0
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.07731, 0)
