@@ -30,7 +30,7 @@ float noise(vec2 x) {
     vec2 p = floor(x);
     vec2 f = fract(x);
 
-    float n = 
+    float n =
         hash(p)       * (1.0 - f.x) * (1.0 - f.y) +
         hash(p + vec2(1.0, 0.0)) * f.x * (1.0 - f.y) +
         hash(p + vec2(0.0, 1.0)) * (1.0 - f.x) * f.y +
@@ -47,7 +47,7 @@ float fbm(vec2 p) {
  	float amplitude = noise_amplitude;
  	float frequency = noise_frequency;
 	float total = 0.0;
-	
+
     for (int i = 0; i < octaves; i++) {
         total += noise(p * frequency) * amplitude;
         frequency *= lacunarity;
@@ -60,17 +60,17 @@ float fbm(vec2 p) {
 void fragment() {
     vec2 uv = UV;
 
-	// modified_uv for offset and animating UVs for fire    
+	// modified_uv for offset and animating UVs for fire
     vec2 modified_uv = -uv;
 	modified_uv.x = mod(modified_uv.x, 1.0) - 0.5;
     modified_uv.y += 0.84; // size vertical
-    
+
 	// fire noise scroll effect
 	float scroll = scroll_speed * detail_strength * TIME;
-	
+
 	// sample noise for fire
 	float noise = fbm(detail_strength * modified_uv - vec2(0.0, scroll));
-    
+
 	// controls the intensity of noise
 	// at different points in uvs. it thus
 	// controls the shape of fire
@@ -88,7 +88,7 @@ void fragment() {
 
 	// compute fire color
 	// red channel is most intense, green less than it
-	// blue least intense because [pow of x while(x < 1) is less than x] 
+	// blue least intense because [pow of x while(x < 1) is less than x]
     vec3 fire_color = vec3(
 		1.5 * fire_intensity1,
 		1.5 * pow(fire_intensity1, 3.0),
@@ -102,7 +102,7 @@ void fragment() {
 		mix(vec3(0.0), fire_color, alpha2),
 		alpha
 	);
-    
+
 	// apply to fragment
 	ALBEDO = final_color.rgb;
     ALPHA = final_color.a;

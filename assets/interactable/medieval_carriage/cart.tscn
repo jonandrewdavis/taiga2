@@ -17,7 +17,7 @@ size = Vector3(5, 2, 1)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_8sndc"]
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_agwma"]
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_7alqc"]
 properties/0/path = NodePath(".:replicated_position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
@@ -105,9 +105,6 @@ collision_mask = 0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Rope/StartSecondRope"]
 shape = SubResource("SphereShape3D_8sndc")
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_agwma")
-
 [node name="Rope2" type="Node3D" parent="." node_paths=PackedStringArray("start_point", "end_point")]
 script = ExtResource("4_rllv7")
 start_point = NodePath("../Rope/StartSecondRope")
@@ -117,5 +114,8 @@ number_of_segments = 8
 cable_gravity_amp = 1.0
 cable_thickness = 0.05
 cable_springiness = 60.0
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_7alqc")
 
 [editable path="Sketchfab_Scene"]

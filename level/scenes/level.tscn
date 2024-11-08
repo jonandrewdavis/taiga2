@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=15 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
@@ -7,8 +7,7 @@
 [ext_resource type="Shader" path="res://utility scripts/horror_pixels.gdshader" id="4_mglur"]
 [ext_resource type="Environment" uid="uid://c8oyix4qs0l7j" path="res://assets/environment/SecondForestEnv.tres" id="5_hv8je"]
 [ext_resource type="PackedScene" uid="uid://bnov3r3udtsa3" path="res://assets/environment/forest_sun.tscn" id="5_hyp44"]
-[ext_resource type="PackedScene" uid="uid://b6nuyrcy1rigj" path="res://level/scenes/menu_area.tscn" id="11_arsip"]
-[ext_resource type="Script" path="res://level/scripts/game_master.gd" id="12_1minq"]
+[ext_resource type="PackedScene" uid="uid://b6nuyrcy1rigj" path="res://level/scenes/menu_environment.tscn" id="11_arsip"]
 [ext_resource type="AudioStream" uid="uid://dw4bplkv57i6i" path="res://assets/environment/GodotGrass/grass_loop.wav" id="21_m577m"]
 [ext_resource type="AudioStream" uid="uid://6irapns2oeis" path="res://assets/environment/GodotGrass/wind_loop.wav" id="22_cvn7w"]
 [ext_resource type="AudioStream" uid="uid://d4mv7rx862p3o" path="res://assets/environment/GodotGrass/insects_loop.wav" id="23_aoolo"]
@@ -29,11 +28,6 @@ shader_parameter/resolution_downsampling = 1.5
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_npnbc"]
 color = Color(0, 0, 0, 0)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_5cmwq"]
-top_radius = 15.0
-bottom_radius = 15.0
-height = 15.0
 
 [node name="Level" type="Node3D"]
 script = ExtResource("1_e1sh7")
@@ -258,16 +252,11 @@ stream = ExtResource("23_aoolo")
 volume_db = -30.0
 autoplay = true
 
-[node name="EnvironmentContainer" type="Node" parent="."]
+[node name="PlayersContainer" type="Node3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="EnvironmentContainer"]
-visible = false
-mesh = SubResource("CylinderMesh_5cmwq")
-skeleton = NodePath("../..")
+[node name="EnemiesContainer" type="Node3D" parent="."]
 
-[node name="EnemiesContainer" type="Node" parent="."]
-
-[node name="PlayersContainer" type="Node" parent="."]
+[node name="EnvironmentContainer" type="Node3D" parent="."]
 
 [node name="SpawnerPlayers" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://player/player_charbody3d.tscn")
@@ -278,21 +267,11 @@ _spawnable_scenes = PackedStringArray("res://enemy/enemy_base_root_motion.tscn")
 spawn_path = NodePath("../EnemiesContainer")
 
 [node name="SpawnerEnvironment" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://assets/interactable/medieval_carriage/cart.tscn", "res://level/scenes/first_encounter.tscn")
+_spawnable_scenes = PackedStringArray("res://assets/interactable/medieval_carriage/cart.tscn")
 spawn_path = NodePath("../EnvironmentContainer")
 
-[node name="MenuArea" parent="." instance=ExtResource("11_arsip")]
-
-[node name="GameMaster" type="Node3D" parent="."]
-script = ExtResource("12_1minq")
-
-[node name="EncounterTimer" type="Timer" parent="GameMaster"]
-wait_time = 10.0
-
-[node name="RecentDirectionTimer" type="Timer" parent="GameMaster"]
+[node name="MenuEnvironmentArea" parent="." instance=ExtResource("11_arsip")]
 
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Buttons/Join" to="." method="_on_join_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/MarginContainer/MainMenu/Option4/Quit" to="." method="_on_quit_pressed"]
-
-[editable path="MenuArea"]

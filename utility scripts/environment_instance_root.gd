@@ -64,5 +64,5 @@ func _on_environment_ignore_add(node: Node3D, given_name: String):
 	# Make sure it's in tree first so node.global_transform isn't  0.0.0
 	environment_ignore[given_name] = node.global_transform * node.get_aabb()
 
-func _on_environment_ignore_remove(node: Node3D, given_name: String):
+func _on_environment_ignore_remove(_node: Node3D, given_name: String):
 	environment_ignore.erase(given_name)

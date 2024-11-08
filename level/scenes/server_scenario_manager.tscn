@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://ib1cpa8a56gy"]
+
+[ext_resource type="Script" path="res://level/scripts/server_scenario_manager.gd" id="1_brjcy"]
+
+[node name="ServerController" type="Node3D"]
+script = ExtResource("1_brjcy")
+
+[node name="EncounterTimer" type="Timer" parent="."]
+
+[node name="RecentDirectionTimer" type="Timer" parent="."]

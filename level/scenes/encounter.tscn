@@ -1,0 +1,53 @@
+[gd_scene load_steps=5 format=3 uid="uid://b58rh24bdj4p0"]
+
+[ext_resource type="Script" path="res://level/scripts/encounter.gd" id="1_eeox6"]
+[ext_resource type="PackedScene" uid="uid://ch6528py03hat" path="res://assets/interactable/campfire/campfire.tscn" id="2_cu1m1"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_r5rqo"]
+top_radius = 30.0
+bottom_radius = 30.0
+height = 15.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_xdgsv"]
+height = 7.0
+
+[node name="FirstEncounter" type="Node3D"]
+script = ExtResource("1_eeox6")
+
+[node name="IgnoreZone" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("CylinderMesh_r5rqo")
+
+[node name="Campfire" parent="." instance=ExtResource("2_cu1m1")]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.8912, 1.0459, 0)
+mesh = SubResource("CylinderMesh_xdgsv")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.618, 1.0459, 0)
+mesh = SubResource("CylinderMesh_xdgsv")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.807259, 0.73025, 17.5538)
+mesh = SubResource("CylinderMesh_xdgsv")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.807259, 0.73025, -34.0493)
+mesh = SubResource("CylinderMesh_xdgsv")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.4784, 0.73025, -22.044)
+mesh = SubResource("CylinderMesh_xdgsv")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.5927, 0.73025, -22.044)
+mesh = SubResource("CylinderMesh_xdgsv")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.2991, 0.73025, 13.1151)
+mesh = SubResource("CylinderMesh_xdgsv")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.345, 0.73025, 13.1151)
+mesh = SubResource("CylinderMesh_xdgsv")

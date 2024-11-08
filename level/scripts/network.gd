@@ -10,7 +10,7 @@ var player_info = {
 	"skin" : "blue"
 }
 
-
+# NOTE: This is loaded as a global.
 func _process(_delta):
 	if Input.is_action_just_pressed("ui_cancel"):
 		get_tree().quit(0)
@@ -58,7 +58,7 @@ func _register_player(new_player_info):
 	var new_player_id = multiplayer.get_remote_sender_id()
 	players[new_player_id] = new_player_info
 	Hub.player_connected.emit(new_player_id, new_player_info)
-	print("debug _register_player ", players)
+	print("NetworkL _register_player ", players)
 	
 func _on_player_disconnected(id):
 	players.erase(id)

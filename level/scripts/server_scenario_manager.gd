@@ -1,6 +1,5 @@
 extends Node3D
 
-
 var previous_encounter_location = Vector3.ZERO
 var encounter_tracker = Node3D
 var distance_interval = 5.0
@@ -8,7 +7,7 @@ var despawn_distance = 15.0
 
 var recent_directions = {}
 
-var first_encounter_scene = preload("res://level/scenes/first_encounter.tscn")
+var first_encounter_scene = preload("res://level/scenes/encounter.tscn")
 
 @onready var encounter_timer = $EncounterTimer
 @onready var encounter_direction_timer = $RecentDirectionTimer
@@ -41,14 +40,11 @@ func _on_encounter_tracker_changed(new_encounter_tracker):
 # WHY DOES THIS NEED TO BE RPC'd TO BE SEEN ON OTHER CLIENTS???
 # They are spawning infinitly on the servber now, so i I think the game master only needs to be 
 # a node in the server......
-@rpc("any_peer")
-func prepare_encounter_sync(new_encounter_position):
-	if is_multiplayer_authority():
-		var first_encounter = first_encounter_scene.instantiate()
-		Hub.environment_container.add_child(first_encounter, true)	
-		first_encounter.global_position = new_encounter_position
-		previous_encounter_location = new_encounter_position
-		pass
+func prepare_encounter(new_encounter_position):
+	var first_encounter = first_encounter_scene.instantiate()
+	Hub.environment_container.add_child(first_encounter, true)	
+	first_encounter.global_position = new_encounter_position
+	previous_encounter_location = new_encounter_position
 		
 func check_surrounding_area(new_encounter_position) -> bool:
 	var min_dist = INF
@@ -70,7 +66,6 @@ func _record_recent_dir():
 	else:
 		dir_index = 0
 
-
 func check_for_encounter():
 	print('CHECKING FOR ENCOUNTER...')
 	if encounter_tracker:
@@ -78,7 +73,7 @@ func check_for_encounter():
 		var new_encounter_position = encounter_tracker.global_position + (average_recent_directions * Vector3(10.0, 0.0, 10.0))
 		if check_surrounding_area(new_encounter_position):
 			print("encounter allowed")
-			prepare_encounter_sync.rpc(new_encounter_position)
+			prepare_encounter(new_encounter_position)
 
 		await get_tree().create_timer(1).timeout 
 		clean_up_encounters()

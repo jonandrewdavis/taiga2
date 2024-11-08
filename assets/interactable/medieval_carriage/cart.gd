@@ -1,6 +1,5 @@
 extends RigidBody3D
 
-
 @export var replicated_position : Vector3
 @export var replicated_rotation : Vector3
 @export var replicated_linear_velocity : Vector3

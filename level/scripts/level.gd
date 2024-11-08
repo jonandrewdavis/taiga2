@@ -10,8 +10,7 @@ extends Node3D
 const environment_instance_root_scene = preload("res://assets/environment_instances/environment_instance_root.tscn")
 const enemy_scene = preload('res://enemy/enemy_base_root_motion.tscn')
 const cart_scene = preload("res://assets/interactable/medieval_carriage/cart.tscn")
-
-const environment_arena_scene = preload("res://level/scenes/arena.tscn")
+const server_scenario_manager_scene = preload("res://level/scenes/server_scenario_manager.tscn")
 
 func _ready():
 	# Check for -- server
@@ -23,18 +22,16 @@ func _ready():
 				print('DEBUG: SERVER STARTING `-- server` found')
 				_on_host_pressed()
 
-	if get_node_or_null('MenuArea'):
-		get_node_or_null('MenuArea').get_node("EnvironmentInstanceRoot").environment_tracker_changed.emit(self)
+	if get_node_or_null('MenuEnvironmentArea'):
+		get_node_or_null('MenuEnvironmentArea').get_node("EnvironmentInstanceRoot").environment_tracker_changed.emit(self)
 
-	# We're a client
-	if not multiplayer.is_server():
-		return
-		
-	Hub.connect("player_connected", Callable(self, "_on_player_connected"))
-	multiplayer.peer_disconnected.connect(_remove_player)
 	Hub.players_container = $PlayersContainer
 	Hub.enemies_container = $EnemiesContainer
 	Hub.environment_container = $EnvironmentContainer
+	
+	Hub.connect("player_connected", Callable(self, "_on_player_connected"))
+	multiplayer.peer_disconnected.connect(_remove_player)
+
 
 func _spawn_enemy(): 
 	await get_tree().create_timer(5.0).timeout
@@ -122,28 +119,26 @@ func _on_quit_pressed() -> void:
 # Prepare client only nodes.
 @rpc("any_peer", "call_local")
 func sync_player_client_only_nodes(peer_id):
-	$MenuArea.queue_free()
+	$MenuEnvironmentArea.queue_free()
+
 	var player_node = Hub.get_player(peer_id)
-	#var prepare_environment = environment_arena_scene.instantiate()
 	var prepare_environment = environment_instance_root_scene.instantiate()
-	add_child(prepare_environment)
+	$EnvironmentContainer.add_child(prepare_environment)
 	prepare_environment.environment_tracker_changed.emit(player_node) 
 	player_node.position = get_spawn_point()
-	Hub.encounter_tracker_changed.emit(player_node)
-	# cart
-	start_encounters()
-
 
 func add_server_only_nodes():
-	$MenuArea.queue_free()
-	var cart = cart_scene.instantiate()
-	# var prepare_environment = environment_arena_scene.instantiate()
 	var prepare_environment = environment_instance_root_scene.instantiate()
-	add_child(prepare_environment)
-	$EnvironmentContainer.add_child(cart)
-	prepare_environment.environment_tracker_changed.emit(cart) 
-	cart.global_position = Vector3(-4.0, 0.0, 4.0)
-	# cart.get_node("CartCam").current = true
+	var server_scenario_manager = server_scenario_manager_scene.instantiate()
+	var cart = cart_scene.instantiate()
 
-func start_encounters():
-	Hub.encounter_timer_start.emit()
+	add_child(server_scenario_manager)
+	$EnvironmentContainer.add_child.call_deferred(prepare_environment)
+	$EnvironmentContainer.add_child.call_deferred(cart, true)
+		
+	prepare_environment.environment_tracker_changed.emit(cart) 
+	cart.global_position = Vector3(4.0, 0.0, -4.0)
+
+	# Begin Scenarios
+	#Hub.encounter_tracker_changed.emit(cart)
+	#Hub.encounter_timer_start.emit()
