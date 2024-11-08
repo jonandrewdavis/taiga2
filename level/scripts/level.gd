@@ -135,10 +135,11 @@ func add_server_only_nodes():
 	add_child(server_scenario_manager)
 	$EnvironmentContainer.add_child.call_deferred(prepare_environment)
 	$EnvironmentContainer.add_child.call_deferred(cart, true)
-		
+
+	await get_tree().create_timer(.1).timeout
 	prepare_environment.environment_tracker_changed.emit(cart) 
 	cart.global_position = Vector3(4.0, 0.0, -4.0)
 
 	# Begin Scenarios
-	#Hub.encounter_tracker_changed.emit(cart)
-	#Hub.encounter_timer_start.emit()
+	Hub.encounter_timer_start.emit()
+	Hub.encounter_tracker_changed.emit(cart)

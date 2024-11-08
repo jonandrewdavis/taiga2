@@ -21,7 +21,7 @@ func _enter_tree():
 func _ready():
 	add_to_group("interactable")
 	collision_layer = 9
-	$CartCam.clear_current()
+	#$CartCam.clear_current()
 	idle_timer.timeout.connect(idle_deactivate)
 	
 
@@ -43,7 +43,7 @@ func _integrate_forces(state):
 
 		var target_position = player_attached.global_transform.origin
 
-		var forward_local_axis: Vector3 = Vector3(1, 0, 0)
+		var forward_local_axis: Vector3 = Vector3(0, 0, 1)
 		var forward_dir: Vector3 = (basis * forward_local_axis).normalized()
 		var target_dir: Vector3 = (target_position - transform.origin).normalized()
 		var local_speed: float = clampf(speed, 0, acos(forward_dir.dot(target_dir))) / 4
@@ -85,8 +85,8 @@ func _process(_delta):
 	if not is_multiplayer_authority():
 		return
 		
-	$CartCam.global_position = Vector3(global_position.x, $CartCam.global_position.y, global_position.z - 15.00)
-	$CartCam.look_at(Vector3(global_position.x, 2.0,  global_position.z))
+	#$CartCam.global_position = Vector3(global_position.x, $CartCam.global_position.y, global_position.z - 15.00)
+	#$CartCam.look_at(Vector3(global_position.x, 2.0,  global_position.z))
 	
 func activate(_activated_player: CharacterBody3D):
 	cart_player_sync.rpc()
@@ -108,9 +108,7 @@ func cart_player_sync():
 
 		if not player_attached:
 			var test_distance = player_requesting.global_position.distance_to($InteractionPoint.global_position)		
-			print(test_distance)
 			if (test_distance < 2.2):
-				print('test_distance, accepted')
 				player_attached = player_requesting
 		elif player_attached.name == player_requesting.name:
 			player_attached = null

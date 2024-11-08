@@ -6,5 +6,6 @@
 script = ExtResource("1_brjcy")
 
 [node name="EncounterTimer" type="Timer" parent="."]
+wait_time = 10.0
 
 [node name="RecentDirectionTimer" type="Timer" parent="."]

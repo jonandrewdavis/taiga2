@@ -2,8 +2,15 @@ extends Node3D
 
 var previous_encounter_location = Vector3.ZERO
 var encounter_tracker = Node3D
-var distance_interval = 5.0
-var despawn_distance = 15.0
+
+
+var distance_interval = 200.0
+# Position in front of player / tracker
+var distance_during_spawn = 180.0
+
+# Nothing nearby
+var spawn_distance_radius = 150.0
+var despawn_distance_radius = 200.0
 
 var recent_directions = {}
 
@@ -48,35 +55,42 @@ func prepare_encounter(new_encounter_position):
 		
 func check_surrounding_area(new_encounter_position) -> bool:
 	var min_dist = INF
+	# Do not spawn on a previous encounter
 	for node in Hub.environment_container.get_children():
 		if node.is_in_group("encounters"):
 			min_dist = min(min_dist, node.global_position.distance_to(new_encounter_position))
-	
+
+	# Do not spawn if a player is in the area.
 	for player in Hub.players_container.get_children():
 		min_dist = min(min_dist, player.global_position.distance_to(new_encounter_position))
 	
-	return min_dist > distance_interval
+	print('radius clear', min_dist, min_dist > spawn_distance_radius)
+	return min_dist > spawn_distance_radius 
+
+func check_distance_from_previous(new_encounter_position): 
+	print('from prev int', new_encounter_position.distance_to(new_encounter_position) > distance_interval)
+	return new_encounter_position.distance_to(previous_encounter_location) > distance_interval
+
 
 var dir_index = 0
-
 func _record_recent_dir():
 	recent_directions[dir_index] = encounter_tracker.transform.basis.z
-	if dir_index < 9:
+	if dir_index < 20:
 		dir_index = dir_index + 1
 	else:
 		dir_index = 0
 
 func check_for_encounter():
-	print('CHECKING FOR ENCOUNTER...')
+	#print('CHECKING FOR ENCOUNTER...', encounter_tracker)
 	if encounter_tracker:
 		var average_recent_directions =  recent_directions.values().reduce(func(a, b): return a + b, Vector3.ZERO) / recent_directions.size()
-		var new_encounter_position = encounter_tracker.global_position + (average_recent_directions * Vector3(10.0, 0.0, 10.0))
-		if check_surrounding_area(new_encounter_position):
-			print("encounter allowed")
+		var new_encounter_position = encounter_tracker.global_position + (average_recent_directions * Vector3(distance_during_spawn, 0.0, distance_during_spawn))
+		if check_surrounding_area(new_encounter_position) && check_distance_from_previous(new_encounter_position):
+			print("ENCOUNTER ALLOWED AT: ", new_encounter_position)
 			prepare_encounter(new_encounter_position)
 
 		await get_tree().create_timer(1).timeout 
 		clean_up_encounters()
 
 func clean_up_encounters():
-	get_tree().call_group("encounters", "check_for_clean_up", encounter_tracker.global_position, despawn_distance)
+	get_tree().call_group("encounters", "check_for_clean_up", encounter_tracker.global_position, despawn_distance_radius)

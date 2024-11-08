@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://b58rh24bdj4p0"]
+[gd_scene load_steps=6 format=3 uid="uid://b58rh24bdj4p0"]
 
 [ext_resource type="Script" path="res://level/scripts/encounter.gd" id="1_eeox6"]
 [ext_resource type="PackedScene" uid="uid://ch6528py03hat" path="res://assets/interactable/campfire/campfire.tscn" id="2_cu1m1"]
@@ -10,6 +10,11 @@ height = 15.0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_xdgsv"]
 height = 7.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_obu5x"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
 
 [node name="FirstEncounter" type="Node3D"]
 script = ExtResource("1_eeox6")
@@ -51,3 +56,6 @@ mesh = SubResource("CylinderMesh_xdgsv")
 [node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.345, 0.73025, 13.1151)
 mesh = SubResource("CylinderMesh_xdgsv")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_obu5x")

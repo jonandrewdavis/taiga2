@@ -83,7 +83,6 @@ rot_x_randomize = 4.0
 rot_z_randomize = 2.0
 instance_mesh = SubResource("ArrayMesh_phdkx")
 instance_collision = ExtResource("5_rev6c")
-update_frequency = 0.4
 
 [node name="moss_rock_14" type="Node3D" parent="."]
 script = ExtResource("2_o747f")
@@ -98,7 +97,6 @@ rot_x_randomize = 2.0
 rot_z_randomize = 4.0
 instance_mesh = SubResource("ArrayMesh_vrmt5")
 instance_collision = ExtResource("7_yewy6")
-update_frequency = 0.4
 
 [node name="arbol1" type="Node3D" parent="."]
 script = ExtResource("2_o747f")
@@ -112,7 +110,6 @@ scale_randomize = 2.0
 rot_y_randomize = 12.0
 instance_mesh = ExtResource("3_hqwlf")
 instance_collision = SubResource("CapsuleShape3D_kvtob")
-update_frequency = 0.3
 
 [node name="arbol7" type="Node3D" parent="."]
 script = ExtResource("2_o747f")
@@ -126,7 +123,6 @@ instance_spacing = 19
 rot_y_randomize = 7.0
 instance_mesh = ExtResource("11_505i2")
 instance_collision = SubResource("CapsuleShape3D_vcx1a")
-update_frequency = 0.3
 
 [node name="arbol9" type="Node3D" parent="."]
 script = ExtResource("2_o747f")
