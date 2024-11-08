@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://ch6528py03hat" path="res://assets/interactable/campfire/campfire.tscn" id="2_cu1m1"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_r5rqo"]
-top_radius = 30.0
-bottom_radius = 30.0
+top_radius = 25.0
+bottom_radius = 25.0
 height = 15.0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_xdgsv"]

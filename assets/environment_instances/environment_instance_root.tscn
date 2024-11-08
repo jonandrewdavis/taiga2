@@ -164,6 +164,7 @@ instance_Y_rot = 2.142
 instance_X_rot = 0.04
 instance_Z_rot = 0.08
 instance_mesh = ExtResource("12_bgi6p")
+update_frequency = 0.3
 
 [node name="fern" type="Node3D" parent="."]
 visible = false

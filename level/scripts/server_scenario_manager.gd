@@ -4,17 +4,18 @@ var previous_encounter_location = Vector3.ZERO
 var encounter_tracker = Node3D
 
 
-var distance_interval = 200.0
+var distance_interval = 180.0
 # Position in front of player / tracker
-var distance_during_spawn = 180.0
+var distance_during_spawn = 150.0
 
 # Nothing nearby
-var spawn_distance_radius = 150.0
+var spawn_distance_radius = 100.0
 var despawn_distance_radius = 200.0
 
 var recent_directions = {}
 
 var first_encounter_scene = preload("res://level/scenes/encounter.tscn")
+var basic_enemy = preload("res://enemy/enemy_base_root_motion.tscn")
 
 @onready var encounter_timer = $EncounterTimer
 @onready var encounter_direction_timer = $RecentDirectionTimer
@@ -47,11 +48,14 @@ func _on_encounter_tracker_changed(new_encounter_tracker):
 # WHY DOES THIS NEED TO BE RPC'd TO BE SEEN ON OTHER CLIENTS???
 # They are spawning infinitly on the servber now, so i I think the game master only needs to be 
 # a node in the server......
-func prepare_encounter(new_encounter_position):
+func prepare_encounter(new_encounter_position: Vector3):
 	var first_encounter = first_encounter_scene.instantiate()
 	Hub.environment_container.add_child(first_encounter, true)	
 	first_encounter.global_position = new_encounter_position
 	previous_encounter_location = new_encounter_position
+	populate_enemies(new_encounter_position)
+
+
 		
 func check_surrounding_area(new_encounter_position) -> bool:
 	var min_dist = INF
@@ -94,3 +98,12 @@ func check_for_encounter():
 
 func clean_up_encounters():
 	get_tree().call_group("encounters", "check_for_clean_up", encounter_tracker.global_position, despawn_distance_radius)
+
+func populate_enemies(_new_encounter_position: Vector3):
+	var first_enemy = basic_enemy.instantiate()
+	Hub.enemies_container.add_child(first_enemy, true)
+	first_enemy.global_position = get_spawn_point()
+
+func get_spawn_point() -> Vector3:
+	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
+	return Vector3(spawn_point.x, 5.0, spawn_point.y)

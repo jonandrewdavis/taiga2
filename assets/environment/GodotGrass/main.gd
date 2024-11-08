@@ -41,6 +41,8 @@ func _init() -> void:
 
 	
 func _ready() -> void:
+
+
 	# Listen for changes to the node to follow / track
 	if get_parent().has_signal("environment_tracker_changed"):
 		get_parent().environment_tracker_changed.connect(set_new_grass_tracker)

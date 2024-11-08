@@ -58,7 +58,7 @@ func _on_host_pressed():
 
 	var bus_idx = AudioServer.get_bus_index("Master")
 	AudioServer.set_bus_mute(bus_idx, true)
-
+	
 	add_server_only_nodes()
 
 func _on_join_pressed():
@@ -128,6 +128,8 @@ func sync_player_client_only_nodes(peer_id):
 	player_node.position = get_spawn_point()
 
 func add_server_only_nodes():
+	$MenuEnvironmentArea.queue_free()
+
 	var prepare_environment = environment_instance_root_scene.instantiate()
 	var server_scenario_manager = server_scenario_manager_scene.instantiate()
 	var cart = cart_scene.instantiate()
