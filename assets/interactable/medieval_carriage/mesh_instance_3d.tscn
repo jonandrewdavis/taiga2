@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://brfwa2ray678j"]
 
-[ext_resource type="Material" uid="uid://b4m1mgfioqq2s" path="res://demo_level/gridmap/gridmap_materials/TinyWood01.tres" id="1_q2unc"]
+[ext_resource type="Material" path="res://assets/TinyWood01.tres" id="1_q2unc"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_d0k1p"]
 resource_local_to_scene = true

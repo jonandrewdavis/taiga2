@@ -1,8 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://brcob4a2vngyt"]
+[gd_scene load_steps=15 format=3 uid="uid://brcob4a2vngyt"]
 
 [ext_resource type="PackedScene" uid="uid://bdiwt6qndl0qy" path="res://assets/interactable/medieval_carriage/carriage.gltf" id="1_0i6nf"]
 [ext_resource type="Script" path="res://assets/interactable/medieval_carriage/cart.gd" id="1_kp5fv"]
+[ext_resource type="Script" path="res://utility scripts/health_system.gd" id="4_rewff"]
 [ext_resource type="Script" path="res://utility scripts/rope.gd" id="4_rllv7"]
+[ext_resource type="Script" path="res://ui/health_bar.gd" id="5_6yc8k"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nkrui"]
 size = Vector3(2, 3, 5.7)
@@ -26,6 +28,24 @@ properties/2/replication_mode = 1
 properties/3/path = NodePath(".:replicated_angular_velocity")
 properties/3/spawn = true
 properties/3/replication_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_q71bf"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(0.258824, 0.254902, 0.262745, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_s6otk"]
+gradient = SubResource("Gradient_q71bf")
+width = 256
+height = 28
+
+[sub_resource type="Gradient" id="Gradient_telm3"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(0.435294, 0.0784314, 0.0705882, 0.992157)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qasmq"]
+gradient = SubResource("Gradient_telm3")
+width = 256
+height = 28
 
 [node name="Cart" type="RigidBody3D"]
 mass = 100.0
@@ -103,5 +123,29 @@ cable_springiness = 60.0
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_7alqc")
+
+[node name="HealthSystem" type="Node" parent="."]
+script = ExtResource("4_rewff")
+
+[node name="Control" type="Control" parent="HealthSystem"]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="HealthBar" type="TextureProgressBar" parent="HealthSystem/Control" node_paths=PackedStringArray("health_system")]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -48.0
+offset_right = 48.0
+offset_bottom = 8.0
+grow_horizontal = 2
+max_value = 5.0
+value = 2.0
+nine_patch_stretch = true
+texture_under = SubResource("GradientTexture2D_s6otk")
+texture_progress = SubResource("GradientTexture2D_qasmq")
+script = ExtResource("5_6yc8k")
+health_system = NodePath("../..")
 
 [editable path="Sketchfab_Scene"]

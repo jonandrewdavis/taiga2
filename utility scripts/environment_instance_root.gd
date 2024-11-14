@@ -63,6 +63,13 @@ func _on_environment_ignore_add(node: Node3D, given_name: String):
 	# AABB is multipled by the current global position, so it blocks out the right area
 	# Make sure it's in tree first so node.global_transform isn't  0.0.0
 	environment_ignore[given_name] = node.global_transform * node.get_aabb()
+	
+	# This may not be necessary, but it assures that on adding it'll remove anything in the area.
+	# Can probably turn down update freq with this. 
+	# Could cause locks.
+	for instance in get_children():
+		if instance.has_method("distribute_meshes"):
+			instance.distribute_meshes()
 
 func _on_environment_ignore_remove(_node: Node3D, given_name: String):
 	environment_ignore.erase(given_name)

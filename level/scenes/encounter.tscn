@@ -9,7 +9,7 @@ bottom_radius = 25.0
 height = 15.0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_xdgsv"]
-height = 7.0
+height = 1.0
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_obu5x"]
 properties/0/path = NodePath(".:position")
@@ -25,37 +25,47 @@ mesh = SubResource("CylinderMesh_r5rqo")
 
 [node name="Campfire" parent="." instance=ExtResource("2_cu1m1")]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.8912, 1.0459, 0)
-mesh = SubResource("CylinderMesh_xdgsv")
+[node name="Placeholder" type="Node3D" parent="."]
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.618, 1.0459, 0)
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Placeholder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.8912, 0, 0)
 mesh = SubResource("CylinderMesh_xdgsv")
+skeleton = NodePath("../..")
 
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.807259, 0.73025, 17.5538)
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Placeholder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.618, 0, 0)
 mesh = SubResource("CylinderMesh_xdgsv")
+skeleton = NodePath("../..")
 
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.807259, 0.73025, -34.0493)
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Placeholder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.807259, 0, 17.5538)
 mesh = SubResource("CylinderMesh_xdgsv")
+skeleton = NodePath("../..")
 
-[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.4784, 0.73025, -22.044)
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="Placeholder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.807259, 0, -34.0493)
 mesh = SubResource("CylinderMesh_xdgsv")
+skeleton = NodePath("../..")
 
-[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.5927, 0.73025, -22.044)
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Placeholder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.4784, 0, -22.044)
 mesh = SubResource("CylinderMesh_xdgsv")
+skeleton = NodePath("../..")
 
-[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.2991, 0.73025, 13.1151)
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Placeholder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.5927, 0, -22.044)
 mesh = SubResource("CylinderMesh_xdgsv")
+skeleton = NodePath("../..")
 
-[node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.345, 0.73025, 13.1151)
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="Placeholder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.2991, 0, 13.1151)
 mesh = SubResource("CylinderMesh_xdgsv")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="Placeholder"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.345, 0, 13.1151)
+mesh = SubResource("CylinderMesh_xdgsv")
+skeleton = NodePath("../..")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_obu5x")

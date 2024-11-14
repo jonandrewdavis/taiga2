@@ -29,3 +29,6 @@ func get_player_by_name(player_name: StringName):
 	for player in players_container.get_children():
 		if player.name == player_name:
 			return player
+
+func get_cart():
+	return environment_container.get_node("Cart")

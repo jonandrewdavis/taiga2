@@ -14,5 +14,3 @@ func _ready():
 	nine_patch_rect.size = control_card_label.size
 	nine_patch_rect.position = control_card_label.position
 	#nine_patch_rect.set_anchors_preset(Control.PRESET_CENTER)
-
-

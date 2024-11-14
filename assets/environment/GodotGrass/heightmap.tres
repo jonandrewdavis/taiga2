@@ -2,7 +2,6 @@
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_urkrv"]
 frequency = 0.025
-offset = Vector3(-2, 0, 0)
 fractal_gain = 0.1
 
 [resource]

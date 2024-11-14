@@ -1,6 +1,8 @@
 @tool
 extends Node3D
 
+# TODO: add a class?
+
 # Inherit from EnvironemntInstanceRoot 
 var environment_root_tracker: Node3D 
 var heightmap : Texture2D
@@ -9,6 +11,7 @@ var heightmap : Texture2D
 const TILE_SIZE = 5.0
 const MAP_RADIUS = 200.0
 const HEIGHTMAP_SCALE = 5.0
+const HEIGHTMAP_NOISE_WIDTH = 512 * 2
 
 
 @export var instance_amount : int = 100  # Number of instances to generate
@@ -91,7 +94,7 @@ func create_multimesh():
 		#await heightmap.changed
 
 	#wait for map to load before continuing
-	hmap_img = heightmap.noise.get_image(512, 512)
+	hmap_img = heightmap.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
 	width = hmap_img.get_width()
 	height = hmap_img.get_height()
 
@@ -153,6 +156,9 @@ func distribute_meshes():
 				break
 
 		if within_ignore_zone == true:
+			var remove_transform = Transform3D()
+			remove_transform.origin = Vector3(x, -999.0, z)
+			multi_mesh.set_instance_transform(i, remove_transform)
 			continue
 	
 		# Sample the heightmap texture to determine the Y position

@@ -186,29 +186,39 @@ func attack_once():
 func attack_chain_current_length():
 	return get("parameters/ATTACK_tree/" + weapon_type +"/playback").get_current_length()
 
+# TODO: Finally got this working after like 3 weeks
+# This "attack_chain_current_length() > 0:" prevents the "running in place" busy, because 
+# the oneshot was ending too early, and the combo was continuing. This makes sure we fall into the "end"
+# So we don't get stuck doing a combo & busy without the oneshot running
+# This adds an almost imperceptible pause to the combo, nice to have:  + 0.01
+# Obviously there is a TON of repetition, so all of this could be really simple, but each case
+# has a lot of duplication because... this is how I built it. Yikes.
+
 func attack_chain():
 	if attack_count == 1:
+		request_oneshot("Attack")
+		animation_measured.emit(attack_chain_current_length())
 		await animation_measured
 		player_node.attack_started.emit()
-		await get_tree().create_timer(player_node.anim_length).timeout
+		await get_tree().create_timer(attack_chain_current_length() + 0.01).timeout
 		attack_count = 2
 		attack_chain()
-	elif is_combo == true && attack_count == 2:
+	elif is_combo == true && attack_count == 2 &&  attack_chain_current_length() > 0:
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case()+ str(attack_count))
 		animation_measured.emit(attack_chain_current_length())
 		await animation_measured
 		player_node.attack_started.emit()
 		sync_combo_attack.rpc(weapon_type, attack_count)
-		await get_tree().create_timer(attack_chain_current_length()).timeout
+		await get_tree().create_timer(attack_chain_current_length() + 0.01).timeout
 		attack_count = 3
 		attack_chain()
-	elif is_combo == true && attack_count == 3:
+	elif is_combo == true && attack_count == 3 && attack_chain_current_length() > 0:
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case() + str(attack_count))
 		animation_measured.emit(attack_chain_current_length())
 		await animation_measured
 		player_node.attack_started.emit()
 		sync_combo_attack.rpc(weapon_type, attack_count)
-		await get_tree().create_timer(attack_chain_current_length()).timeout
+		await get_tree().create_timer(attack_chain_current_length() + 0.01).timeout
 		_on_attack_end()
 	else:
 		_on_attack_end()
@@ -224,8 +234,9 @@ func sync_combo_attack(weapon_type_rpc, number):
 	get("parameters/ATTACK_tree/" + weapon_type_rpc +"/playback").travel(weapon_type_rpc.to_pascal_case()  + str(number))
 
 func _on_attack_end():
-	attack_count = 1
 	player_node.busy = false
+	attack_count = 1
+
 
 func _on_block_started():
 	request_oneshot("Block")
@@ -244,9 +255,11 @@ func _on_hurt_started(): ## Picks a hurt animation between "Hurt1" and "Hurt2"
 func abort_oneshot(_last_oneshot:String):
 	set("parameters/" + _last_oneshot + "/request",AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
 
-	
 func _on_death_started():
 	base_state_machine.travel("Death")
+
+func _on_spawn_started():
+	base_state_machine.travel("Start")
 
 func _on_use_item_started():
 	request_oneshot("UseItem")

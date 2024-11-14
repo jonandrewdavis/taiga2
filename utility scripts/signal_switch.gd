@@ -40,4 +40,3 @@ func _on_signal(_arg = null,_arg2 = null):
 		await get_tree().create_timer(lifetime).timeout
 		toggle = !node_to_toggle.get(property)
 		node_to_toggle.set(property,toggle)
-

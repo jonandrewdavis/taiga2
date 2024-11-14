@@ -5,7 +5,7 @@ extends AnimationTree
 @onready var anim_length : float = .5
 @onready var state_machine_node : AnimationNodeStateMachinePlayback = self["parameters/Movement/playback"]
 signal animation_measured(anim_length)
-@export var max_attack_count : int = 2
+@export var max_attack_count : int = 3
 
 # Multiplayer note: This is used in the attack tree and needs to be sync'd to work properly
 @export var attack_count = 1
@@ -48,6 +48,7 @@ func set_movement():
 			near = (target_pos.distance_to(enemy.global_position)  < .2)
 			var dir = 1.0 if attack_count == 1 else -1.0
 			speed.x = dir
+			speed.y = -0.25
 		enemy.state.FREE:
 			target_pos = enemy_target.global_position *  Vector3(1,0,1)
 			near = (target_pos.distance_to(enemy.global_position)  < .2)
@@ -58,7 +59,7 @@ func set_movement():
 		enemy.state.CHASE:
 			near = (enemy_target.global_position.distance_to(enemy.global_position)  < 4.0)
 			if near:
-				speed.y = .5
+				speed.y = .75
 			else:
 				speed.y = 1.0
 		enemy.state.DEAD:
@@ -73,7 +74,7 @@ func _on_attack_started():
 	request_oneshot("attack")
 
 func _on_retreat_started():
-	attack_count = randi_range(1, max_attack_count)
+	attack_count = randi_range(1, 2)
 	request_oneshot("retreat")
 
 func request_oneshot(oneshot:String):
@@ -81,7 +82,7 @@ func request_oneshot(oneshot:String):
 	set("parameters/" + oneshot + "/request",true)
 	if is_multiplayer_authority():
 		# allows the attack_count to sync'd for the client animation trees to pick up - AD.
-		await get_tree().create_timer(.1).timeout 
+		await get_tree().create_timer(.05).timeout 
 		request_oneshot_sync.rpc(oneshot)
 
 @rpc("any_peer", "call_remote")

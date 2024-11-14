@@ -62,6 +62,8 @@ func _ready():
 	add_to_group(group_name)
 	collision_layer = 5
 
+	set_default_target()
+
 	if health_system:
 		health_system.died.connect(death)
 
@@ -69,10 +71,13 @@ func _ready():
 	if is_multiplayer_authority():
 		combat_timer.timeout.connect(_on_combat_timer_timeout)
 		chase_timer.timeout.connect(_on_chase_timer_timeout)
-		set_default_target.call_deferred()
+
 		if target_sensor:
 			target_sensor.target_spotted.connect(_on_target_spotted)
 			target_sensor.target_lost.connect(_on_target_lost)
+		
+		
+		
 		
 func _process(delta):
 	if not is_multiplayer_authority():
@@ -113,18 +118,20 @@ func calc_direction() -> Vector3 :
 func update_current_state(_new_state):
 	current_state = _new_state
 	state_changed.emit(_new_state)
-		
+	
+	
+	
+# TODO: Tons of bugs in navigation
+# TODO: Painful to strip y index everywhere. The default target is always above or below the mesh	
 func navigation():
 	if target:
-		nav_agent_3d.target_position = target.global_position
+		nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0)
 		var new_dir = (nav_agent_3d.get_next_path_position() - global_position).normalized()
 		new_dir *= Vector3(1,0,1) # strip the y value so enemy stays at current level
 		direction = new_dir
 
 		
 func rotate_character():
-	if nav_agent_3d.is_navigation_finished():
-		return
 	var rate = .05
 	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position() * Vector3(1,0,1))
 	var current_rotation = global_transform.basis.get_rotation_quaternion()
@@ -150,9 +157,9 @@ func _on_combat_timer_timeout():
 func combat_randomizer():
 	if multiplayer.is_server():
 		var random_choice = randi_range(1,20)
-		if random_choice <= 6:
+		if random_choice <= 4:
 			retreat.rpc()
-		if random_choice <= 12:
+		if random_choice <= 8:
 			circle.rpc()
 		else:
 			attack.rpc()
@@ -173,10 +180,11 @@ func circle():
 	update_current_state(state.CIRCLE)
 	await get_tree().create_timer(randi_range(2, 5)).timeout
 	update_current_state(state.COMBAT)
-
+	
 
 func set_default_target(): 
-	$EnemyMarkerSpawn.global_position = global_position
+	await get_tree().create_timer(.2).timeout
+	$EnemyMarkerSpawn.global_position = global_position * Vector3(1.0, 0, 1.0)
 	if not default_target:
 		default_target = $EnemyMarkerSpawn
 	if !target:

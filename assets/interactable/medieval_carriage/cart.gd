@@ -14,6 +14,10 @@ var player_id_attached: int
 
 var cart_speed = 5.0
 
+
+signal damage_taken
+
+
 func _enter_tree():
 	set_multiplayer_authority(1)
 
@@ -24,6 +28,9 @@ func _ready():
 	#$CartCam.clear_current()
 	idle_timer.timeout.connect(idle_deactivate)
 	
+	# For health bar
+	add_to_group("targets")
+	collision_layer = 5
 
 func _integrate_forces(state):
 	if is_multiplayer_authority():
@@ -126,3 +133,23 @@ func cart_player_id_sync(player_id):
 		if get_player_node: player_attached = get_player_node
 	else: 
 		player_attached = null
+
+
+func hit(_by_who, _by_what):
+	#var get_player_targeted = _target_to_player_node(_by_who)
+	#if (get_player_targeted):
+		#target = get_player_targeted
+		#if hurt_cool_down.is_stopped():
+			#hurt_cool_down.start()
+			#hurt_started.emit()
+			#damage_taken.emit(_by_what)
+	if (_by_who.name && _by_what.power):
+		#hurt_cool_down.start()
+		#hurt_started.emit()
+		hit_sync.rpc(_by_who.name, _by_what.power)
+
+@rpc("any_peer")
+func hit_sync(_by_who_name: String, power: int):
+	if multiplayer.is_server():
+		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
+		damage_taken.emit(power)

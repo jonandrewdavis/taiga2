@@ -6,16 +6,18 @@ var encounter_tracker = Node3D
 
 var distance_interval = 180.0
 # Position in front of player / tracker
-var distance_during_spawn = 150.0
+var distance_during_spawn = 100.0
 
 # Nothing nearby
-var spawn_distance_radius = 100.0
+var spawn_distance_radius = 80.0
 var despawn_distance_radius = 200.0
 
 var recent_directions = {}
 
 var first_encounter_scene = preload("res://level/scenes/encounter.tscn")
 var basic_enemy = preload("res://enemy/enemy_base_root_motion.tscn")
+var town = preload("res://level/scenes/town.tscn")
+
 
 @onready var encounter_timer = $EncounterTimer
 @onready var encounter_direction_timer = $RecentDirectionTimer
@@ -38,6 +40,8 @@ func _on_begin_encounters():
 
 	encounter_timer.start()
 	encounter_direction_timer.start()
+	
+	prepare_starting_area()
 
 # TODO: If someone deviates too far... we could theoretically create encounters on them!
 # May need to figure out server / client responsibilites for that...
@@ -55,8 +59,16 @@ func prepare_encounter(new_encounter_position: Vector3):
 	previous_encounter_location = new_encounter_position
 	populate_enemies(new_encounter_position)
 
+func prepare_starting_area():
+	var first_town = town.instantiate()
+	Hub.environment_container.add_child(first_town, true)	
+	first_town.global_position = Vector3.ZERO
+	previous_encounter_location = Vector3.ZERO
+	populate_enemies(Vector3(10.0, 10.0, 10.0))
+	populate_enemies(Vector3(5.0, 5.0, 5.0))
+	populate_enemies(Vector3(-7.0, 7.0, -7.0))
+	populate_enemies(Vector3(-12.0, 12.0, -12.0))
 
-		
 func check_surrounding_area(new_encounter_position) -> bool:
 	var min_dist = INF
 	# Do not spawn on a previous encounter
@@ -67,12 +79,9 @@ func check_surrounding_area(new_encounter_position) -> bool:
 	# Do not spawn if a player is in the area.
 	for player in Hub.players_container.get_children():
 		min_dist = min(min_dist, player.global_position.distance_to(new_encounter_position))
-	
-	print('radius clear', min_dist, min_dist > spawn_distance_radius)
 	return min_dist > spawn_distance_radius 
 
 func check_distance_from_previous(new_encounter_position): 
-	print('from prev int', new_encounter_position.distance_to(new_encounter_position) > distance_interval)
 	return new_encounter_position.distance_to(previous_encounter_location) > distance_interval
 
 
@@ -102,7 +111,10 @@ func clean_up_encounters():
 func populate_enemies(_new_encounter_position: Vector3):
 	var first_enemy = basic_enemy.instantiate()
 	Hub.enemies_container.add_child(first_enemy, true)
-	first_enemy.global_position = get_spawn_point()
+	print('reg spawn: ', get_spawn_point())
+	print('new spawn point: ', get_spawn_point() + _new_encounter_position)
+	first_enemy.global_position = get_spawn_point() + _new_encounter_position
+
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius

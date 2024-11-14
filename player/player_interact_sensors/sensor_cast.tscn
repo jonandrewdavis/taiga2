@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://player/player_interact_sensors/sensor_cast.gd" id="1_fiu3x"]
 
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_cfuto"]
 margin = 0.05
 size = Vector3(0.2, 0.2, 0.2)

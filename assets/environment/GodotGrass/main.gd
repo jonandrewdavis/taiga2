@@ -11,6 +11,8 @@ const HEIGHTMAP := preload('res://assets/environment/heightmap_grass_main.tres')
 const TILE_SIZE := 5.0
 const MAP_RADIUS := 200.0
 const HEIGHTMAP_SCALE := 5.0
+const HEIGHTMAP_NOISE_WIDTH = 512 * 2
+
 
 var grass_multimeshes : Array[Array] = []
 var previous_tile_id := Vector3.ZERO
@@ -41,8 +43,6 @@ func _init() -> void:
 
 	
 func _ready() -> void:
-
-
 	# Listen for changes to the node to follow / track
 	if get_parent().has_signal("environment_tracker_changed"):
 		get_parent().environment_tracker_changed.connect(set_new_grass_tracker)
@@ -50,12 +50,15 @@ func _ready() -> void:
 	# TODO: Ready on signal instead of by default and we can remove the ! player check in physics
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	await get_tree().create_timer(1.0).timeout
-	_setup_heightmap_collision()
+	_setup_heightmap_collision(Vector3(0.0, 0.0, 0.0))
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
+
 	
 func set_new_grass_tracker(node):
+	# TODO: Change this to be player agnostic.
 	player = node
+
 	
 # Tracks the "player" position. If the player leaves a tile, it shifts everything
 func _physics_process(_delta: float) -> void:
@@ -72,19 +75,41 @@ func _physics_process(_delta: float) -> void:
 	previous_tile_id = tile_id
 
 ## Creates a HeightMapShape3D from the provided NoiseTexture2D
-func _setup_heightmap_collision() -> void:
-	var heightmap := HEIGHTMAP.noise.get_image(512, 512)
+
+
+func _setup_heightmap_collision(_offset: Vector3) -> void:
+	#var heightmap := HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
+
+	# TODO: Inifinite collision map not working.
+	# Clone the noise with the same settings to avoid updating the offset on the actual asset... 
+	# Alternate option: mutate all the sources & refresh the entire scene... 
+	var texture = NoiseTexture2D.new()
+	texture.width = HEIGHTMAP_NOISE_WIDTH
+	texture.height = HEIGHTMAP_NOISE_WIDTH
+	texture.noise = FastNoiseLite.new()
+	texture.seamless = true
+	texture.seamless_blend_skirt = 0.0
+	texture.noise.frequency = 0.025
+	texture.noise.fractal_gain = 0.1
+	texture.noise.offset = _offset
+	print(texture.noise.offset)
+	var heightmap = texture.noise.get_image(HEIGHTMAP_NOISE_WIDTH , HEIGHTMAP_NOISE_WIDTH)
+	
 	var dims := Vector2i(heightmap.get_height(), heightmap.get_width())
+	print(heightmap.get_height(), heightmap.get_width())
 	var map_data : PackedFloat32Array
+	# Off by one: print(map_data.size())
 	for j in dims.x:
 		for i in dims.y:
-			map_data.push_back((heightmap.get_pixel(i, j).r - 0.5)*HEIGHTMAP_SCALE)
-	
+			map_data.push_back((heightmap.get_pixel(i, j).r - 0.5) * HEIGHTMAP_SCALE)
+
 	var heightmap_shape := HeightMapShape3D.new()
 	heightmap_shape.map_width = dims.x
 	heightmap_shape.map_depth = dims.y
 	heightmap_shape.map_data = map_data
 	grass_collision_shape.shape = heightmap_shape
+	
+	#grass_collision_shape.global_position = _offset
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:
@@ -138,3 +163,9 @@ func create_grass_multimesh(density : float, tile_size : float, mesh : Mesh) -> 
 			var grass_offset := Vector3(randf_range(-jitter_offset, jitter_offset), 0, randf_range(-jitter_offset, jitter_offset))
 			multimesh.set_instance_transform(i + j*row_size, Transform3D(Basis(), grass_position + grass_offset))
 	return multimesh
+
+
+func re_center_heightmap(_new_center_position: Vector3):
+	pass
+
+	## For offesetting, we could also copy the noise settings to avoid mutating our existing heightmap

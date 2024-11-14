@@ -14,7 +14,6 @@ extends CharacterBody3D
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
 
-
 @onready var sensor_cast : ShapeCast3D
 @export var animation_tree : AnimationTree
 
@@ -82,7 +81,7 @@ signal block_started
 @onready var hurt_cool_down = Timer.new() # while running, player can't be hurt
 signal hurt_started # to start the animation
 signal damage_taken(by_what:EquipmentObject) # to indicate the damage value
-signal health_received(by_what:ItemObject)
+signal health_received(by_what:ItemObject) # CHANGED to just be power - AD
 signal death_started
 var is_dead :bool = false
 
@@ -240,6 +239,13 @@ func _physics_process(_delta):
 	move_and_slide()
 	apply_gravity(_delta)
 	fall_check()
+	out_of_bounds_check()
+	
+func out_of_bounds_check():
+	if global_position.x > 500.0:
+		global_position.x = -250.0
+	elif global_position.x < -500.0:
+		global_position.x = 250.0
 	
 func _input(_event:InputEvent):
 	if not is_multiplayer_authority(): 
@@ -271,7 +277,8 @@ func _input(_event:InputEvent):
 			print(global_transform.basis.z)
 
 		if _event.is_action_pressed("use_weapon_light"):
-			attack()
+			if busy == false:
+				attack()
 		elif _event.is_action_pressed("use_weapon_strong"):
 			attack_strong()
 		if is_on_floor():
@@ -390,12 +397,13 @@ func attack():
 	if busy == true:
 		return
 	busy = true
-	animation_tree.request_oneshot("Attack")
 	if not is_on_floor():
+		animation_tree.request_oneshot("Attack")
 		animation_tree.attack_air()
 		return
 
 	if sprinting:
+		animation_tree.request_oneshot("Attack")
 		animation_tree.attack_once()
 		return
 
@@ -452,6 +460,8 @@ var guard_local
 var strafe_local
 
 func dodge(): 
+	$GUI/GUIFullRect/DIST.text = str(global_position)
+
 	if dodging:
 		return
 	
@@ -472,7 +482,7 @@ func dodge():
 	
 	if animation_tree:
 		await animation_tree.animation_measured
-	hurt_cool_down.start(anim_length*.7)
+	hurt_cool_down.start(anim_length)
 	await get_tree().create_timer(anim_length).timeout
 	guarding = guard_local
 	strafing = strafe_local
@@ -573,7 +583,8 @@ func hit(_who, _by_what):
 			hurt()
 
 func heal(_by_what):
-	health_received.emit(_by_what)
+	print(_by_what)
+	health_received.emit(_by_what.power)
 
 func block():
 	block_started.emit()
@@ -595,23 +606,45 @@ func hurt():
 	await get_tree().create_timer(anim_length).timeout
 
 func use_item():
-	slowed = true
-	
-	use_item_started.emit()
-	if animation_tree:
-		await animation_tree.animation_measured
-	await get_tree().create_timer(anim_length * .5).timeout
-	item_used.emit()
-	await get_tree().create_timer(anim_length * .5).timeout
-	slowed = false
+	if not busy:
+		busy = true
+		slowed = true
+		
+		use_item_started.emit()
+		if animation_tree:
+			await animation_tree.animation_measured
+		await get_tree().create_timer(anim_length * .5).timeout
+		item_used.emit()
+		await get_tree().create_timer(anim_length * .5).timeout
+		slowed = false
+		busy = false
 
 func death():
+	if not is_multiplayer_authority(): 
+		return
+	if is_dead == true:
+		return
+	hurt_cool_down.start(8.0)
 	current_state = state.STATIC
-	hurt_cool_down.start(10)
 	is_dead = true
-	death_started.emit()
+	# TODO: Death is hacky. Don't call directly perhaps?	
+	animation_tree._on_death_started()
 	await get_tree().create_timer(3).timeout
-	get_tree().reload_current_scene()
+	visible = false
+	#death_started.emit()
+	await get_tree().create_timer(5).timeout
+	print('REASPAWNINg', health_system.total_health)
+	health_received.emit(health_system.total_health)
+	global_position = get_spawn_point() + Hub.get_cart().global_position
+	is_dead = false
+	visible = true
+	current_state = state.FREE
+	animation_tree._on_spawn_started()
+
+func get_spawn_point() -> Vector3:
+	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
+	return Vector3(spawn_point.x, 5.0, spawn_point.y)
+
 		
 func system_visible(_system_node,_new_toggle):
 		if _system_node:
@@ -625,7 +658,7 @@ func trigger_interact(interact_type:String):
 	await animation_tree.animation_measured
 	await get_tree().create_timer(anim_length).timeout
 	busy = false
-		
+
 func trigger_event(signal_name:String):
 	if busy or dodging:
 		return

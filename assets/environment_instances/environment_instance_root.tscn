@@ -65,7 +65,7 @@ height = 4.0
 
 [node name="EnvironmentInstanceRoot" type="Node3D" node_paths=PackedStringArray("environment_root_tracker")]
 script = ExtResource("1_fepr5")
-environment_root_tracker = NodePath("TEMP_ROOT_TRACKER")
+environment_root_tracker = NodePath("Marker3D")
 heightmap = ExtResource("2_3f4kl")
 
 [node name="moss_rock_08" type="Node3D" parent="."]
@@ -177,8 +177,10 @@ rot_y_randomize = 0.4
 instance_mesh = ExtResource("14_eel8a")
 
 [node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
-player = NodePath("../TEMP_ROOT_TRACKER")
+player = NodePath("../Marker3D")
 
 [node name="BakeTimer" type="Timer" parent="."]
 wait_time = 10.0
 autostart = true
+
+[node name="Marker3D" type="Marker3D" parent="."]
