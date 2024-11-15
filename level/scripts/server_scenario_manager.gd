@@ -64,12 +64,11 @@ func prepare_starting_area():
 	Hub.environment_container.add_child(first_town, true)	
 	first_town.global_position = Vector3.ZERO
 	previous_encounter_location = Vector3.ZERO
-	populate_enemies(Vector3(10.0, 10.0, 10.0))
-	populate_enemies(Vector3(5.0, 5.0, 5.0))
-	populate_enemies(Vector3(-7.0, 7.0, -7.0))
-	populate_enemies(Vector3(-12.0, 12.0, -12.0))
+	#populate_enemies(Vector3(10.0, 10.0, 10.0))
+	#populate_enemies(Vector3(5.0, 5.0, 5.0))
+	#populate_enemies(Vector3(-7.0, 7.0, -7.0))
+	#populate_enemies(Vector3(-12.0, 12.0, -12.0))
 	
-
 
 
 func check_surrounding_area(new_encounter_position) -> bool:

@@ -150,10 +150,6 @@ func _enter_tree():
 ## MULTIPLAYER TEMPLATE FUNCS
 
 
-## EQUIPMENT
-var SHIELD = preload("res://player/equipment_system/equipment/shield.tscn")
-## EQUIPMENT
-
 
 func _ready():
 	## MULTIPLAYER TEMPLATE FUNCS
@@ -194,6 +190,8 @@ func _ready():
 	current_state = state.FREE
 	
 	weapon_change_ended.emit(weapon_type)
+	
+	Hub.coin.connect(get_coin)
 	
 	# TODO: Remove before launch
 	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT 
@@ -395,7 +393,6 @@ var combo_enabled_weapons = ['SLASH', 'HEAVY']
 # Lots of changes to attacking to enable combos and face forward on start.
 # Signals still used to emit effects & enable weapons
 func attack():
-	print('TRIED TO ATTACK!')
 	if dodging:
 		return
 	attack_face_forward()
@@ -610,8 +607,7 @@ func hurt():
 	await get_tree().create_timer(anim_length).timeout
 
 func use_item():
-	if not busy:
-		busy = true
+	if not busy or dodging:
 		slowed = true
 		
 		use_item_started.emit()
@@ -621,13 +617,14 @@ func use_item():
 		item_used.emit()
 		await get_tree().create_timer(anim_length * .5).timeout
 		slowed = false
-		busy = false
 
+# TODO: Death is messy.
 func death():
 	if not is_multiplayer_authority(): 
 		return
 	if is_dead == true:
 		return
+	$CollisionShape3D.disabled = true
 	hurt_cool_down.start(8.0)
 	current_state = state.STATIC
 	is_dead = true
@@ -637,7 +634,10 @@ func death():
 	visible = false
 	#death_started.emit()
 	await get_tree().create_timer(5).timeout
-	print('REASPAWNINg', health_system.total_health)
+	restore()
+
+func restore():
+	$CollisionShape3D.disabled = false
 	health_received.emit(health_system.total_health)
 	global_position = get_spawn_point() + Hub.get_cart().global_position
 	is_dead = false
@@ -773,3 +773,7 @@ func change_nick(new_nick: String):
 # So that we're not in falling state during engine hint
 func prevent_engine():
 	return not Engine.is_editor_hint()
+
+func get_coin(amount):
+	coins = coins + amount
+	$GUI/GUIFullRect/MarginContainer/ItemSlot/CoinCount.text = str(coins)

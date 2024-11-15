@@ -14,7 +14,7 @@ signal environment_ignore_remove
 # signal environment_tracker_changed
 
 signal equipment_is_using
-
+signal coin
 
 # Nodes for spawning
 # Remember to add new Scenes to the Auto Spawn List
@@ -34,3 +34,10 @@ func get_player_by_name(player_name: StringName):
 
 func get_cart():
 	return environment_container.get_node("Cart")
+	
+func add_coins(amount):
+	add_coins_sync.rpc(amount)
+	
+@rpc("authority", "call_remote")
+func add_coins_sync(amount):
+	coin.emit(amount)

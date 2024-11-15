@@ -285,6 +285,7 @@ func death():
 	# Note: always queue_free on the server. - AD
 	await get_tree().create_timer(4).timeout
 	if multiplayer.is_server():
+		Hub.add_coins(randi_range(1,5))
 		queue_free()
 		
 @rpc("any_peer", "call_local")

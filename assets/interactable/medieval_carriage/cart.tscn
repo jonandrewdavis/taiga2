@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://brcob4a2vngyt"]
+[gd_scene load_steps=19 format=3 uid="uid://brcob4a2vngyt"]
 
 [ext_resource type="PackedScene" uid="uid://bdiwt6qndl0qy" path="res://assets/interactable/medieval_carriage/carriage.gltf" id="1_0i6nf"]
 [ext_resource type="Script" path="res://assets/interactable/medieval_carriage/cart.gd" id="1_kp5fv"]
@@ -7,9 +7,10 @@
 [ext_resource type="Script" path="res://ui/health_bar.gd" id="5_6yc8k"]
 [ext_resource type="Script" path="res://audio/SoundFXSystem.gd" id="6_2eeam"]
 [ext_resource type="AudioStream" uid="uid://twq1ywacwc88" path="res://audio/SoundFX/hit/hit_blunt_04.wav" id="6_o72a1"]
+[ext_resource type="Script" path="res://utility scripts/store.gd" id="8_cksmf"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nkrui"]
-size = Vector3(2, 3, 5.7)
+size = Vector3(2, 3, 5)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ey22n"]
 
@@ -49,6 +50,9 @@ gradient = SubResource("Gradient_telm3")
 width = 256
 height = 28
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_obh6q"]
+size = Vector3(2, 2, 1)
+
 [node name="Cart" type="RigidBody3D" groups=["cart"]]
 collision_layer = 3
 mass = 100.0
@@ -67,7 +71,7 @@ collide_with_areas = true
 transform = Transform3D(-7.256e-09, -0.165998, -7.256e-09, 0, -7.256e-09, 0.165998, -0.165998, 7.256e-09, 3.1717e-16, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35921, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35921, 0.317593)
 shape = SubResource("BoxShape3D_nkrui")
 
 [node name="InteractionPoint" type="Marker3D" parent="."]
@@ -161,5 +165,14 @@ stream = ExtResource("6_o72a1")
 script = ExtResource("6_2eeam")
 triggering_node = NodePath("..")
 sound_trigger_signal = "hurt_started"
+
+[node name="Store" type="Area3D" parent="."]
+collision_layer = 11
+collision_mask = 9
+script = ExtResource("8_cksmf")
+
+[node name="StoreCollision" type="CollisionShape3D" parent="Store"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.939602, -2.21721)
+shape = SubResource("BoxShape3D_obh6q")
 
 [editable path="Sketchfab_Scene"]

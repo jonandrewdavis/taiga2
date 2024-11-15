@@ -32,6 +32,8 @@ func _ready():
 	# For health bar
 	add_to_group("targets")
 	collision_layer = 5
+	
+
 
 func _integrate_forces(state):
 	if is_multiplayer_authority():
