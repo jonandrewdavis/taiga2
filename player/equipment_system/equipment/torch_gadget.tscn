@@ -1,14 +1,15 @@
-[gd_scene load_steps=21 format=4 uid="uid://dvs3icvtoe84r"]
+[gd_scene load_steps=25 format=4 uid="uid://dvs3icvtoe84r"]
 
 [ext_resource type="Script" path="res://player/equipment_system/equipment/equipment_object.gd" id="1_daoms"]
 [ext_resource type="AudioStream" uid="uid://bd7r1x1qj66kq" path="res://audio/SoundFX/fire/fire_01_loop.wav" id="2_1xq1v"]
 [ext_resource type="Script" path="res://player/equipment_system/equipment/equipment_resource.gd" id="2_j2csv"]
 [ext_resource type="Script" path="res://utility scripts/signal_switch.gd" id="2_uorbh"]
+[ext_resource type="Script" path="res://player/equipment_system/equipment/flame_particles.gd" id="3_q2nen"]
 
 [sub_resource type="Resource" id="Resource_hoj8b"]
 script = ExtResource("2_j2csv")
 name = "Torch"
-object_type = "SLASH"
+object_type = "SHIELD"
 power = 1
 weight = 1
 value = 1
@@ -120,6 +121,14 @@ colors = PackedColorArray(0.195322, 0.61755, 0.946868, 1, 0.947033, 0.237647, 0,
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_vubyf"]
 gradient = SubResource("Gradient_ohsiu")
 
+[sub_resource type="Curve" id="Curve_xg66v"]
+
+[sub_resource type="Curve" id="Curve_7jsgg"]
+
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_45axq"]
+curve_x = SubResource("Curve_xg66v")
+curve_z = SubResource("Curve_7jsgg")
+
 [sub_resource type="Curve" id="Curve_3r8y6"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.443077, 1), 0.0418739, 0.0418739, 0, 0, Vector2(0.966851, 0), 0.0, 0.0, 0, 0]
 point_count = 3
@@ -128,10 +137,12 @@ point_count = 3
 curve = SubResource("Curve_3r8y6")
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_s0sxy"]
-emission_shape = 1
-emission_sphere_radius = 0.15
+emission_shape = 3
+emission_box_extents = Vector3(0.15, 0.15, 0.15)
 direction = Vector3(1, 0, 1)
-spread = 0.0
+directional_velocity_min = 0.999984
+directional_velocity_max = 2.99998
+directional_velocity_curve = SubResource("CurveXYZTexture_45axq")
 gravity = Vector3(0, 1, 0)
 scale_min = 0.0
 scale_curve = SubResource("CurveTexture_eqef2")
@@ -176,10 +187,11 @@ shape = SubResource("BoxShape3D_7pavc")
 [node name="FlameParticles" type="GPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.510352, 0)
 amount = 100
-lifetime = 0.6
+lifetime = 1.36
 explosiveness = 0.17
 process_material = SubResource("ParticleProcessMaterial_s0sxy")
 draw_pass_1 = SubResource("PlaneMesh_cum78")
+script = ExtResource("3_q2nen")
 
 [node name="SignalSwitch" type="Node" parent="FlameParticles" node_paths=PackedStringArray("signaling_node")]
 script = ExtResource("2_uorbh")

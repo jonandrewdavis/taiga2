@@ -68,6 +68,9 @@ func prepare_starting_area():
 	populate_enemies(Vector3(5.0, 5.0, 5.0))
 	populate_enemies(Vector3(-7.0, 7.0, -7.0))
 	populate_enemies(Vector3(-12.0, 12.0, -12.0))
+	
+
+
 
 func check_surrounding_area(new_encounter_position) -> bool:
 	var min_dist = INF
@@ -111,10 +114,8 @@ func clean_up_encounters():
 func populate_enemies(_new_encounter_position: Vector3):
 	var first_enemy = basic_enemy.instantiate()
 	Hub.enemies_container.add_child(first_enemy, true)
-	print('reg spawn: ', get_spawn_point())
-	print('new spawn point: ', get_spawn_point() + _new_encounter_position)
 	first_enemy.global_position = get_spawn_point() + _new_encounter_position
-
+	first_enemy.set_new_default_target(Hub.get_cart())
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius

@@ -27,6 +27,8 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var ragdoll_death :bool = false
 @onready var general_skeleton = $vampire/GeneralSkeleton
 
+var colliding_with_target = false
+
 signal hurt_started
 signal damage_taken
 signal parried_started
@@ -71,13 +73,21 @@ func _ready():
 	if is_multiplayer_authority():
 		combat_timer.timeout.connect(_on_combat_timer_timeout)
 		chase_timer.timeout.connect(_on_chase_timer_timeout)
+		combat_timer.start()
 
 		if target_sensor:
 			target_sensor.target_spotted.connect(_on_target_spotted)
 			target_sensor.target_lost.connect(_on_target_lost)
 		
+		$AttackAreaSensor.body_entered.connect(_on_target_entered)
+		$AttackAreaSensor.body_exited.connect(_on_target_exited)
 		
+func _on_target_entered(_body):
+	if _body == target:
+		colliding_with_target = true
 		
+func _on_target_exited(_body):
+	colliding_with_target = false
 		
 func _process(delta):
 	if not is_multiplayer_authority():
@@ -119,8 +129,6 @@ func update_current_state(_new_state):
 	current_state = _new_state
 	state_changed.emit(_new_state)
 	
-	
-	
 # TODO: Tons of bugs in navigation
 # TODO: Painful to strip y index everywhere. The default target is always above or below the mesh	
 func navigation():
@@ -140,22 +148,31 @@ func rotate_character():
 
 func evaluate_state(): ## depending on distance to target, run or walk
 	if target:
-		if target == default_target:
+		if target == default_target && target.is_in_group("targets") == false:			
 			current_state = state.FREE
 		else:
 			if target:
 				var current_distance = global_position.distance_to(target.global_position)
 				if current_distance > combat_range:
-					current_state = state.CHASE
+					if colliding_with_target: 
+						current_state = state.COMBAT
+					else:
+						current_state = state.CHASE
 				elif current_distance <= combat_range && current_state != state.COMBAT:
 					current_state = state.COMBAT
 
+## added random times between attacks. Might be a bit much
 func _on_combat_timer_timeout():
 	if current_state == state.COMBAT && is_multiplayer_authority():
 		combat_randomizer()
+		combat_timer.start(randf_range(0.7,2.8))
 			
 func combat_randomizer():
 	if multiplayer.is_server():
+		if colliding_with_target == true:
+			attack.rpc()
+			return
+			
 		var random_choice = randi_range(1,20)
 		if random_choice <= 4:
 			retreat.rpc()
@@ -189,7 +206,11 @@ func set_default_target():
 		default_target = $EnemyMarkerSpawn
 	if !target:
 		target = default_target
-			
+
+func set_new_default_target(_new_default_target: Node3D):
+	if _new_default_target:
+		default_target = _new_default_target
+		target = default_target
 			
 func _target_to_player_node(_spotted_target: Node3D):
 	for player in Hub.players_container.get_children():
@@ -246,11 +267,18 @@ func hit_sync(_by_who_name: String, power: int):
 				damage_taken.emit(power)
 
 func parried():
-	if hurt_cool_down.is_stopped():
+	parried_sync.rpc()
+
+@rpc("any_peer", "call_local")
+func parried_sync():
+	if multiplayer.is_server() && hurt_cool_down.is_stopped():
+		combat_timer.stop()
 		hurt_cool_down.start()
 		parried_started.emit()
-
+		combat_timer.start(3)
+		
 func death():
+	combat_timer.stop()
 	update_current_state(state.DEAD)
 	hurt_cool_down.start(10)
 	death_sync.rpc()

@@ -9,7 +9,7 @@ class_name HealthSystem
 ## It can also work with a "health bar controller" or enemies to show their
 ## on-screen healthbar for a few seconds after being hit or healed.
 
-@export var total_health : int = 500
+@export var total_health : int = 5
 @export var current_health = total_health
 @export var hit_reporting_node : Node
 @export var damage_signal :String = "damage_taken"
@@ -52,7 +52,6 @@ func _on_damage_signal(_power_from_emit):
 
 @rpc("any_peer", "call_local")
 func _on_damage_signal_sync(_power):
-	print("HIT")
 	if health_bar_control:
 		show_timer.start()
 	var damage_power = _power
@@ -76,13 +75,13 @@ func _on_health_signal_sync(_power):
 	if current_health > total_health:
 		current_health = total_health
 	health_updated.emit(current_health)
-
 	
 func show_health():
 	var current_camera = get_viewport().get_camera_3d()
-	var screenspace = current_camera.unproject_position(hit_reporting_node.global_position)
-	health_bar_control.position = screenspace 
-	health_bar_control.show()
+	if current_camera:
+		var screenspace = current_camera.unproject_position(hit_reporting_node.global_position)
+		health_bar_control.position = screenspace 
+		health_bar_control.show()
 
 func _on_show_timer_timeout():
 	health_bar_control.hide()

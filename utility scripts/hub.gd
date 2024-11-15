@@ -13,6 +13,8 @@ signal environment_ignore_remove
 # NOTE: Keeping environment tracker changed on the parent of the instancer, not here.
 # signal environment_tracker_changed
 
+signal equipment_is_using
+
 
 # Nodes for spawning
 # Remember to add new Scenes to the Auto Spawn List

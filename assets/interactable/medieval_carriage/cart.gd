@@ -16,6 +16,7 @@ var cart_speed = 5.0
 
 
 signal damage_taken
+signal hurt_started
 
 
 func _enter_tree():
@@ -145,11 +146,12 @@ func hit(_by_who, _by_what):
 			#damage_taken.emit(_by_what)
 	if (_by_who.name && _by_what.power):
 		#hurt_cool_down.start()
-		#hurt_started.emit()
+		hurt_started.emit()
+		damage_taken.emit(_by_what.power)
 		hit_sync.rpc(_by_who.name, _by_what.power)
 
 @rpc("any_peer")
 func hit_sync(_by_who_name: String, power: int):
-	if multiplayer.is_server():
+	if is_multiplayer_authority():
 		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
 		damage_taken.emit(power)

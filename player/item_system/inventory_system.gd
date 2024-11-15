@@ -29,9 +29,9 @@ func _ready():
 	# I'm giving the player some stuff to start with, but you can see here
 	# how obtaining items in game can be as simple as appendingg to the inventory array.
 	starter_item.count = 3
-	starter_item2.count = 3
+	#starter_item2.count = 3
 	inventory.append(starter_item)
-	inventory.append(starter_item2)
+	#inventory.append(starter_item2)
 	
 	restack_inventory()
 	

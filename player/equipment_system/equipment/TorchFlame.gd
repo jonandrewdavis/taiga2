@@ -12,3 +12,4 @@ func toggle_torch(toggle):
 	emitting = toggle
 	torch_light.visible = toggle
 	fire_sfx.playing = toggle
+	

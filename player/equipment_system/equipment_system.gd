@@ -20,6 +20,7 @@ class_name EquipmentSystem
 @export var player_node : CharacterBody3D
 ## The object group to detect 
 @export var target_group : String = "targets"
+@export var target_group_secondary : String = "cart"
 
 ## The signal name from player_node for when the item should be active.
 ## items themselves should manage what "active" means, but typically this is
@@ -62,25 +63,25 @@ func _ready():
 
 
 	## update what weapon we're starting with
-	if held_mount_point:
-		if held_mount_point.get_child(0):
-			current_equipment = held_mount_point.get_child(0)
-			current_equipment.equipped = true
-			current_equipment.monitoring = false
-			current_equipment.collision_layer = collision_detect_layers
-			if current_equipment.has_signal("body_entered"):
-				current_equipment.body_entered.connect(_on_body_entered)
+	if held_mount_point && held_mount_point.get_child_count() > 0:
+		current_equipment = held_mount_point.get_child(0)
+		current_equipment.equipped = true
+		current_equipment.monitoring = false
+		current_equipment.collision_layer = collision_detect_layers
+		if current_equipment.has_signal("body_entered"):
+			current_equipment.body_entered.connect(_on_body_entered)
 	## update what gadget we're holding
 	if stored_mount_point:
 		if stored_mount_point.get_child(0):
 			stored_equipment = stored_mount_point.get_child(0)
 			stored_equipment.equipped = false
 			stored_equipment.monitoring = false
-			current_equipment.collision_mask = collision_detect_layers
+			if current_equipment:
+				current_equipment.collision_mask = collision_detect_layers
 
 func _on_equipment_changed():
 	await get_tree().create_timer(player_node.anim_length * .5).timeout
-	if stored_mount_point.get_child(0) && held_mount_point.get_child(0):
+	if stored_mount_point.get_child_count() > 0 && held_mount_point.get_child_count() > 0:
 		stored_equipment = stored_mount_point.get_child(0)
 		
 		## rearrange children
@@ -112,15 +113,18 @@ func _on_activated():
 		await get_tree().create_timer(player_node.anim_length *.5).timeout
 		## after moment turn off monitoring to not hit things
 		current_equipment.monitoring = false
+
 		
 func _on_body_entered(_hit_body):
-	if _hit_body.is_in_group(target_group):
-		if _hit_body.has_method("hit"):
-			hit_target.emit()
-			_hit_body.hit(player_node,current_equipment.equipment_info)
+	if _hit_body: 
+		if _hit_body.is_in_group(target_group) || _hit_body.is_in_group(target_group_secondary):
+			if _hit_body.has_method("hit"):
+				hit_target.emit()
+				_hit_body.hit(player_node,current_equipment.equipment_info)
 			
 	else: 
 		hit_world.emit()
 
 func _on_stop_signal():
-	current_equipment.monitoring = false
+	if current_equipment: 
+		current_equipment.monitoring = false

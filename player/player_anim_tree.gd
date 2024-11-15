@@ -164,7 +164,14 @@ func _on_attack_requested():
 
 func _on_attack_requested_timeout():
 	is_combo = false
-	
+	if attack_count > 1 && get("parameters/Attack/active") == false:
+		_on_attack_end()
+	#var current_node = get("parameters/ATTACK_tree/" + weapon_type +"/playback").get_current_node()
+	#if attack_count == 2 && get("parameters/ATTACK_tree/" + weapon_type +"/playback").get_current_node() == "Slash1":
+		#_on_attack_end()
+	#if get("parameters/ATTACK_tree/" + weapon_type +"/playback").is_playing() == false:
+		#_on_attack_end()
+		
 # TODO: refactor this to emit properly. The first request Attack to the player perhaps... Its tough.
 # It would allow allow attack to emit more freely
 # NOTE: Doesn't work over RPC yet.
@@ -185,6 +192,7 @@ func attack_once():
 	
 func attack_chain_current_length():
 	return get("parameters/ATTACK_tree/" + weapon_type +"/playback").get_current_length()
+	
 
 # TODO: Finally got this working after like 3 weeks
 # This "attack_chain_current_length() > 0:" prevents the "running in place" busy, because 
@@ -203,7 +211,7 @@ func attack_chain():
 		await get_tree().create_timer(attack_chain_current_length() + 0.01).timeout
 		attack_count = 2
 		attack_chain()
-	elif is_combo == true && attack_count == 2 &&  attack_chain_current_length() > 0:
+	elif is_combo == true && attack_count == 2 && get("parameters/Attack/active"):
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case()+ str(attack_count))
 		animation_measured.emit(attack_chain_current_length())
 		await animation_measured
@@ -212,7 +220,7 @@ func attack_chain():
 		await get_tree().create_timer(attack_chain_current_length() + 0.01).timeout
 		attack_count = 3
 		attack_chain()
-	elif is_combo == true && attack_count == 3 && attack_chain_current_length() > 0:
+	elif is_combo == true && attack_count == 3 && get("parameters/Attack/active"):
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case() + str(attack_count))
 		animation_measured.emit(attack_chain_current_length())
 		await animation_measured
@@ -235,6 +243,7 @@ func sync_combo_attack(weapon_type_rpc, number):
 
 func _on_attack_end():
 	player_node.busy = false
+	player_node.current_state = player_node.state.FREE
 	attack_count = 1
 
 
@@ -273,9 +282,6 @@ func _on_sprint_started():
 		sync_player_sprinting.rpc()
 	
 func _on_dodge_started():
-	if player_node.busy:
-		abort_oneshot(last_oneshot)
-		_on_attack_end()
 	request_oneshot("Dodge")
 
 func _on_interact_started(_new_interact_type):

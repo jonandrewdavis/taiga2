@@ -1,9 +1,8 @@
 extends CharacterBody3D
 
-
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
-
+@export var coins: int = 0
 
 @onready var nickname: Label3D = $PlayerNick/Nickname
 
@@ -58,7 +57,7 @@ var secondary_action
 @export var gadget_system : EquipmentSystem
 ## A helper variable, tracks the current gadget type for easier referencing from
 ## the AnimationStateTree or anywhere else that may need to know what gadget type is held.
-var gadget_type :String = "SHIELD"
+@export var gadget_type :String = "SHIELD"
 signal gadget_change_started ## to start the animation
 signal gadget_change_ended(gadget_type:String) ## to end the animation
 signal gadget_started ## when the gadget attack starts
@@ -149,6 +148,12 @@ func _enter_tree():
 
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
+
+
+## EQUIPMENT
+var SHIELD = preload("res://player/equipment_system/equipment/shield.tscn")
+## EQUIPMENT
+
 
 func _ready():
 	## MULTIPLAYER TEMPLATE FUNCS
@@ -277,8 +282,7 @@ func _input(_event:InputEvent):
 			print(global_transform.basis.z)
 
 		if _event.is_action_pressed("use_weapon_light"):
-			if busy == false:
-				attack()
+			attack()
 		elif _event.is_action_pressed("use_weapon_strong"):
 			attack_strong()
 		if is_on_floor():
@@ -289,11 +293,10 @@ func _input(_event:InputEvent):
 			elif _event.is_action_pressed("jump"):
 				jump()
 				
-			elif _event.is_action_pressed("dodge_dash"):
-				dodge_or_sprint()
+			#elif _event.is_action_pressed("sprint"):
+				#sprint()
 				
-			elif _event.is_action_released("dodge_dash") \
-			&& sprint_timer.time_left:
+			elif _event.is_action_pressed("dodge"):
 				dodge()
 			
 			elif _event.is_action_pressed("change_primary"):
@@ -307,7 +310,7 @@ func _input(_event:InputEvent):
 			elif _event.is_action_pressed("use_gadget_light"):
 				if secondary_action:
 					use_gadget()
-				else:
+				elif gadget_type == "SHIELD":
 					start_guard()
 			
 			elif _event.is_action_pressed("change_item"):
@@ -321,11 +324,10 @@ func _input(_event:InputEvent):
 				abort_climb()
 	
 	if sprinting:
-		
 		if !input_dir:
 			end_sprint()
 		
-		if _event.is_action_released("dodge_dash"):
+		if _event.is_action_released("sprint"):
 			end_sprint()
 				
 	if _event.is_action_released("use_gadget_light"):
@@ -338,7 +340,7 @@ func apply_gravity(_delta):
 		velocity.y -= gravity * _delta
 		
 func rotate_player():
-	if busy:
+	if busy && not dodging:
 		return
 	var rate = .15
 	
@@ -393,6 +395,9 @@ var combo_enabled_weapons = ['SLASH', 'HEAVY']
 # Lots of changes to attacking to enable combos and face forward on start.
 # Signals still used to emit effects & enable weapons
 func attack():
+	print('TRIED TO ATTACK!')
+	if dodging:
+		return
 	attack_face_forward()
 	if busy == true:
 		return
@@ -443,7 +448,7 @@ func fall_check():
 			busy = false
 			
 			
-func dodge_or_sprint():
+func sprint():
 	if sprint_timer.is_stopped():
 		sprint_timer.start(.3)
 		await sprint_timer.timeout
@@ -454,25 +459,21 @@ func dodge_or_sprint():
 func end_sprint():
 	sprinting = false
 		
-		
 			
 var guard_local	
 var strafe_local
 
 func dodge(): 
-	$GUI/GUIFullRect/DIST.text = str(global_position)
-
-	if dodging:
+	if dodging or busy:
 		return
-	
 	# While dodging, save out theese locals	
 	guard_local = guarding
 	strafe_local = strafing
-	
+	busy = true
+
 	guarding = false
 	strafing = false
 	dodging = true
-	sprint_timer.stop()
 	dodge_started.emit()
 	
 	# Stop the weapon from being active during dodge since we allow dodge interrupts
@@ -487,6 +488,7 @@ func dodge():
 	guarding = guard_local
 	strafing = strafe_local
 	dodging = false
+	busy = false
  
 func _on_animation_measured(_new_length ):
 	anim_length = _new_length - .05
@@ -520,7 +522,8 @@ func _on_weapon_equipment_changed(_new_weapon:EquipmentObject):
 	weapon_type = _new_weapon.equipment_info.object_type
 
 func _on_gadget_equipment_changed(_new_gadget:EquipmentObject):
-	gadget_type = _new_gadget.equipment_info.object_type
+	if _new_gadget:
+		gadget_type = _new_gadget.equipment_info.object_type
 
 func _on_inventory_item_used(_item):
 	current_item = _item
@@ -547,6 +550,7 @@ func start_guard(): # Guarding, and for a short window, parring is possible
 	guard_local = true
 	guarding = true
 	parry_active = true
+	Hub.equipment_is_using.emit(true)
 	await get_tree().create_timer(parry_window).timeout
 	parry_active = false
 
@@ -560,11 +564,11 @@ func end_guard():
 	strafing = false
 	strafe_local = false
 	strafe_toggled.emit(false)
+	Hub.equipment_is_using.emit(false)
 
 
 func use_gadget(): # emits to start the gadget, and runs some timers before stopping the gadget
 	trigger_event("gadget_started")
-
 
 func hit(_who, _by_what):
 	# only get hit by things on your client.
