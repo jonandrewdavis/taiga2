@@ -1,19 +1,52 @@
-extends Area3D
+extends Node3D
 
 
-## EQUIPMENT
-var shield_scene = preload("res://player/equipment_system/equipment/shield.tscn")
-## EQUIPMENT
 
+@onready var items_holder = $Items
+@onready var chest = $Open/ChestObject
+@onready var open_store = $Open
 
 func _ready():
-	add_to_group("interactable")
-	collision_layer = 9
+	open_store.add_to_group("interactable")
+	open_store.collision_layer = 9
+	hide_all_items()
+	$OpenTimer.timeout.connect(show_all_items)
+	$AutoCloseTimer.timeout.connect(activate)
+	
+	for item in items_holder.get_children():
+		item.add_to_group("interactable")
+		item.collision_layer = 9
 
+func activate(_activated_player: CharacterBody3D = null, _activated_item = null):
+	if chest && chest.has_method("activate"):
+		chest.activate(_activated_player)
+			
+	if chest.opened == false:
+		$AutoCloseTimer.stop()
+		$OpenTimer.stop()
+		hide_all_items()
+	else:
+		$AutoCloseTimer.stop()
+		$OpenTimer.start(0.9)
 
-func activate(_activated_player: CharacterBody3D):
-	var gadgets: EquipmentSystem = _activated_player.get_node("GadgetSystem")
-	var SHIELD = shield_scene.instantiate()
-	gadgets.held_mount_point.add_child(SHIELD)
-	gadgets.current_equipment = SHIELD
-	print('_activated_player', _activated_player)
+func hide_all_items():
+	items_holder.visible = false
+	for item in items_holder.get_children():
+		var col:CollisionShape3D = item.get_node("CollisionShape3D")
+		col.disabled = true
+	
+
+func show_all_items():
+	items_holder.visible = true
+	for item in items_holder.get_children():
+		var col:CollisionShape3D = item.get_node("CollisionShape3D")
+		col.disabled = false
+	$AutoCloseTimer.start(20.0)
+	
+	
+func _on_open_store_area_entered(area):
+	pass # Replace with function body.
+
+func buy_item(player, item_area_name):
+	var item_name = item_area_name.split("(")[0].strip_edges()
+	player.try_buy(item_name)

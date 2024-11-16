@@ -48,7 +48,6 @@ signal equipment_changed(new_equipment : EquipmentObject)
 signal deactivate
 
 func _ready():
-	
 	if player_node:
 		if player_node.has_signal(change_signal):
 			player_node.connect(change_signal,_on_equipment_changed)
@@ -61,7 +60,6 @@ func _ready():
 			
 		deactivate.connect(_on_stop_signal)
 
-
 	## update what weapon we're starting with
 	if held_mount_point && held_mount_point.get_child_count() > 0:
 		current_equipment = held_mount_point.get_child(0)
@@ -70,8 +68,9 @@ func _ready():
 		current_equipment.collision_layer = collision_detect_layers
 		if current_equipment.has_signal("body_entered"):
 			current_equipment.body_entered.connect(_on_body_entered)
+
 	## update what gadget we're holding
-	if stored_mount_point:
+	if stored_mount_point && stored_mount_point.get_child_count() > 0:
 		if stored_mount_point.get_child(0):
 			stored_equipment = stored_mount_point.get_child(0)
 			stored_equipment.equipped = false
@@ -103,6 +102,21 @@ func _on_equipment_changed():
 		current_equipment.equipped = true
 		current_equipment.collision_mask = collision_detect_layers
 		equipment_changed.emit(current_equipment)
+	elif stored_mount_point.get_child_count() > 0 && held_mount_point.get_child_count() == 0:
+		# TODO: this is repetitive, the case where only torch is stored.
+		held_mount_point.remove_child(current_equipment)
+		stored_mount_point.remove_child(stored_equipment)
+		
+		held_mount_point.add_child(stored_equipment)
+		current_equipment = held_mount_point.get_child(0)
+		
+		await get_tree().process_frame
+		if current_equipment.has_signal("body_entered"):
+			current_equipment.body_entered.connect(_on_body_entered)
+		current_equipment.equipped = true
+		current_equipment.collision_mask = collision_detect_layers
+		equipment_changed.emit(current_equipment)
+
 		
 func _on_activated():
 	## awaiting so the area3D starts monitoring about after attack wind-up
@@ -128,3 +142,11 @@ func _on_body_entered(_hit_body):
 func _on_stop_signal():
 	if current_equipment: 
 		current_equipment.monitoring = false
+
+func _find_empty_pivot():
+	if held_mount_point.get_node_or_null("EmptyEquipment") != null:
+		return "held_mount_point"
+	elif stored_mount_point.get_node_or_null("EmptyEquipment") != null:
+		return "stored_mount_point"
+	else:
+		return null

@@ -29,6 +29,10 @@ signal event_finished
 ## Interactables that update based on entering a Ladder Area or, the sensor_cast
 ## colliding with an interactable.
 @onready var interactable : Node3D
+
+# Added this... -AD
+@onready var interactable_custom : Node3D
+
 @onready var ladder
 signal climb_started
 signal interact_started(interact_type)
@@ -45,6 +49,10 @@ signal weapon_change_started ## to start the animation
 signal weapon_change_ended(weapon_type:String) ## informing the change is complete
 signal attack_started ## to start the animation
 signal attack_requested
+
+
+## New stuff - AD
+signal eyeline_check
 
 
 ## A helper variable for keyboard events across 2 key inputs "shift+ attack", etc.
@@ -149,9 +157,13 @@ func _enter_tree():
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
 
+## EQUIPMENT
+var shield_scene = preload("res://player/equipment_system/equipment/shield.tscn")
+## EQUIPMENT
 
 
 func _ready():
+
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: Replicated vars + rpc on `request_oneshot` should cover ALL cases.
 	# NOTE: That means we can disable any signals if we're not authority.
@@ -177,6 +189,10 @@ func _ready():
 		
 	climb_started.connect(_on_climb_started)
 		
+		
+	$FollowCam/CustomEyeline.area_entered.connect(_on_eyeline_enter)
+	$FollowCam/CustomEyeline.area_exited.connect(_on_eyeline_leave)
+
 	add_child(sprint_timer)
 	sprint_timer.one_shot = true
 	
@@ -393,7 +409,7 @@ var combo_enabled_weapons = ['SLASH', 'HEAVY']
 # Lots of changes to attacking to enable combos and face forward on start.
 # Signals still used to emit effects & enable weapons
 func attack():
-	if dodging:
+	if dodging or weapon_type == "OTHER":
 		return
 	attack_face_forward()
 	if busy == true:
@@ -492,7 +508,11 @@ func _on_animation_measured(_new_length ):
 
 func interact():
 	if is_on_floor() && !busy:
-		if interactable:
+		# ADDED: For shopping... - AD
+		if interactable_custom && interactable_custom.get_parent().has_method("activate"):
+			interactable_custom.get_parent().activate(self, interactable_custom.name)
+			
+		if interactable && interactable.has_method("activate"):
 			interactable.activate(self)
 		elif ladder:
 			ladder.activate(self)
@@ -777,3 +797,35 @@ func prevent_engine():
 func get_coin(amount):
 	coins = coins + amount
 	$GUI/GUIFullRect/MarginContainer/ItemSlot/CoinCount.text = str(coins)
+
+func _on_eyeline_enter(_interactable):
+	print(_interactable)
+	if _interactable && _interactable.is_in_group("interactable"):
+		$GUI/GUIFullRect/InteractTooltip.text = str(_interactable.name)
+		interactable_custom = _interactable
+	
+func _on_eyeline_leave(_interactable):
+	$GUI/GUIFullRect/InteractTooltip.text = ''
+	interactable_custom = null
+
+func try_buy(item):
+	match item:
+		'Potion':
+			pass
+		'Bow':
+			pass
+		'Shield':
+			var mount_string = $GadgetSystem._find_empty_pivot()
+			if mount_string:
+				var mount_point = $GadgetSystem[mount_string]
+				var free_eq = mount_point.get_child(0)
+				mount_point.remove_child(free_eq)
+				var new_shield = shield_scene.instantiate()
+				$GadgetSystem[mount_string].add_child(new_shield)
+				if mount_string == "held_mount_point":
+					$GadgetSystem.current_equipment = new_shield
+				await get_tree().create_timer(.1).timeout
+				free_eq.queue_free()
+			pass
+		'Axe':
+			pass

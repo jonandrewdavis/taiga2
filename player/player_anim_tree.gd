@@ -205,28 +205,28 @@ func attack_chain_current_length():
 func attack_chain():
 	if attack_count == 1:
 		request_oneshot("Attack")
-		animation_measured.emit(attack_chain_current_length())
+		animation_measured.emit(attack_chain_current_length() - 0.15)
 		await animation_measured
 		player_node.attack_started.emit()
-		await get_tree().create_timer(attack_chain_current_length() + 0.01).timeout
+		await get_tree().create_timer(attack_chain_current_length() - 0.15).timeout
 		attack_count = 2
 		attack_chain()
 	elif is_combo == true && attack_count == 2 && get("parameters/Attack/active"):
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case()+ str(attack_count))
-		animation_measured.emit(attack_chain_current_length())
+		animation_measured.emit(attack_chain_current_length() - 0.15)
 		await animation_measured
 		player_node.attack_started.emit()
 		sync_combo_attack.rpc(weapon_type, attack_count)
-		await get_tree().create_timer(attack_chain_current_length() + 0.01).timeout
+		await get_tree().create_timer(attack_chain_current_length()  - 0.15).timeout
 		attack_count = 3
 		attack_chain()
 	elif is_combo == true && attack_count == 3 && get("parameters/Attack/active"):
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case() + str(attack_count))
-		animation_measured.emit(attack_chain_current_length())
+		animation_measured.emit(attack_chain_current_length()  - 0.15)
 		await animation_measured
 		player_node.attack_started.emit()
 		sync_combo_attack.rpc(weapon_type, attack_count)
-		await get_tree().create_timer(attack_chain_current_length() + 0.01).timeout
+		await get_tree().create_timer(attack_chain_current_length()  - 0.15).timeout
 		_on_attack_end()
 	else:
 		_on_attack_end()
@@ -242,6 +242,7 @@ func sync_combo_attack(weapon_type_rpc, number):
 	get("parameters/ATTACK_tree/" + weapon_type_rpc +"/playback").travel(weapon_type_rpc.to_pascal_case()  + str(number))
 
 func _on_attack_end():
+	#print("DEBUG: Ended on attack: ", player_node.state, player_node.busy)
 	player_node.busy = false
 	player_node.current_state = player_node.state.FREE
 	attack_count = 1

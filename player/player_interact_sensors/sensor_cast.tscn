@@ -9,5 +9,4 @@ size = Vector3(0.2, 0.2, 0.2)
 [node name="SensorCast" type="ShapeCast3D"]
 shape = SubResource("BoxShape3D_cfuto")
 collision_mask = 9
-collide_with_areas = true
 script = ExtResource("1_fiu3x")

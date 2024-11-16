@@ -49,6 +49,7 @@ func _ready():
 	
 	if signaling_node:
 		if signaling_node.has_signal(targeting_toggle_signal):
+			print('we coneected')
 			signaling_node.connect(targeting_toggle_signal,_on_targeting_toggled)
 			
 func _update_lists():

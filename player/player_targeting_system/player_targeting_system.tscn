@@ -30,37 +30,44 @@ target_detection_layer_mask = 13
 
 [node name="LeftEye" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -5)
+visible = false
 collision_layer = 4
 collision_mask = 4
 script = ExtResource("2_y87dp")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="LeftEye"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -2)
+visible = false
 shape = SubResource("BoxShape3D_dfo1h")
 
 [node name="RightEye" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -5)
+visible = false
 collision_layer = 4
 collision_mask = 4
 script = ExtResource("2_y87dp")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RightEye"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -2)
+visible = false
 shape = SubResource("BoxShape3D_ini2b")
 
 [node name="CenterEye" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -5)
+visible = false
 collision_layer = 4
 collision_mask = 4
 script = ExtResource("2_y87dp")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CenterEye"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+visible = false
 shape = SubResource("BoxShape3D_5ry60")
 
 [node name="Eyeline" type="RayCast3D" parent="."]
 target_position = Vector3(0, 0, -17.515)
-collision_mask = 13
+collision_mask = 269
+collide_with_areas = true
 debug_shape_custom_color = Color(0.913725, 0.388235, 0.145098, 1)
 debug_shape_thickness = 4
 

@@ -14,12 +14,23 @@ extends StaticBody3D
 var anim
 signal interactable_activated
 
-func _ready():
-	add_to_group("interactable")
-	collision_layer = 9
+@export var is_store_chest = false
 
+func _ready():
+	if is_store_chest == false: 
+		add_to_group("interactable")
+		collision_layer = 9
 
 func activate(player: CharacterBody3D):
+	if is_store_chest == true:
+		if opened == false:
+			open_chest()
+		else:
+			close_chest()
+			
+		# return early if we're the store chest...
+		return
+
 	if locked:
 		shake_chest()
 		
@@ -44,3 +55,8 @@ func open_chest():
 	anim = "open"
 	chest_anim_player.play(anim)
 	opened = true
+
+func close_chest():
+	anim = "open"
+	chest_anim_player.play_backwards(anim)
+	opened = false
