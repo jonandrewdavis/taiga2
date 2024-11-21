@@ -11,7 +11,7 @@ const HEIGHTMAP := preload('res://assets/environment/heightmap_grass_main.tres')
 const TILE_SIZE := 5.0
 const MAP_RADIUS := 200.0
 const HEIGHTMAP_SCALE := 5.0
-const HEIGHTMAP_NOISE_WIDTH = 512 * 2
+const HEIGHTMAP_NOISE_WIDTH = 1024
 
 
 var grass_multimeshes : Array[Array] = []
@@ -92,11 +92,10 @@ func _setup_heightmap_collision(_offset: Vector3) -> void:
 	texture.noise.frequency = 0.025
 	texture.noise.fractal_gain = 0.1
 	texture.noise.offset = _offset
-	print(texture.noise.offset)
 	var heightmap = texture.noise.get_image(HEIGHTMAP_NOISE_WIDTH , HEIGHTMAP_NOISE_WIDTH)
 	
 	var dims := Vector2i(heightmap.get_height(), heightmap.get_width())
-	print(heightmap.get_height(), heightmap.get_width())
+	#print('DEBUG: main.gd heightmap collision', heightmap.get_height(), heightmap.get_width())
 	var map_data : PackedFloat32Array
 	# Off by one: print(map_data.size())
 	for j in dims.x:

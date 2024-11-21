@@ -148,6 +148,12 @@ enum state {FREE,STATIC,CLIMB}
 signal changed_state(new_state: state)
 
 
+
+
+# TODO: Enum? ADDED - AD 11/21/2024
+var combo_enabled_weapons = ['SLASH', 'HEAVY']
+var two_handed_weapons = ['HEAVY', 'BOW']
+
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
 
@@ -187,7 +193,7 @@ func _ready():
 		
 	climb_started.connect(_on_climb_started)
 		
-	nickname.visible = false		
+	nickname.visible = false
 	$FollowCam/CustomEyeline.area_entered.connect(_on_eyeline_enter)
 	$FollowCam/CustomEyeline.area_exited.connect(_on_eyeline_leave)
 
@@ -208,13 +214,13 @@ func _ready():
 	Hub.coin.connect(get_coin)
 	
 	# TODO: Remove before launch
-	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT 
+	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT
 	
 ## Makes variable changes for each state, primiarily used for updating movement speeds
 func change_state(new_state):
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: Not required for basinc functioning, BUT: probably doesn't ever leave FREE.	
-	if not is_multiplayer_authority(): 
+	if not is_multiplayer_authority():
 		return
 
 	current_state = new_state
@@ -228,18 +234,21 @@ func change_state(new_state):
 			speed = 0.0
 			velocity = Vector3.ZERO
 	
-	if current_state == state.CLIMB:
-		system_visible(weapon_system,false)
-		system_visible(gadget_system,false)
-	else:
-		system_visible(weapon_system,true)
-		system_visible(gadget_system,true)
+	# TODO: Add back ladders........................ - AD
+	# Currently, we're disabling another way, on weapon change, to enforce a disadvantage on 2 handers.
+	
+	#if current_state == state.CLIMB:
+		#system_visible(weapon_system,false)
+		#system_visible(gadget_system,false)
+	#else:
+		#system_visible(weapon_system,true)
+		#system_visible(gadget_system,true)
 			
 func _physics_process(_delta):
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: All 3 Required for all authorities because of "flying" bug.
 	# TODO: Adding Ladders may just need everything here.
-	if not is_multiplayer_authority(): 
+	if not is_multiplayer_authority():
 		apply_gravity(_delta)
 		fall_check()
 		move_and_slide()
@@ -265,8 +274,8 @@ func out_of_bounds_check():
 		global_position.x = 250.0
 	
 func _input(_event:InputEvent):
-	if not is_multiplayer_authority(): 
-		return	
+	if not is_multiplayer_authority():
+		return
 	
 		# Update current orientation to camera when nothing pressed
 	if !Input.is_anything_pressed():
@@ -290,8 +299,7 @@ func _input(_event:InputEvent):
 	
 	if current_state == state.FREE:
 		if _event.is_action_pressed("debug"):
-			print('Debug:')
-			print(global_transform.basis.z)
+			Hub.debug_spawn_new_enemy_sync.rpc()
 
 		if _event.is_action_pressed("use_weapon_light"):
 			attack()
@@ -316,10 +324,12 @@ func _input(_event:InputEvent):
 			elif _event.is_action_pressed("change_secondary"):
 				gadget_change()
 
-			elif _event.is_action_pressed("use_gadget_strong"): 
+			elif _event.is_action_pressed("use_gadget_strong"):
 				use_gadget()
 					
 			elif _event.is_action_pressed("use_gadget_light"):
+				if two_handed_weapons.has(weapon_system.current_equipment.equipment_info.object_type):
+					return
 				if secondary_action:
 					use_gadget()
 				elif gadget_type == "SHIELD":
@@ -327,13 +337,13 @@ func _input(_event:InputEvent):
 			
 			elif _event.is_action_pressed("change_item"):
 				item_change()
-			elif _event.is_action_pressed("use_item"): 
+			elif _event.is_action_pressed("use_item"):
 				use_item()
 	
 	elif current_state == state.CLIMB:
 			#aiming = false
-			if _event.is_action_pressed("interact"):
-				abort_climb()
+		if _event.is_action_pressed("interact"):
+			abort_climb()
 	
 	if sprinting:
 		if !input_dir:
@@ -366,7 +376,7 @@ func rotate_player():
 		global_transform.basis = Basis(target_rotation)
 		var new_direction = calc_direction().normalized()
 		
-		var forward_vector = global_transform.basis.z.normalized() 
+		var forward_vector = global_transform.basis.z.normalized()
 		strafe_cross_product = -forward_vector.cross(new_direction).y
 		move_dot_product = forward_vector.dot(new_direction)
 		return
@@ -394,13 +404,11 @@ func attack_face_forward():
 	target_rotation = current_rotation.slerp(Quaternion(Vector3.UP, orientation_target.global_rotation.y + PI), rate)
 	global_transform.basis = Basis(target_rotation)
 	
-	var forward_vector = global_transform.basis.z.normalized() 
+	var forward_vector = global_transform.basis.z.normalized()
 	strafe_cross_product = -forward_vector.cross(new_direction).y
 	move_dot_product = forward_vector.dot(new_direction)
 
 
-# TODO: Enum
-var combo_enabled_weapons = ['SLASH', 'HEAVY']
 
 
 # AD Notes:
@@ -447,7 +455,7 @@ func fall_check():
 	## than the hard_landing_height, then trigger a hard landing. Otherwise, 
 	## clear the last_altitude variable.
 
-	if !is_on_floor() && last_altitude == null: 
+	if !is_on_floor() && last_altitude == null:
 		last_altitude = global_position
 	if is_on_floor() && last_altitude != null:
 		var fall_distance = abs(last_altitude.y - global_position.y)
@@ -464,17 +472,17 @@ func sprint():
 		sprint_timer.start(.3)
 		await sprint_timer.timeout
 		if !dodging && input_dir:
-				sprinting = true
-				sprint_started.emit() # triggers the change in anim tree
+			sprinting = true
+			sprint_started.emit() # triggers the change in anim tree
 		
 func end_sprint():
 	sprinting = false
 		
 			
-var guard_local	
+var guard_local
 var strafe_local
 
-func dodge(): 
+func dodge():
 	if dodging or busy:
 		return
 	# While dodging, save out theese locals	
@@ -529,7 +537,10 @@ func weapon_change():
 	slowed = true
 	trigger_event("weapon_change_started")
 	await event_finished
-	print(weapon_type)
+	if two_handed_weapons.has(weapon_type):
+		system_visible(gadget_system,false)
+	else:
+		system_visible(gadget_system,true)
 	weapon_change_ended.emit(weapon_type)
 	slowed = false
 	
@@ -596,7 +607,8 @@ func hit(_who, _by_what):
 				_who.parried()
 			return
 		elif guarding:
-			block()
+			if gadget_system.current_equipment.equipment_info.power != 0:
+				block()
 		else:
 			damage_taken.emit(_by_what.power)
 			hurt()

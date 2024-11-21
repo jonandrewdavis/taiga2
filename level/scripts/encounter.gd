@@ -43,7 +43,6 @@ func _ready():
 func height_map_check():
 	if scenery_container:
 		for object in scenery_container.get_children():
-			#print(get_heightmap_y(object.global_position.x, object.global_position.z))
 			object.global_position.y = get_heightmap_y(object.global_position.x, object.global_position.z) + 1.0
 
 # If there are no more nearby players, it's safe to remove this encounter

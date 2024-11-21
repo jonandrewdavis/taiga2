@@ -7,7 +7,7 @@ class_name EquipmentResource
 ## to decide what to do with this info (take damage, stunned, has weaknesses/etc).  
 
 @export var name : String = "Equipable Item"
-@export_enum("SLASH","HEAVY","SHIELD","OTHER") var object_type : String= "SLASH"
+@export_enum("SLASH","HEAVY","SHIELD","OTHER","BOW") var object_type : String= "SLASH"
 @export var power : int = 1
 @export var weight : int = 1
 @export var value : int = 1

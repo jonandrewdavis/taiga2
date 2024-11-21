@@ -10,11 +10,16 @@ signal encounter_tracker_changed
 # Environment Instance Root 
 signal environment_ignore_add
 signal environment_ignore_remove
-# NOTE: Keeping environment tracker changed on the parent of the instancer, not here.
+
+###############
+# NOTE: Keeping environment tracker changed on the parent of the instancer, not here, as they are naturally grouped.
 # signal environment_tracker_changed
+###############
 
 signal equipment_is_using
 signal coin
+signal debug_spawn_new_enemy
+
 
 # Nodes for spawning
 # Remember to add new Scenes to the Auto Spawn List
@@ -32,7 +37,7 @@ func get_player_by_name(player_name: StringName):
 		if player.name == player_name:
 			return player
 
-func get_cart():
+func get_cart() -> Node3D:
 	return environment_container.get_node("Cart")
 	
 func add_coins(amount):
@@ -41,3 +46,7 @@ func add_coins(amount):
 @rpc("authority", "call_remote")
 func add_coins_sync(amount):
 	coin.emit(amount)
+
+@rpc('any_peer')
+func debug_spawn_new_enemy_sync():
+	debug_spawn_new_enemy.emit()

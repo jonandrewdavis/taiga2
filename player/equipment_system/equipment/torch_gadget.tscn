@@ -10,7 +10,7 @@
 script = ExtResource("2_j2csv")
 name = "Torch"
 object_type = "SHIELD"
-power = 1
+power = 0
 weight = 1
 value = 1
 

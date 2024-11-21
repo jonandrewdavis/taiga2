@@ -32,6 +32,7 @@ func _ready():
 	if is_multiplayer_authority():
 		Hub.encounter_timer_start.connect(_on_begin_encounters)
 		Hub.encounter_tracker_changed.connect(_on_encounter_tracker_changed)
+		Hub.debug_spawn_new_enemy.connect(_on_debug_spawn_new_enemy)
 
 func _on_begin_encounters():
 	# Start up our timers, as we now have a monitorable subject
@@ -120,5 +121,16 @@ func populate_enemies(_new_encounter_position: Vector3, is_patrol = false):
 		enemy.set_new_default_target(Hub.get_cart())
 
 func get_spawn_point() -> Vector3:
-	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
+	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 15 # spawn radius
 	return Vector3(spawn_point.x, 5.0, spawn_point.y)
+
+
+func _on_debug_spawn_new_enemy():
+	# TODO: Add archers?
+	print('Spawn a new Debuged Enemy')
+	# -100 is behind the current facing of the cart!!!
+	# They'll sneak up. lol
+	populate_enemies(Hub.get_cart().transform.basis.x * Vector3(-100.0, 0.0, -100.0), true)
+
+func _on_debug_kill_all_enemies():
+	pass

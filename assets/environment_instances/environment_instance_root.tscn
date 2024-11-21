@@ -176,11 +176,11 @@ scale_randomize = 0.2
 rot_y_randomize = 0.4
 instance_mesh = ExtResource("14_eel8a")
 
-[node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
-player = NodePath("../Marker3D")
-
 [node name="BakeTimer" type="Timer" parent="."]
 wait_time = 10.0
 autostart = true
 
 [node name="Marker3D" type="Marker3D" parent="."]
+
+[node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
+player = NodePath("../Marker3D")
