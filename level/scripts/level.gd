@@ -64,6 +64,11 @@ func _on_host_pressed():
 
 func _on_join_pressed():
 	menu.hide()
+	$LoadingControl.modulate.a = 0
+	$LoadingControl.visible = true
+	var tween = create_tween()
+	tween.tween_property($LoadingControl,"modulate:a", 1, 1.5)
+	await tween.finished
 	Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
 	
 func _add_player(id: int, player_info : Dictionary):
@@ -117,6 +122,8 @@ func sync_player_skin(_id: int, skin_name: String):
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 	
+	
+# TODO: IS THIS CORRECT?? WHY CAN ANY PLAYER CALL THSI?	
 # Prepare client only nodes.
 @rpc("any_peer", "call_local")
 func sync_player_client_only_nodes(peer_id):
@@ -127,6 +134,12 @@ func sync_player_client_only_nodes(peer_id):
 	$EnvironmentContainer.add_child(prepare_environment)
 	prepare_environment.environment_tracker_changed.emit(player_node) 
 	player_node.position = get_spawn_point()
+
+	await get_tree().create_timer(1.1).timeout
+	var tween = create_tween()
+	tween.tween_property($LoadingControl,"modulate:a", 0, 1.5)
+	await tween.finished
+	player_node.spawn()
 
 func add_server_only_nodes():
 	$MenuEnvironmentArea.queue_free()

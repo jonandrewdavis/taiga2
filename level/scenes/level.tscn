@@ -77,6 +77,27 @@ shadow_enabled = true
 directional_shadow_mode = 0
 sky_mode = 1
 
+[node name="AudioStreamPlayer2" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("21_m577m")
+volume_db = -25.0
+autoplay = true
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("22_cvn7w")
+volume_db = 4.0
+autoplay = true
+
+[node name="AudioStreamPlayer3" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("23_aoolo")
+volume_db = -30.0
+autoplay = true
+
+[node name="PlayersContainer" type="Node3D" parent="."]
+
+[node name="EnemiesContainer" type="Node3D" parent="."]
+
+[node name="EnvironmentContainer" type="Node3D" parent="."]
+
 [node name="Menu" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
@@ -95,18 +116,6 @@ grow_vertical = 2
 size_flags_horizontal = 0
 size_flags_vertical = 3
 color = Color(0, 0, 0, 0.811765)
-
-[node name="ColorRect3" type="ColorRect" parent="Menu"]
-visible = false
-custom_minimum_size = Vector2(650, 800)
-layout_mode = 2
-offset_top = -157.0
-offset_right = 650.0
-offset_bottom = 1370.0
-grow_vertical = 2
-size_flags_horizontal = 0
-size_flags_vertical = 3
-color = Color(0.0901961, 0.0901961, 0.0901961, 0.811765)
 
 [node name="TextureRect" type="TextureRect" parent="Menu"]
 self_modulate = Color(1, 1, 1, 0.129412)
@@ -266,26 +275,39 @@ theme_override_font_sizes/font_size = 35
 text = "QUIT"
 flat = true
 
-[node name="AudioStreamPlayer2" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("21_m577m")
-volume_db = -25.0
-autoplay = true
+[node name="LoadingControl" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("22_cvn7w")
-volume_db = 4.0
-autoplay = true
+[node name="LOADING" type="ColorRect" parent="LoadingControl"]
+custom_minimum_size = Vector2(650, 800)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+color = Color(0.0901961, 0.0901961, 0.0901961, 1)
 
-[node name="AudioStreamPlayer3" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("23_aoolo")
-volume_db = -30.0
-autoplay = true
-
-[node name="PlayersContainer" type="Node3D" parent="."]
-
-[node name="EnemiesContainer" type="Node3D" parent="."]
-
-[node name="EnvironmentContainer" type="Node3D" parent="."]
+[node name="TextureRect2" type="TextureRect" parent="LoadingControl"]
+visible = false
+self_modulate = Color(1, 1, 1, 0.129412)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("NoiseTexture2D_yhx56")
+expand_mode = 1
+stretch_mode = 1
 
 [node name="SpawnerPlayers" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://player/player_charbody3d.tscn")

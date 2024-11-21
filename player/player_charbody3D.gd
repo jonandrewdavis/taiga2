@@ -166,6 +166,8 @@ func _ready():
 	if not is_multiplayer_authority(): 
 		return
 		
+	$GUI.hide()
+		
 	if animation_tree:
 		animation_tree.animation_measured.connect(_on_animation_measured)
 		
@@ -814,6 +816,7 @@ var new_packed_scene = {
 	"axe_scene": axe_scene
 }	
 
+# NOTE: This is an RPC because we are spawning items (see mulitplayer spawner in player).
 @rpc("authority", "call_local")
 func replace_empty_on_system(system_name, scene_name):
 		print('playername', name, 'system naeme', system_name)
@@ -842,3 +845,9 @@ func replace_empty_on_system(system_name, scene_name):
 				# Remove the empty equipment
 				await get_tree().create_timer(.1).timeout
 				free_eq.queue_free()
+
+# TODO: make this a lot more robust
+func spawn():
+	$GUI.show()
+	#animation_tree.abort_oneshot(animation_tree.last_oneshot)
+	#animation_tree.request_oneshot("Spawn")
