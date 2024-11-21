@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=17 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
@@ -25,6 +25,12 @@ shader_parameter/contrast = 3.0
 shader_parameter/scale = 1.5
 shader_parameter/rotation = 0.08
 shader_parameter/resolution_downsampling = 1.5
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_7t4rf"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_yhx56"]
+seamless = true
+noise = SubResource("FastNoiseLite_7t4rf")
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_npnbc"]
 color = Color(0, 0, 0, 0)
@@ -88,7 +94,30 @@ offset_bottom = 1370.0
 grow_vertical = 2
 size_flags_horizontal = 0
 size_flags_vertical = 3
+color = Color(0, 0, 0, 0.811765)
+
+[node name="ColorRect3" type="ColorRect" parent="Menu"]
+visible = false
+custom_minimum_size = Vector2(650, 800)
+layout_mode = 2
+offset_top = -157.0
+offset_right = 650.0
+offset_bottom = 1370.0
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
 color = Color(0.0901961, 0.0901961, 0.0901961, 0.811765)
+
+[node name="TextureRect" type="TextureRect" parent="Menu"]
+self_modulate = Color(1, 1, 1, 0.129412)
+layout_mode = 0
+offset_left = 2.0
+offset_top = -66.0
+offset_right = 627.0
+offset_bottom = 1187.0
+texture = SubResource("NoiseTexture2D_yhx56")
+expand_mode = 1
+stretch_mode = 1
 
 [node name="MainContainer" type="VBoxContainer" parent="Menu"]
 layout_mode = 1
@@ -136,7 +165,7 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_fonts/font = ExtResource("3_icc4p")
-theme_override_font_sizes/font_size = 35
+theme_override_font_sizes/font_size = 27
 text = "Nickname: "
 
 [node name="NickInput" type="LineEdit" parent="Menu/MainContainer/MarginContainer/MainMenu/Option1"]

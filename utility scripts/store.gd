@@ -6,6 +6,9 @@ extends Node3D
 @onready var chest = $Open/ChestObject
 @onready var open_store = $Open
 
+func _enter_tree():
+	set_multiplayer_authority(1)
+
 func _ready():
 	open_store.add_to_group("interactable")
 	open_store.collision_layer = 9
@@ -43,10 +46,22 @@ func show_all_items():
 		col.disabled = false
 	$AutoCloseTimer.start(20.0)
 	
-	
-func _on_open_store_area_entered(area):
-	pass # Replace with function body.
 
 func buy_item(player, item_area_name):
 	var item_name = item_area_name.split("(")[0].strip_edges()
-	player.try_buy(item_name)
+	try_buy(player, item_name)
+
+
+func try_buy(player, item):
+	match item:
+		'Potion':
+			#$InventorySystem.add_potion()
+			pass
+		'Bow':
+			pass
+		'Shield':
+			player.replace_empty_on_system.rpc('GadgetSystem', "shield_scene")
+			pass
+		'Axe':
+			player.replace_empty_on_system.rpc('WeaponSystem', "axe_scene")
+			pass

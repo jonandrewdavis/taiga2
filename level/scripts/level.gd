@@ -123,15 +123,15 @@ func sync_player_client_only_nodes(peer_id):
 	$MenuEnvironmentArea.queue_free()
 
 	var player_node = Hub.get_player(peer_id)
-	var prepare_environment = environment_arena.instantiate()
+	var prepare_environment = environment_instance_root_scene.instantiate()
 	$EnvironmentContainer.add_child(prepare_environment)
-	#prepare_environment.environment_tracker_changed.emit(player_node) 
+	prepare_environment.environment_tracker_changed.emit(player_node) 
 	player_node.position = get_spawn_point()
 
 func add_server_only_nodes():
 	$MenuEnvironmentArea.queue_free()
 
-	var prepare_environment = environment_arena.instantiate()
+	var prepare_environment = environment_instance_root_scene.instantiate()
 	var server_scenario_manager = server_scenario_manager_scene.instantiate()
 	var cart = cart_scene.instantiate()
 
@@ -140,8 +140,8 @@ func add_server_only_nodes():
 	$EnvironmentContainer.add_child.call_deferred(cart, true)
 
 	await get_tree().create_timer(.1).timeout
-	#prepare_environment.environment_tracker_changed.emit(cart) 
-	cart.global_position = Vector3(8.0, 1.0, -8.0)
+	prepare_environment.environment_tracker_changed.emit(cart) 
+	cart.global_position = Vector3(-8.0, 1.0, 8.0)
 
 	# Begin Scenarios
 	Hub.encounter_timer_start.emit()

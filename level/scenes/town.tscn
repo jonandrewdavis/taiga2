@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://c4oockhjnrg6"]
+[gd_scene load_steps=4 format=3 uid="uid://c4oockhjnrg6"]
 
 [ext_resource type="PackedScene" uid="uid://ch6528py03hat" path="res://assets/interactable/campfire/campfire.tscn" id="1_hv11k"]
 [ext_resource type="Script" path="res://level/scripts/encounter.gd" id="1_jrmak"]
-[ext_resource type="PackedScene" uid="uid://b3jlfbq7soybi" path="res://assets/environment_objects/buildings/medieval_slavic_cottage/cottage.gltf" id="3_v8hg2"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_081l1"]
 properties/0/path = NodePath(".:position")
@@ -12,11 +11,12 @@ properties/0/replication_mode = 2
 [node name="StartingArea" type="Node3D"]
 script = ExtResource("1_jrmak")
 
-[node name="Sketchfab_Scene2" parent="." instance=ExtResource("3_v8hg2")]
-transform = Transform3D(-0.999147, 0, -0.0412828, 0, 1, 0, 0.0412828, 0, -0.999147, 2.05393, -0.226235, -0.441689)
+[node name="SceneryContainer" type="Node3D" parent="."]
 
-[node name="Campfire" parent="." instance=ExtResource("1_hv11k")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12.2864)
+[node name="CampfireParent" type="Node3D" parent="SceneryContainer"]
+
+[node name="Campfire" parent="SceneryContainer/CampfireParent" instance=ExtResource("1_hv11k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.106021, 0.530545, 0.157061)
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_081l1")

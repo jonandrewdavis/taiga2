@@ -9,7 +9,10 @@ const HEIGHTMAP := preload('res://assets/environment/heightmap_grass_main.tres')
 const HEIGHTMAP_SCALE = 5.0
 const HEIGHTMAP_WIDTH = 512
 
-const ignore_zone_radius = 28.0
+const ignore_zone_radius = 22.0
+
+@onready var scenery_container: Node3D = $SceneryContainer
+
 
 func _enter_tree():
 	set_multiplayer_authority(1)
@@ -21,7 +24,7 @@ func _ready():
 	# Because it's at 0.0.0 when created, we wait a second before emitting, so we have the right global position
 	await get_tree().create_timer(0.1).timeout
 	
-	# TODO: This code doesn't work probably because it needs a spawner?
+	# TODO: This code doesn't work probably because it needs a spawner, but it should work on each client?
 	if custom_ignore_mesh: 
 		Hub.environment_ignore_add.emit(custom_ignore_mesh, name)
 	else:
@@ -38,9 +41,9 @@ func _ready():
 		
 @rpc("call_remote")
 func height_map_check():
-	if $Placeholder:
-		for object in $Placeholder.get_children():
-			print(get_heightmap_y(object.global_position.x, object.global_position.z))
+	if scenery_container:
+		for object in scenery_container.get_children():
+			#print(get_heightmap_y(object.global_position.x, object.global_position.z))
 			object.global_position.y = get_heightmap_y(object.global_position.x, object.global_position.z) + 1.0
 
 # If there are no more nearby players, it's safe to remove this encounter

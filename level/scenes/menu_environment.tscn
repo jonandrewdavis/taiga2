@@ -24,7 +24,7 @@ base_texture = SubResource("MeshTexture_7iaut")
 environment_root_tracker = NodePath("../Marker3D")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-0.623279, -0.23385, 0.746215, 0, 0.95424, 0.299041, -0.781999, 0.186386, -0.594758, -0.546218, 5.04484, -19.8255)
+transform = Transform3D(-0.87339, 0.145639, -0.464735, -2.09403e-08, 0.95424, 0.299041, 0.487021, 0.26118, -0.833424, 14.6204, 5.04484, -47.3279)
 
 [node name="Marker3D" type="Marker3D" parent="."]
 
@@ -32,8 +32,8 @@ transform = Transform3D(-0.623279, -0.23385, 0.746215, 0, 0.95424, 0.299041, -0.
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.81016, 1.55236, -16.9902)
 texture = SubResource("MeshTexture_vp0xe")
 
-[node name="Campfire" parent="." instance=ExtResource("5_ef3ue")]
-transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -8.04303, -0.44914, -18.3056)
-
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("4_75gwv")]
-transform = Transform3D(0.22194, 0, 0.97506, 0, 1, 0, -0.97506, 0, 0.22194, -14.1781, -0.996597, -19.8587)
+transform = Transform3D(-0.663009, 0.000605251, -0.748611, 0.0104644, 0.999909, -0.00845942, 0.748538, -0.0134425, -0.662955, 21.078, 0.986519, -38.4376)
+
+[node name="Campfire" parent="." instance=ExtResource("5_ef3ue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.3239, 1.91124, -42.0299)

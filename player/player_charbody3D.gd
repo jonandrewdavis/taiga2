@@ -157,10 +157,6 @@ func _enter_tree():
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
 
-## EQUIPMENT
-var shield_scene = preload("res://player/equipment_system/equipment/shield.tscn")
-## EQUIPMENT
-
 
 func _ready():
 
@@ -189,7 +185,7 @@ func _ready():
 		
 	climb_started.connect(_on_climb_started)
 		
-		
+	nickname.visible = false		
 	$FollowCam/CustomEyeline.area_entered.connect(_on_eyeline_enter)
 	$FollowCam/CustomEyeline.area_exited.connect(_on_eyeline_leave)
 
@@ -799,7 +795,6 @@ func get_coin(amount):
 	$GUI/GUIFullRect/MarginContainer/ItemSlot/CoinCount.text = str(coins)
 
 func _on_eyeline_enter(_interactable):
-	print(_interactable)
 	if _interactable && _interactable.is_in_group("interactable"):
 		$GUI/GUIFullRect/InteractTooltip.text = str(_interactable.name)
 		interactable_custom = _interactable
@@ -808,24 +803,42 @@ func _on_eyeline_leave(_interactable):
 	$GUI/GUIFullRect/InteractTooltip.text = ''
 	interactable_custom = null
 
-func try_buy(item):
-	match item:
-		'Potion':
-			pass
-		'Bow':
-			pass
-		'Shield':
-			var mount_string = $GadgetSystem._find_empty_pivot()
-			if mount_string:
-				var mount_point = $GadgetSystem[mount_string]
+
+## EQUIPMENT
+var shield_scene = preload("res://player/equipment_system/equipment/shield.tscn")
+var axe_scene = preload("res://player/equipment_system/equipment/Ax.tscn")
+## EQUIPMENT
+
+var new_packed_scene = { 
+	"shield_scene": shield_scene,
+	"axe_scene": axe_scene
+}	
+
+@rpc("authority", "call_local")
+func replace_empty_on_system(system_name, scene_name):
+		print('playername', name, 'system naeme', system_name)
+		var system = get_node_or_null(system_name)
+		if system != null: 
+			var mount_string = system._find_empty_pivot()
+			print('mount', mount_string)
+			if mount_string != null:
+				print('mount', mount_string)
+				var mount_point = system[mount_string]
 				var free_eq = mount_point.get_child(0)
 				mount_point.remove_child(free_eq)
-				var new_shield = shield_scene.instantiate()
-				$GadgetSystem[mount_string].add_child(new_shield)
+				var new_scene = new_packed_scene[scene_name].instantiate()
+				system[mount_string].add_child(new_scene)
 				if mount_string == "held_mount_point":
-					$GadgetSystem.current_equipment = new_shield
+					system.current_equipment = new_scene
+					system._on_stop_signal()
+					if (system.name == 'GadgetSystem'):
+						_on_gadget_equipment_changed(system.current_equipment)
+					else:					
+						_on_weapon_equipment_changed(system.current_equipment)
+				else:
+					system.stored_equipment = new_scene
+					system.stored_equipment.equipped = false
+					system.stored_equipment.monitoring = false
+				# Remove the empty equipment
 				await get_tree().create_timer(.1).timeout
 				free_eq.queue_free()
-			pass
-		'Axe':
-			pass

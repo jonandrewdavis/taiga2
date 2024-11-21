@@ -48,6 +48,7 @@ signal equipment_changed(new_equipment : EquipmentObject)
 signal deactivate
 
 func _ready():
+	
 	if player_node:
 		if player_node.has_signal(change_signal):
 			player_node.connect(change_signal,_on_equipment_changed)

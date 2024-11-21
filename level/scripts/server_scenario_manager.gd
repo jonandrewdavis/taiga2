@@ -64,8 +64,10 @@ func prepare_starting_area():
 	Hub.environment_container.add_child(first_town, true)	
 	first_town.global_position = Vector3.ZERO
 	previous_encounter_location = Vector3.ZERO
-	#populate_enemies(Vector3(10.0, 10.0, 10.0))
-	#populate_enemies(Vector3(5.0, 5.0, 5.0))
+
+	populate_enemies(Vector3(10.0, 10.0, 10.0))
+
+	populate_enemies(Vector3(5.0, 5.0, 5.0))
 	#populate_enemies(Vector3(-7.0, 7.0, -7.0))
 	#populate_enemies(Vector3(-12.0, 12.0, -12.0))
 	
@@ -101,7 +103,7 @@ func check_for_encounter():
 		var average_recent_directions =  recent_directions.values().reduce(func(a, b): return a + b, Vector3.ZERO) / recent_directions.size()
 		var new_encounter_position = encounter_tracker.global_position + (average_recent_directions * Vector3(distance_during_spawn, 0.0, distance_during_spawn))
 		if check_surrounding_area(new_encounter_position) && check_distance_from_previous(new_encounter_position):
-			print("ENCOUNTER ALLOWED AT: ", new_encounter_position)
+			print("DEBUG: ENCOUNTER ALLOWED AT: ", new_encounter_position)
 			prepare_encounter(new_encounter_position)
 
 		await get_tree().create_timer(1).timeout 
@@ -110,11 +112,12 @@ func check_for_encounter():
 func clean_up_encounters():
 	get_tree().call_group("encounters", "check_for_clean_up", encounter_tracker.global_position, despawn_distance_radius)
 
-func populate_enemies(_new_encounter_position: Vector3):
-	var first_enemy = basic_enemy.instantiate()
-	Hub.enemies_container.add_child(first_enemy, true)
-	first_enemy.global_position = get_spawn_point() + _new_encounter_position
-	first_enemy.set_new_default_target(Hub.get_cart())
+func populate_enemies(_new_encounter_position: Vector3, is_patrol = false):
+	var enemy = basic_enemy.instantiate()
+	Hub.enemies_container.add_child(enemy, true)
+	enemy.global_position = get_spawn_point() + _new_encounter_position
+	if is_patrol:
+		enemy.set_new_default_target(Hub.get_cart())
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
