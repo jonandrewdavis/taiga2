@@ -30,7 +30,7 @@ func _ready():
 ## Lookat a sensed body's direction, if there is a clean line of site
 ## return that node to be assigned as a target
 func eyeline_check():
-	if potential_target:
+	if potential_target != null:
 		eyeline.look_at(potential_target.global_position + Vector3.UP,Vector3.UP,true)
 		await get_tree().process_frame
 		if eyeline.is_colliding():

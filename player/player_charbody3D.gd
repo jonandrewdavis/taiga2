@@ -2,7 +2,7 @@ extends CharacterBody3D
 
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
-@export var coins: int = 0
+@export var coins: int = 100
 
 @onready var nickname: Label3D = $PlayerNick/Nickname
 
@@ -70,6 +70,7 @@ signal gadget_change_started ## to start the animation
 signal gadget_change_ended(gadget_type:String) ## to end the animation
 signal gadget_started ## when the gadget attack starts
 
+@export var gadget_power = 0
 
 ## When guarding this substate is true. Drives animation and hitbox logic for blocking.
 ## The first moments of guarding, the parry window is active, allowing to parry()
@@ -90,7 +91,7 @@ signal hurt_started # to start the animation
 signal damage_taken(by_what:EquipmentObject) # to indicate the damage value
 signal health_received(by_what:ItemObject) # CHANGED to just be power - AD
 signal death_started
-var is_dead :bool = false
+@export var is_dead :bool = false
 
 @export var inventory_system : InventorySystem
 var current_item : ItemResource
@@ -149,10 +150,12 @@ signal changed_state(new_state: state)
 
 
 
-
 # TODO: Enum? ADDED - AD 11/21/2024
 var combo_enabled_weapons = ['SLASH', 'HEAVY']
 var two_handed_weapons = ['HEAVY', 'BOW']
+
+signal store_error
+signal store_success
 
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
@@ -165,13 +168,12 @@ func _enter_tree():
 
 
 func _ready():
-
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: Replicated vars + rpc on `request_oneshot` should cover ALL cases.
 	# NOTE: That means we can disable any signals if we're not authority.
 	if not is_multiplayer_authority(): 
 		return
-		
+	
 	$GUI.hide()
 		
 	if animation_tree:
@@ -212,9 +214,14 @@ func _ready():
 	weapon_change_ended.emit(weapon_type)
 	
 	Hub.coin.connect(get_coin)
+	store_error.connect(_on_update_coin)
+	store_success.connect(_on_update_coin)
+	_on_update_coin()
 	
 	# TODO: Remove before launch
 	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT
+	
+	
 	
 ## Makes variable changes for each state, primiarily used for updating movement speeds
 func change_state(new_state):
@@ -531,7 +538,6 @@ func abort_climb():
 	if current_state == state.CLIMB:
 		last_altitude = global_position
 		current_state = state.FREE
-	
 
 func weapon_change():
 	slowed = true
@@ -549,6 +555,7 @@ func _on_weapon_equipment_changed(_new_weapon:EquipmentObject):
 
 func _on_gadget_equipment_changed(_new_gadget:EquipmentObject):
 	if _new_gadget:
+		gadget_power = _new_gadget.equipment_info.power
 		gadget_type = _new_gadget.equipment_info.object_type
 
 func _on_inventory_item_used(_item):
@@ -558,17 +565,19 @@ func gadget_change():
 	slowed = true
 	trigger_event("gadget_change_started")
 	await event_finished
-	print(gadget_type)
 	gadget_change_ended.emit(gadget_type)
 	await get_tree().create_timer(anim_length *.5).timeout
 	slowed = false
 
+# TODO: We're just using health potion for now.
 func item_change():
-	slowed = true
-	trigger_event("item_change_started")
-	await event_finished
-	item_change_ended.emit(current_item)
-	slowed = false
+	return
+	
+	#slowed = true
+	#trigger_event("item_change_started")
+	#await event_finished
+	#item_change_ended.emit(current_item)
+	#slowed = false
 	
 func start_guard(): # Guarding, and for a short window, parring is possible
 	set_strafe_targeting()
@@ -606,9 +615,8 @@ func hit(_who, _by_what):
 			if _who.has_method("parried"):
 				_who.parried()
 			return
-		elif guarding:
-			if gadget_system.current_equipment.equipment_info.power != 0:
-				block()
+		elif guarding && gadget_power != 0:
+			block()
 		else:
 			damage_taken.emit(_by_what.power)
 			hurt()
@@ -638,23 +646,25 @@ func hurt():
 
 func use_item():
 	if not busy or dodging:
+		busy = true
 		slowed = true
-		
 		use_item_started.emit()
-		if animation_tree:
-			await animation_tree.animation_measured
+		await animation_tree.animation_measured
 		await get_tree().create_timer(anim_length * .5).timeout
 		item_used.emit()
 		await get_tree().create_timer(anim_length * .5).timeout
 		slowed = false
+		busy = false
 
 # TODO: Death is messy.
+# TODO: Reset their weapons somehow.................
+# TODO: Would be nice to do anyway so they can drop something. 
 func death():
 	if not is_multiplayer_authority(): 
 		return
 	if is_dead == true:
 		return
-	$CollisionShape3D.disabled = true
+	#$CollisionShape3D.disabled = true
 	hurt_cool_down.start(8.0)
 	current_state = state.STATIC
 	is_dead = true
@@ -662,24 +672,25 @@ func death():
 	animation_tree._on_death_started()
 	await get_tree().create_timer(3).timeout
 	visible = false
-	#death_started.emit()
 	await get_tree().create_timer(5).timeout
 	restore()
 
+# TODO: Needs to take all your weapons away.
+# Could also orbit the Cart cam for a hot second... 
+# Could... also. QUEUE Free the player for a bit. LOL.
 func restore():
-	$CollisionShape3D.disabled = false
 	health_received.emit(health_system.total_health)
 	global_position = get_spawn_point() + Hub.get_cart().global_position
 	is_dead = false
 	visible = true
 	current_state = state.FREE
 	animation_tree._on_spawn_started()
+	coins = 0
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
 	return Vector3(spawn_point.x, 5.0, spawn_point.y)
 
-		
 func system_visible(_system_node,_new_toggle):
 		if _system_node:
 			_system_node.visible = _new_toggle
@@ -806,7 +817,11 @@ func prevent_engine():
 
 func get_coin(amount):
 	coins = coins + amount
+	_on_update_coin()
+
+func _on_update_coin():
 	$GUI/GUIFullRect/MarginContainer/ItemSlot/CoinCount.text = str(coins)
+	
 
 func _on_eyeline_enter(_interactable):
 	if _interactable && _interactable.is_in_group("interactable"):
@@ -821,23 +836,25 @@ func _on_eyeline_leave(_interactable):
 ## EQUIPMENT
 var shield_scene = preload("res://player/equipment_system/equipment/shield.tscn")
 var axe_scene = preload("res://player/equipment_system/equipment/Ax.tscn")
+var bow_scene = preload("res://player/equipment_system/equipment/Bow.tscn")
 ## EQUIPMENT
 
 var new_packed_scene = { 
 	"shield_scene": shield_scene,
-	"axe_scene": axe_scene
+	"axe_scene": axe_scene,
+	"bow_scene": bow_scene
 }	
 
 # NOTE: This is an RPC because we are spawning items (see mulitplayer spawner in player).
 @rpc("authority", "call_local")
-func replace_empty_on_system(system_name, scene_name):
-		print('playername', name, 'system naeme', system_name)
+func replace_empty_on_system(system_name, scene_name, cost: int):
+		if coins < cost:
+			store_error.emit()
+			return
 		var system = get_node_or_null(system_name)
 		if system != null: 
 			var mount_string = system._find_empty_pivot()
-			print('mount', mount_string)
 			if mount_string != null:
-				print('mount', mount_string)
 				var mount_point = system[mount_string]
 				var free_eq = mount_point.get_child(0)
 				mount_point.remove_child(free_eq)
@@ -855,11 +872,24 @@ func replace_empty_on_system(system_name, scene_name):
 					system.stored_equipment.equipped = false
 					system.stored_equipment.monitoring = false
 				# Remove the empty equipment
+				store_success.emit()
+				coins = coins - cost
 				await get_tree().create_timer(.1).timeout
 				free_eq.queue_free()
+			else:
+				store_error.emit()
 
+				
 # TODO: make this a lot more robust
 func spawn():
 	$GUI.show()
 	#animation_tree.abort_oneshot(animation_tree.last_oneshot)
 	#animation_tree.request_oneshot("Spawn")
+	
+func add_new_potion(_cost):
+	if coins >= _cost:	
+		$InventorySystem.add_potion()
+		coins = coins - _cost
+		store_success.emit()
+	else:
+		store_error.emit()

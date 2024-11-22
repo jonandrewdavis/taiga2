@@ -26,6 +26,9 @@ signal debug_spawn_new_enemy
 var environment_container: Node3D
 var players_container: Node3D
 var enemies_container: Node3D
+
+const player_scene = preload("res://player/player_charbody3d.tscn")
+
 	
 func get_player(player_id: int):
 	for player in players_container.get_children():
@@ -50,3 +53,36 @@ func add_coins_sync(amount):
 @rpc('any_peer')
 func debug_spawn_new_enemy_sync():
 	debug_spawn_new_enemy.emit()
+	
+func get_environment_root() -> Node3D:
+	return environment_container.get_node("EnvironmentInstanceRoot")
+
+
+# TODO: Ambitious way to reset the player.... but bug prone.
+
+#@rpc('any_peer')
+#func _remove_player(id):
+	#if not multiplayer.is_server() or not players_container.has_node(str(id)):
+		#return
+	#var player_node = players_container.get_node(str(id))
+	#if player_node:
+		#player_node.queue_free()
+	#
+	#await get_tree().create_timer(5).timeout	
+	#_add_player_as_respawn.rpc(id)
+#
+#@rpc("any_peer", "call_local")
+#func _add_player_as_respawn(id: int):
+	#if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
+		#return
+	#
+	#var player = player_scene.instantiate()
+	#player.name = str(id)
+	#players_container.add_child(player, true)
+#
+	#var nick = Network.players[id]["nick"]
+	#player.rpc("change_nick", nick)
+	#
+	#player.global_position = Vector3(3.0, 3.0, 3.0)
+	#
+	#get_environment_root().environment_tracker_changed.emit(player)

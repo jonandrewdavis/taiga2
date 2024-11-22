@@ -43,7 +43,7 @@ func _spawn_enemy():
 
 	enemy.global_position = get_spawn_point()
 
-func _on_player_connected(peer_id, player_info):
+func _on_player_connected(peer_id, _player_info):
 	for id in Network.players.keys():
 		var _player_data = Network.players[id]
 		#if id != peer_id:
@@ -51,7 +51,7 @@ func _on_player_connected(peer_id, player_info):
 			#rpc_id(peer_id, "sync_player_skin", id, player_data["skin"])
 			#rpc_id(peer_id, "sync_player_skin", id, player_data["skin"])
 				
-	_add_player(peer_id, player_info)
+	_add_player(peer_id)
 
 func _on_host_pressed():
 	menu.hide()
@@ -71,7 +71,7 @@ func _on_join_pressed():
 	await tween.finished
 	Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
 	
-func _add_player(id: int, player_info : Dictionary):
+func _add_player(id: int):
 	# Skip a lot of nodes
 	if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
 		return
@@ -83,11 +83,10 @@ func _add_player(id: int, player_info : Dictionary):
 	var nick = Network.players[id]["nick"]
 	player.rpc("change_nick", nick)
 	
-	var skin_name = player_info["skin"]
-	rpc("sync_player_skin", id, skin_name)
-	
 	rpc("sync_player_position", id, player.position)
 	
+	# Call from the server to a specific client, in this case, the player we just added.
+	# Runs this function to attach the environment, etc.
 	rpc_id(id, "sync_player_client_only_nodes", id)
 	
 
@@ -101,7 +100,8 @@ func _remove_player(id):
 	var player_node = players_container.get_node(str(id))
 	if player_node:
 		player_node.queue_free()
-		
+
+# Is this necessary?
 @rpc("any_peer", "call_local")
 func sync_player_position(id: int, new_position: Vector3):
 	var player = players_container.get_node(str(id))
@@ -109,23 +109,13 @@ func sync_player_position(id: int, new_position: Vector3):
 		player.position = new_position
 		# TODO: Proper loading signal / bus for users to load their scenery.
 		#$EnvironmentInstanceRoot.set_new_root(player)
-		
-@rpc("any_peer", "call_local")
-func sync_player_skin(_id: int, skin_name: String):
-	return skin_name
-	#if id == 1: return # ignore host
-	#var player = players_container.get_node(str(id))
-	#if player:
-		#environment_instance.environment_root_tracker = player
-		#player.set_player_skin(skin_name)
 	
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 	
 	
-# TODO: IS THIS CORRECT?? WHY CAN ANY PLAYER CALL THSI?	
-# Prepare client only nodes.
-@rpc("any_peer", "call_local")
+
+@rpc
 func sync_player_client_only_nodes(peer_id):
 	$MenuEnvironmentArea.queue_free()
 
@@ -140,7 +130,8 @@ func sync_player_client_only_nodes(peer_id):
 	tween.tween_property($LoadingControl,"modulate:a", 0, 1.5)
 	await tween.finished
 	player_node.spawn()
-
+	
+	
 func add_server_only_nodes():
 	$MenuEnvironmentArea.queue_free()
 

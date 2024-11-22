@@ -98,3 +98,4 @@ func restack_inventory(): ## Will stack same type items.
 
 func add_potion():
 	starter_item.count = starter_item.count + 1
+	inventory_updated.emit(inventory)

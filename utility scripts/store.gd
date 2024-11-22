@@ -49,19 +49,18 @@ func show_all_items():
 
 func buy_item(player, item_area_name):
 	var item_name = item_area_name.split("(")[0].strip_edges()
-	try_buy(player, item_name)
-
-
-func try_buy(player, item):
-	match item:
+	# please don't look at me like that. this is game dev.
+	var item_cost = int(item_area_name.split("(")[1].split(")")[0].split('g')[0])
+	match item_name:
 		'Potion':
-			#$InventorySystem.add_potion()
+			player.add_new_potion(item_cost)
 			pass
 		'Bow':
+			player.replace_empty_on_system.rpc('WeaponSystem', "bow_scene", item_cost)
 			pass
 		'Shield':
-			player.replace_empty_on_system.rpc('GadgetSystem', "shield_scene")
+			player.replace_empty_on_system.rpc('GadgetSystem', "shield_scene", item_cost)
 			pass
 		'Axe':
-			player.replace_empty_on_system.rpc('WeaponSystem', "axe_scene")
+			player.replace_empty_on_system.rpc('WeaponSystem', "axe_scene", item_cost)
 			pass

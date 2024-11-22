@@ -1,0 +1,27 @@
+[gd_scene load_steps=6 format=3 uid="uid://5sa731kfp54y"]
+
+[ext_resource type="Script" path="res://player/equipment_system/equipment/equipment_resource.gd" id="1_ng00l"]
+[ext_resource type="Script" path="res://player/equipment_system/equipment/equipment_object.gd" id="1_ssdwg"]
+[ext_resource type="PackedScene" uid="uid://c12avg65o4ahi" path="res://assets/weapons/WoodenBow/Bow_Wooden.fbx" id="3_pc5r4"]
+
+[sub_resource type="Resource" id="Resource_ab5qs"]
+script = ExtResource("1_ng00l")
+name = "Equipable Item"
+object_type = "BOW"
+power = 2
+weight = 1
+value = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q63ac"]
+size = Vector3(0.2, 1, 0.2)
+
+[node name="Bow" type="Area3D"]
+script = ExtResource("1_ssdwg")
+equipment_info = SubResource("Resource_ab5qs")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("BoxShape3D_q63ac")
+
+[node name="Bow_Wooden" parent="." instance=ExtResource("3_pc5r4")]
+transform = Transform3D(-1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0.6, 0)

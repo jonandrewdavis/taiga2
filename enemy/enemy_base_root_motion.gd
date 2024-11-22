@@ -132,7 +132,7 @@ func update_current_state(_new_state):
 # TODO: Tons of bugs in navigation
 # TODO: Painful to strip y index everywhere. The default target is always above or below the mesh	
 func navigation():
-	if target:
+	if target != null:
 		nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0)
 		var new_dir = (nav_agent_3d.get_next_path_position() - global_position).normalized()
 		new_dir *= Vector3(1,0,1) # strip the y value so enemy stays at current level
@@ -151,7 +151,7 @@ func evaluate_state(): ## depending on distance to target, run or walk
 		if target == default_target && target.is_in_group("targets") == false:			
 			current_state = state.FREE
 		else:
-			if target:
+			if target != null:
 				var current_distance = global_position.distance_to(target.global_position)
 				if current_distance > combat_range:
 					if colliding_with_target: 
@@ -218,7 +218,7 @@ func _target_to_player_node(_spotted_target: Node3D):
 			return player
 
 func _on_target_spotted(_spotted_target): # Updates from a TargetSensor if a target is found.
-	if target.name != _spotted_target.name:
+	if target != null && target.name != _spotted_target.name:
 		target = _spotted_target
 	chase_timer.start()
 	

@@ -50,6 +50,7 @@ func _ready() -> void:
 	# TODO: Ready on signal instead of by default and we can remove the ! player check in physics
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	await get_tree().create_timer(1.0).timeout
+	# TODO: 
 	_setup_heightmap_collision(Vector3(0.0, 0.0, 0.0))
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
@@ -78,21 +79,21 @@ func _physics_process(_delta: float) -> void:
 
 
 func _setup_heightmap_collision(_offset: Vector3) -> void:
-	#var heightmap := HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
+	var heightmap := HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
 
 	# TODO: Inifinite collision map not working.
 	# Clone the noise with the same settings to avoid updating the offset on the actual asset... 
 	# Alternate option: mutate all the sources & refresh the entire scene... 
-	var texture = NoiseTexture2D.new()
-	texture.width = HEIGHTMAP_NOISE_WIDTH
-	texture.height = HEIGHTMAP_NOISE_WIDTH
-	texture.noise = FastNoiseLite.new()
-	texture.seamless = true
-	texture.seamless_blend_skirt = 0.0
-	texture.noise.frequency = 0.025
-	texture.noise.fractal_gain = 0.1
-	texture.noise.offset = _offset
-	var heightmap = texture.noise.get_image(HEIGHTMAP_NOISE_WIDTH , HEIGHTMAP_NOISE_WIDTH)
+	#var texture = NoiseTexture2D.new()
+	#texture.width = HEIGHTMAP_NOISE_WIDTH
+	#texture.height = HEIGHTMAP_NOISE_WIDTH
+	#texture.noise = FastNoiseLite.new()
+	#texture.seamless = true
+	#texture.seamless_blend_skirt = 0.0
+	#texture.noise.frequency = 0.025
+	#texture.noise.fractal_gain = 0.1
+	#texture.noise.offset = _offset
+	#var heightmap = texture.noise.get_image(HEIGHTMAP_NOISE_WIDTH , HEIGHTMAP_NOISE_WIDTH)
 	
 	var dims := Vector2i(heightmap.get_height(), heightmap.get_width())
 	#print('DEBUG: main.gd heightmap collision', heightmap.get_height(), heightmap.get_width())
@@ -108,6 +109,7 @@ func _setup_heightmap_collision(_offset: Vector3) -> void:
 	heightmap_shape.map_data = map_data
 	grass_collision_shape.shape = heightmap_shape
 	
+	#$NavigationRegion3D.bake_navigation_mesh()
 	#grass_collision_shape.global_position = _offset
 
 ## Creates initial tiled multimesh instances.

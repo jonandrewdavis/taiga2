@@ -83,7 +83,10 @@ func create_multimesh():
 	multi_mesh.mesh = instance_mesh 
 	@warning_ignore("narrowing_conversion")
 	instance_rows = sqrt(instance_amount) #rounded down to integer
-	print('DEBUG: Instancer Created: ', name, ', with rows: ', instance_rows)
+
+	# NOTE: Very useful debug for instancer! TODO: distribute better for non-floor'd rows? Modulo?
+	#print('DEBUG: Instancer Created: ', name, ', with rows: ', instance_rows)
+
 	@warning_ignore("integer_division")
 	offset = round(instance_amount/instance_rows) #rounded up/down to nearest integer
 
@@ -109,7 +112,7 @@ func create_multimesh():
 	_update()
  
 func _update():
-	if timer:
+	if timer && environment_root_tracker != null:
 		global_position = Vector3(environment_root_tracker.global_position.x,0.0,environment_root_tracker.global_position.z);
 		multi_mesh_instance.multimesh = distribute_meshes()
 		timer.wait_time = update_frequency

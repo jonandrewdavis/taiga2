@@ -14,10 +14,9 @@ var player_id_attached: int
 
 var cart_speed = 5.0
 
-
 signal damage_taken
 signal hurt_started
-
+signal heal_signal
 
 func _enter_tree():
 	set_multiplayer_authority(1)
@@ -33,7 +32,8 @@ func _ready():
 	add_to_group("targets")
 	collision_layer = 5
 	
-
+	$HealthSystem.died.connect(_on_cart_death)
+	
 
 func _integrate_forces(state):
 	if is_multiplayer_authority():
@@ -110,7 +110,6 @@ func idle_deactivate():
 			player_attached = null
 			cart_player_id_sync.rpc(null)
 
-
 @rpc("any_peer", "reliable")
 func cart_player_sync():
 	if is_multiplayer_authority():
@@ -137,7 +136,6 @@ func cart_player_id_sync(player_id):
 	else: 
 		player_attached = null
 
-
 func hit(_by_who, _by_what):
 	#var get_player_targeted = _target_to_player_node(_by_who)
 	#if (get_player_targeted):
@@ -157,3 +155,7 @@ func hit_sync(_by_who_name: String, power: int):
 	if is_multiplayer_authority():
 		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
 		damage_taken.emit(power)
+
+func _on_cart_death():
+	global_position = Vector3(-8.0, 1.0, 8.0)
+	heal_signal.emit(500)
