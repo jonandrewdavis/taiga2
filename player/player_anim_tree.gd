@@ -149,8 +149,13 @@ func set_guarding():
 		guard_value = 1
 	else:
 		guard_value = 0
+
 	var new_blend = lerp(get("parameters/Guarding/blend_amount"),guard_value,.2)
-	set("parameters/Guarding/blend_amount", new_blend)
+	if player_node.weapon_type == "BOW":
+		set("parameters/Aiming/blend_amount", new_blend)		
+	else:
+		set("parameters/Guarding/blend_amount", new_blend)		
+		
 
 func _on_parry_started():
 	request_oneshot("Parry")
@@ -260,7 +265,8 @@ func _on_hurt_started(): ## Picks a hurt animation between "Hurt1" and "Hurt2"
 		abort_oneshot(last_oneshot)
 		hurt_count = randi_range(1,2)
 		request_oneshot("Hurt")
-		current_weapon_tree.start("MoveStrafe")
+		if (current_weapon_tree):
+			current_weapon_tree.start("MoveStrafe")
 		
 func abort_oneshot(_last_oneshot:String):
 	set("parameters/" + _last_oneshot + "/request",AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
@@ -301,9 +307,10 @@ func _on_weapon_change_ended(_new_weapon_type):
 	var weapon_tree_exists = tree_root.get_node("MovementStates").has_node(str(_new_weapon_type)+"_tree")
 	if weapon_tree_exists:
 		weapon_type = _new_weapon_type
+		current_weapon_tree = get("parameters/MovementStates/"+str(_new_weapon_type)+"_tree/playback")
 	else:
 		weapon_type = "SLASH"
-	current_weapon_tree = get("parameters/MovementStates/"+str(_new_weapon_type)+"_tree/playback")
+		current_weapon_tree = get("parameters/MovementStates/"+str(_new_weapon_type)+"_tree/playback")
 
 func _on_gadget_change_started():
 	request_oneshot("GadgetChange")
@@ -353,7 +360,11 @@ func set_strafe():
 	lerp_movement = get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafe/blend_position")
 	lerp_movement = lerp(lerp_movement,new_blend,.2)
 	set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafe/blend_position", lerp_movement)
-
+	if player_node.weapon_type == "BOW":
+		lerp_movement = get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position")
+		lerp_movement = lerp(lerp_movement,new_blend,.2)
+		set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position", lerp_movement)
+	
 func set_free_move():
 	# Non-strafing "free" movement, is just the forward input direction.
 	var new_blend = Vector2(0,abs(player_node.input_dir.x) + abs(player_node.input_dir.y))

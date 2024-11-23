@@ -21,6 +21,8 @@ class_name InventorySystem
 signal item_used
 signal inventory_updated(Array)
 
+## TODO: Inventory should be authority side only... added after. No puppets have use of an inventory...
+
 func _ready():
 	if signaling_node:
 		signaling_node.connect(change_item_signal,_on_change_item_signal)

@@ -173,7 +173,7 @@ func combat_randomizer():
 			attack.rpc()
 			return
 			
-		var random_choice = randi_range(1,20)
+		var random_choice = randi_range(1,30)
 		if random_choice <= 4:
 			retreat.rpc()
 		if random_choice <= 8:

@@ -36,8 +36,13 @@ signal target_cleared
 
 var current_cam_buffer = true
 
+
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
+
+signal eyeline_enter
+signal eyeline_exit
+
 
 func _enter_tree():
 	set_multiplayer_authority(str(get_parent().name).to_int())
@@ -53,7 +58,7 @@ func _ready():
 	## MULTIPLAYER TEMPLATE FUNCS
 	## MULTIPLAYER TEMPLATE FUNCS
 
-		
+	$Timer.timeout.connect(_on_custom_eyeline_area_exited)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 			
 	if follow_target.has_signal("strafe_toggled"): ## to avoid hard coding using a SignalSwitch
@@ -158,3 +163,10 @@ func _lookat_target():
 
 func _on_target_cleared():
 	look_target = null
+
+func _on_custom_eyeline_area_entered(area):
+	eyeline_enter.emit(area)
+
+func _on_custom_eyeline_area_exited(area = null):
+	if $Camera3D/CustomEyeline/RayCast3D.is_colliding() == false:
+		eyeline_exit.emit(area)

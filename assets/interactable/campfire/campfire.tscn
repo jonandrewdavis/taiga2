@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://ch6528py03hat"]
+[gd_scene load_steps=20 format=3 uid="uid://ch6528py03hat"]
 
 [ext_resource type="PackedScene" uid="uid://b13e1f13iy5t7" path="res://assets/interactable/campfire/campfire_asset.gltf" id="1_s7apb"]
 [ext_resource type="Shader" path="res://utility scripts/FireFromGameIdeaOrg.gdshader" id="2_eo14m"]
@@ -44,6 +44,10 @@ shader_parameter/noise_amplitude = 0.85
 shader_parameter/noise_frequency = 1.0
 
 [sub_resource type="QuadMesh" id="QuadMesh_vamkb"]
+material = SubResource("ShaderMaterial_qyru4")
+size = Vector2(2, 2)
+
+[sub_resource type="QuadMesh" id="QuadMesh_ibmv5"]
 material = SubResource("ShaderMaterial_qyru4")
 flip_faces = true
 size = Vector2(2, 2)
@@ -106,22 +110,27 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.285365, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, -0.5)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CamfireContainer"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0485755, 1.0078, 0.0152481)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.195136, 1.0078, 0.0152481)
 mesh = SubResource("QuadMesh_ce4g1")
 skeleton = NodePath("../..")
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="CamfireContainer"]
-transform = Transform3D(0.90502, 0, 0.425369, 0, 1, 0, -0.425369, 0, 0.90502, -0.0485755, 1.0078, 0.0152481)
+transform = Transform3D(0.90502, 0, 0.425369, 0, 1, 0, -0.425369, 0, 0.90502, 0.195136, 1.0078, 0.0152481)
 mesh = SubResource("QuadMesh_ce4g1")
 skeleton = NodePath("../..")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="CamfireContainer"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0485755, 1.0078, 0.0152481)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.195136, 1.0078, 0.0152481)
 mesh = SubResource("QuadMesh_vamkb")
 skeleton = NodePath("../..")
 
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="CamfireContainer"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.195136, 1.0078, 0.0152481)
+mesh = SubResource("QuadMesh_ibmv5")
+skeleton = NodePath("../..")
+
 [node name="MeshInstance3D4" type="MeshInstance3D" parent="CamfireContainer"]
-transform = Transform3D(0.607001, 0, 0.794701, 0, 1, 0, -0.794701, 0, 0.607001, -0.0485755, 1.0078, 0.0152481)
+transform = Transform3D(0.607001, 0, 0.794701, 0, 1, 0, -0.794701, 0, 0.607001, 0.195136, 1.0078, 0.0152481)
 mesh = SubResource("QuadMesh_vamkb")
 skeleton = NodePath("../..")
 

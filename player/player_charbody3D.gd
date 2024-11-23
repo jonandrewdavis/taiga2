@@ -181,12 +181,10 @@ func _ready():
 		
 	if weapon_system:
 		weapon_system.equipment_changed.connect(_on_weapon_equipment_changed)
-		_on_weapon_equipment_changed(weapon_system.current_equipment)
 		
 	if gadget_system:
 		gadget_system.equipment_changed.connect(_on_gadget_equipment_changed)
-		_on_gadget_equipment_changed(gadget_system.current_equipment)
-	
+		
 	if inventory_system:
 		inventory_system.item_used.connect(_on_inventory_item_used)
 			
@@ -194,10 +192,12 @@ func _ready():
 		health_system.died.connect(death)
 		
 	climb_started.connect(_on_climb_started)
+	weapon_change_ended.connect(_hide_or_show_bow)
 		
 	nickname.visible = false
-	$FollowCam/CustomEyeline.area_entered.connect(_on_eyeline_enter)
-	$FollowCam/CustomEyeline.area_exited.connect(_on_eyeline_leave)
+
+	$FollowCam.eyeline_enter.connect(_on_eyeline_enter)
+	$FollowCam.eyeline_exit.connect(_on_eyeline_leave)
 
 	add_child(sprint_timer)
 	sprint_timer.one_shot = true
@@ -211,7 +211,7 @@ func _ready():
 	await get_tree().create_timer(anim_length).timeout
 	current_state = state.FREE
 	
-	weapon_change_ended.emit(weapon_type)
+	#weapon_change_ended.emit(weapon_type)
 	
 	Hub.coin.connect(get_coin)
 	store_error.connect(_on_update_coin)
@@ -290,7 +290,10 @@ func _input(_event:InputEvent):
 	
 	if _event.is_action_pressed("ui_cancel"):
 		get_tree().quit()
-		
+
+	if is_dead:
+		return
+
 	## strafe toggle on/off
 	if _event.is_action_pressed("strafe_target"):
 		set_strafe_targeting()
@@ -336,12 +339,13 @@ func _input(_event:InputEvent):
 					
 			elif _event.is_action_pressed("use_gadget_light"):
 				if two_handed_weapons.has(weapon_system.current_equipment.equipment_info.object_type):
-					return
+					if weapon_type == "BOW":
+						start_guard()
 				if secondary_action:
 					use_gadget()
 				elif gadget_type == "SHIELD":
 					start_guard()
-			
+								
 			elif _event.is_action_pressed("change_item"):
 				item_change()
 			elif _event.is_action_pressed("use_item"):
@@ -427,6 +431,16 @@ func attack():
 	attack_face_forward()
 	if busy == true:
 		return
+	
+	# Special case, bow can only be fired while a
+	if weapon_type == "BOW":
+		if guarding == true:
+			busy = true
+			animation_tree.request_oneshot("Attack")
+			animation_tree.attack_once()
+		else:
+			return	
+
 	busy = true
 	if not is_on_floor():
 		animation_tree.request_oneshot("Attack")
@@ -438,10 +452,14 @@ func attack():
 		animation_tree.attack_once()
 		return
 
+
+			
 	if combo_enabled_weapons.has(weapon_type):
 		animation_tree.attack_count = 1
 		animation_tree.attack_chain()
-		return
+	else:
+		animation_tree.request_oneshot("Attack")
+		animation_tree.attack_once()
 
 
 # TODO: Implement
@@ -541,6 +559,8 @@ func abort_climb():
 
 func weapon_change():
 	slowed = true
+	if weapon_type == 'BOW':
+		$WeaponSystem/LeftHand.hide()
 	trigger_event("weapon_change_started")
 	await event_finished
 	if two_handed_weapons.has(weapon_type):
@@ -549,6 +569,7 @@ func weapon_change():
 		system_visible(gadget_system,true)
 	weapon_change_ended.emit(weapon_type)
 	slowed = false
+	
 	
 func _on_weapon_equipment_changed(_new_weapon:EquipmentObject):
 	weapon_type = _new_weapon.equipment_info.object_type
@@ -606,6 +627,8 @@ func use_gadget(): # emits to start the gadget, and runs some timers before stop
 	trigger_event("gadget_started")
 
 func hit(_who, _by_what):
+	if is_dead:
+		return
 	# only get hit by things on your client.
 	if is_multiplayer_authority(): 
 		if hurt_cool_down.time_left > 0:
@@ -645,6 +668,8 @@ func hurt():
 	await get_tree().create_timer(anim_length).timeout
 
 func use_item():
+	if inventory_system.current_item.count == 0:
+		return
 	if not busy or dodging:
 		busy = true
 		slowed = true
@@ -678,14 +703,22 @@ func death():
 # TODO: Needs to take all your weapons away.
 # Could also orbit the Cart cam for a hot second... 
 # Could... also. QUEUE Free the player for a bit. LOL.
+
 func restore():
+	# I'm kind of a genius 0_0. i just reversed the Store shopping logic (after like 2hours) lol.
+	replace_loot_on_system.rpc('WeaponSystem', "empty_scene")
+	replace_loot_on_system.rpc('GadgetSystem', "empty_scene")
+	coins = 70
+	_on_update_coin()
 	health_received.emit(health_system.total_health)
 	global_position = get_spawn_point() + Hub.get_cart().global_position
 	is_dead = false
 	visible = true
 	current_state = state.FREE
+	animation_tree._on_weapon_change_ended('')
+	_hide_or_show_bow('')
 	animation_tree._on_spawn_started()
-	coins = 0
+
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
@@ -837,13 +870,16 @@ func _on_eyeline_leave(_interactable):
 var shield_scene = preload("res://player/equipment_system/equipment/shield.tscn")
 var axe_scene = preload("res://player/equipment_system/equipment/Ax.tscn")
 var bow_scene = preload("res://player/equipment_system/equipment/Bow.tscn")
+var empty_scene = preload("res://player/equipment_system/equipment/EmptyEquipment.tscn")
+
 ## EQUIPMENT
 
 var new_packed_scene = { 
 	"shield_scene": shield_scene,
 	"axe_scene": axe_scene,
-	"bow_scene": bow_scene
-}	
+	"bow_scene": bow_scene,
+	"empty_scene": empty_scene
+}
 
 # NOTE: This is an RPC because we are spawning items (see mulitplayer spawner in player).
 @rpc("authority", "call_local")
@@ -865,20 +901,47 @@ func replace_empty_on_system(system_name, scene_name, cost: int):
 					system._on_stop_signal()
 					if (system.name == 'GadgetSystem'):
 						_on_gadget_equipment_changed(system.current_equipment)
-					else:					
+					else:
 						_on_weapon_equipment_changed(system.current_equipment)
 				else:
 					system.stored_equipment = new_scene
 					system.stored_equipment.equipped = false
 					system.stored_equipment.monitoring = false
 				# Remove the empty equipment
-				store_success.emit()
 				coins = coins - cost
+				store_success.emit()
 				await get_tree().create_timer(.1).timeout
 				free_eq.queue_free()
 			else:
 				store_error.emit()
 
+@rpc("authority", "call_local")
+func replace_loot_on_system(system_name, scene_name):
+		var system = get_node_or_null(system_name)
+		if system != null: 
+			var mount_string = system._find_loot_pivot(["Ax", "Bow", "Shield"])
+			if mount_string != null:
+				var mount_point = system[mount_string]
+				var free_eq = mount_point.get_child(0)
+				mount_point.remove_child(free_eq)
+				var new_scene = new_packed_scene[scene_name].instantiate()
+				system[mount_string].add_child(new_scene)
+				if mount_string == "held_mount_point":
+					system.current_equipment = new_scene
+					system._on_stop_signal()
+					if (system.name == 'GadgetSystem'):
+						_on_gadget_equipment_changed(system.current_equipment)
+					else:
+						_on_weapon_equipment_changed(system.current_equipment)
+						if system.current_equipment.equipment_info.object_type == "BOW":
+							weapon_change()
+				else:
+					system.stored_equipment = new_scene
+					system.stored_equipment.equipped = false
+					system.stored_equipment.monitoring = false
+				# Remove the empty equipment
+				await get_tree().create_timer(.1).timeout
+				free_eq.queue_free()
 				
 # TODO: make this a lot more robust
 func spawn():
@@ -893,3 +956,12 @@ func add_new_potion(_cost):
 		store_success.emit()
 	else:
 		store_error.emit()
+
+
+func _hide_or_show_bow(_new_weapon):
+	if _new_weapon == "BOW":
+		$WeaponSystem/LeftHand.visible = true
+		$WeaponSystem/RightHand.visible = false
+	else:
+		$WeaponSystem/RightHand.visible = true
+		$WeaponSystem/LeftHand.visible = false

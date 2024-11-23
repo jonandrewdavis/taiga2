@@ -61,8 +61,10 @@ func _ready():
 			
 		deactivate.connect(_on_stop_signal)
 
-	## update what weapon we're starting with
-	if held_mount_point && held_mount_point.get_child_count() > 0:
+	_reset_starting_equipment()
+
+func _reset_starting_equipment():
+	if held_mount_point:
 		current_equipment = held_mount_point.get_child(0)
 		current_equipment.equipped = true
 		current_equipment.monitoring = false
@@ -71,52 +73,37 @@ func _ready():
 			current_equipment.body_entered.connect(_on_body_entered)
 
 	## update what gadget we're holding
-	if stored_mount_point && stored_mount_point.get_child_count() > 0:
-		if stored_mount_point.get_child(0):
-			stored_equipment = stored_mount_point.get_child(0)
-			stored_equipment.equipped = false
-			stored_equipment.monitoring = false
-			if current_equipment:
-				current_equipment.collision_mask = collision_detect_layers
+	if stored_mount_point:
+		stored_equipment = stored_mount_point.get_child(0)
+		stored_equipment.equipped = false
+		stored_equipment.monitoring = false
+		if current_equipment:
+			current_equipment.collision_mask = collision_detect_layers	
+
 
 func _on_equipment_changed():
-	await get_tree().create_timer(player_node.anim_length * .5).timeout
-	if stored_mount_point.get_child_count() > 0 && held_mount_point.get_child_count() > 0:
-		stored_equipment = stored_mount_point.get_child(0)
-		
-		## rearrange children
-		held_mount_point.remove_child(current_equipment)
-		stored_mount_point.remove_child(stored_equipment)
-		
-		held_mount_point.add_child(stored_equipment)
-		stored_mount_point.add_child(current_equipment)
-		
-		# Update to current equipment, let them know they're equiped
-		current_equipment.equipped = false
-		if current_equipment.is_connected("body_entered", _on_body_entered):
-			current_equipment.disconnect("body_entered",_on_body_entered)
-		current_equipment = held_mount_point.get_child(0)
-		
-		await get_tree().process_frame
-		if current_equipment.has_signal("body_entered"):
-			current_equipment.body_entered.connect(_on_body_entered)
-		current_equipment.equipped = true
-		current_equipment.collision_mask = collision_detect_layers
-		equipment_changed.emit(current_equipment)
-	elif stored_mount_point.get_child_count() > 0 && held_mount_point.get_child_count() == 0:
-		# TODO: this is repetitive, the case where only torch is stored.
-		held_mount_point.remove_child(current_equipment)
-		stored_mount_point.remove_child(stored_equipment)
-		
-		held_mount_point.add_child(stored_equipment)
-		current_equipment = held_mount_point.get_child(0)
-		
-		await get_tree().process_frame
-		if current_equipment.has_signal("body_entered"):
-			current_equipment.body_entered.connect(_on_body_entered)
-		current_equipment.equipped = true
-		current_equipment.collision_mask = collision_detect_layers
-		equipment_changed.emit(current_equipment)
+	#await get_tree().create_timer(player_node.anim_length * .5).timeout
+	stored_equipment = stored_mount_point.get_child(0)
+	
+	## rearrange children
+	held_mount_point.remove_child(current_equipment)
+	stored_mount_point.remove_child(stored_equipment)
+	
+	held_mount_point.add_child(stored_equipment)
+	stored_mount_point.add_child(current_equipment)
+	
+	# Update to current equipment, let them know they're equiped
+	current_equipment.equipped = false
+	if current_equipment.is_connected("body_entered", _on_body_entered):
+		current_equipment.disconnect("body_entered",_on_body_entered)
+	current_equipment = held_mount_point.get_child(0)
+	
+	await get_tree().process_frame
+	if current_equipment.has_signal("body_entered"):
+		current_equipment.body_entered.connect(_on_body_entered)
+	current_equipment.equipped = true
+	current_equipment.collision_mask = collision_detect_layers
+	equipment_changed.emit(current_equipment)
 
 		
 func _on_activated():
@@ -151,3 +138,12 @@ func _find_empty_pivot():
 		return "stored_mount_point"
 	else:
 		return null
+
+func _find_loot_pivot(array):
+	var final = null
+	for item in array:
+		if held_mount_point.get_node_or_null(item) != null:
+			final = "held_mount_point"
+		elif stored_mount_point.get_node_or_null(item) != null:
+			final = "stored_mount_point"
+	return final

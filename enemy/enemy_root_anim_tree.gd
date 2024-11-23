@@ -59,9 +59,9 @@ func set_movement():
 		enemy.state.CHASE:
 			near = (enemy_target.global_position.distance_to(enemy.global_position)  < 4.0)
 			if near:
-				speed.y = .75
+				speed.y = .55
 			else:
-				speed.y = 1.0
+				speed.y = 0.90
 		enemy.state.DEAD:
 			speed.y = 0.0
 	

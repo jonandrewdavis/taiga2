@@ -13,6 +13,10 @@ extends Control
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	if not is_multiplayer_authority():
+		hide()
+		return
+		
 	if signaling_node:
 		signaling_node.connect(update_signal,_on_update_signal)
 
