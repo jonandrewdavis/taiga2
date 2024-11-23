@@ -341,6 +341,7 @@ func _input(_event:InputEvent):
 				if two_handed_weapons.has(weapon_system.current_equipment.equipment_info.object_type):
 					if weapon_type == "BOW":
 						start_guard()
+						return
 				if secondary_action:
 					use_gadget()
 				elif gadget_type == "SHIELD":
@@ -438,6 +439,8 @@ func attack():
 			busy = true
 			animation_tree.request_oneshot("Attack")
 			animation_tree.attack_once()
+			$ArrowSystem.shoot()
+			return	
 		else:
 			return	
 
@@ -452,8 +455,6 @@ func attack():
 		animation_tree.attack_once()
 		return
 
-
-			
 	if combo_enabled_weapons.has(weapon_type):
 		animation_tree.attack_count = 1
 		animation_tree.attack_chain()
@@ -932,9 +933,10 @@ func replace_loot_on_system(system_name, scene_name):
 					if (system.name == 'GadgetSystem'):
 						_on_gadget_equipment_changed(system.current_equipment)
 					else:
-						_on_weapon_equipment_changed(system.current_equipment)
 						if system.current_equipment.equipment_info.object_type == "BOW":
 							weapon_change()
+						else:
+							_on_weapon_equipment_changed(system.current_equipment)
 				else:
 					system.stored_equipment = new_scene
 					system.stored_equipment.equipped = false

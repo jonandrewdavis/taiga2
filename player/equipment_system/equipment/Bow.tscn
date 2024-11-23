@@ -10,6 +10,7 @@ object_type = "BOW"
 power = 2
 weight = 1
 value = 1
+streak = false
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ktko5"]
 resource_name = "DarkWood"
@@ -114,7 +115,7 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_lqbn7")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_q63ac"]
-size = Vector3(0.465, 0.991, 0.442)
+size = Vector3(0.2, 0.1, 0.2)
 
 [node name="Bow" type="Area3D"]
 collision_mask = 5

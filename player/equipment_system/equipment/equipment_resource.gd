@@ -11,3 +11,4 @@ class_name EquipmentResource
 @export var power : int = 1
 @export var weight : int = 1
 @export var value : int = 1
+@export var streak: bool = true

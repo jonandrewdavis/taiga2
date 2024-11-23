@@ -318,7 +318,7 @@ _spawnable_scenes = PackedStringArray("res://enemy/enemy_base_root_motion.tscn")
 spawn_path = NodePath("../EnemiesContainer")
 
 [node name="SpawnerEnvironment" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://assets/interactable/medieval_carriage/cart.tscn", "res://level/scenes/encounter.tscn", "res://level/scenes/town.tscn")
+_spawnable_scenes = PackedStringArray("res://assets/interactable/medieval_carriage/cart.tscn", "res://level/scenes/encounter.tscn", "res://level/scenes/town.tscn", "res://player/equipment_system/equipment/bullet.tscn")
 spawn_path = NodePath("../EnvironmentContainer")
 
 [node name="MenuEnvironmentArea" parent="." instance=ExtResource("11_arsip")]

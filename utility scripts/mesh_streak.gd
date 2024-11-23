@@ -9,7 +9,7 @@ class_name MeshStreak
 @onready var mesh_array = []
 @export var emitting : bool = false : set = _set_emitting
 ## Will stop emitting after the lifetime. Set to 0 to never stop emitting.
-var lifetime = 0.2
+var lifetime = 0.15
 
 ## Node where the mesh will base its the offset origins vertext points. If left
 ## empty, then a get_parent() will be used, and offest will be based on that parent's
@@ -108,5 +108,7 @@ func material_check(): ## Create a new default material for the streak
 		
 
 func sync_property():
-	if get_parent().current_equipment:
-		emitting = get_parent().current_equipment.monitoring
+	var current_equipment = get_parent().current_equipment
+	if current_equipment:
+		if current_equipment.equipment_info.streak == true:
+			emitting = current_equipment.monitoring
