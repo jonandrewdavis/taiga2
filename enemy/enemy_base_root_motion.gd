@@ -250,13 +250,12 @@ func hit(_by_who, _by_what):
 			#hurt_started.emit()
 			#damage_taken.emit(_by_what)
 	if (_by_who.name && _by_what.power):
-		hurt_cool_down.start()
-		hurt_started.emit()
 		hit_sync.rpc(_by_who.name, _by_what.power)
 
-@rpc("any_peer")
+@rpc("any_peer", "call_local")
 func hit_sync(_by_who_name: String, power: int):
 	if multiplayer.is_server():
+		print('on server: ', _by_who_name, power)
 		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
 		var get_player_targeted = Hub.get_player_by_name(_by_who_name)
 		if (get_player_targeted):
@@ -264,7 +263,13 @@ func hit_sync(_by_who_name: String, power: int):
 			if hurt_cool_down.is_stopped():
 				hurt_cool_down.start()
 				hurt_started.emit()
+				sync_back_hit.rpc()
 				damage_taken.emit(power)
+
+@rpc("any_peer", "call_local")
+func sync_back_hit():
+		hurt_started.emit()
+
 
 func parried():
 	parried_sync.rpc()

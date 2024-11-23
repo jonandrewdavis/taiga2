@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=18 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
@@ -7,9 +7,10 @@
 [ext_resource type="Shader" path="res://utility scripts/horror_pixels.gdshader" id="4_mglur"]
 [ext_resource type="Environment" uid="uid://c8oyix4qs0l7j" path="res://assets/environment/SecondForestEnv.tres" id="5_hv8je"]
 [ext_resource type="PackedScene" uid="uid://bnov3r3udtsa3" path="res://assets/environment/forest_sun.tscn" id="5_hyp44"]
+[ext_resource type="AudioStream" uid="uid://cltwo5xg7hrjg" path="res://audio/ambience-wind-blowing-through-trees-01-186986.mp3" id="8_am4re"]
+[ext_resource type="AudioStream" uid="uid://bhx06184tdu7w" path="res://audio/soft-wind-outside-sound-ambient-141989.mp3" id="9_xv7lm"]
 [ext_resource type="PackedScene" uid="uid://b6nuyrcy1rigj" path="res://level/scenes/menu_environment.tscn" id="11_arsip"]
 [ext_resource type="AudioStream" uid="uid://dw4bplkv57i6i" path="res://assets/environment/GodotGrass/grass_loop.wav" id="21_m577m"]
-[ext_resource type="AudioStream" uid="uid://6irapns2oeis" path="res://assets/environment/GodotGrass/wind_loop.wav" id="22_cvn7w"]
 [ext_resource type="AudioStream" uid="uid://d4mv7rx862p3o" path="res://assets/environment/GodotGrass/insects_loop.wav" id="23_aoolo"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_tqduw"]
@@ -79,17 +80,23 @@ sky_mode = 1
 
 [node name="AudioStreamPlayer2" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("21_m577m")
-volume_db = -25.0
+volume_db = -25.164
+pitch_scale = 0.91
 autoplay = true
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("22_cvn7w")
-volume_db = 4.0
+stream = ExtResource("8_am4re")
+volume_db = 15.733
+autoplay = true
+
+[node name="Cold" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_xv7lm")
+volume_db = 2.521
 autoplay = true
 
 [node name="AudioStreamPlayer3" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("23_aoolo")
-volume_db = -30.0
+volume_db = -35.0
 autoplay = true
 
 [node name="PlayersContainer" type="Node3D" parent="."]

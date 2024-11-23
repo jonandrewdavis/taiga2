@@ -299,10 +299,10 @@ func _input(_event:InputEvent):
 		set_strafe_targeting()
 		
 	# a helper for keyboard controls, not really used for joypad
-	if Input.is_action_pressed("secondary_action"):
-		secondary_action = true
-	else:
-		secondary_action = false
+	#if Input.is_action_pressed("secondary_action"):
+		#secondary_action = true
+	#else:
+		#secondary_action = false
 
 	if _event.is_action_pressed("use_weapon_light"):
 		emit_signal("attack_requested")
@@ -323,8 +323,8 @@ func _input(_event:InputEvent):
 			elif _event.is_action_pressed("jump"):
 				jump()
 				
-			#elif _event.is_action_pressed("sprint"):
-				#sprint()
+			elif _event.is_action_pressed("sprint"):
+				sprint()
 				
 			elif _event.is_action_pressed("dodge"):
 				dodge()
@@ -437,7 +437,7 @@ func attack():
 	if weapon_type == "BOW":
 		if guarding == true:
 			busy = true
-			animation_tree.request_oneshot("Attack")
+			animation_tree.request_oneshot("Shoot")
 			animation_tree.attack_once()
 			$ArrowSystem.shoot()
 			return	
@@ -696,6 +696,8 @@ func death():
 	is_dead = true
 	# TODO: Death is hacky. Don't call directly perhaps?	
 	animation_tree._on_death_started()
+	await get_tree().create_timer(0.2).timeout
+	$FootstepSoundSystem/TriggeredSounds/LifeCardAnimations/LifeDeathCard/DeathSound.play()
 	await get_tree().create_timer(3).timeout
 	visible = false
 	await get_tree().create_timer(5).timeout
@@ -706,7 +708,7 @@ func death():
 # Could... also. QUEUE Free the player for a bit. LOL.
 
 func restore():
-	# I'm kind of a genius 0_0. i just reversed the Store shopping logic (after like 2hours) lol.
+	# I'm kind of a genius 0_0. i just reversed the Store shopping logic (after like 2hours) to strip loot
 	replace_loot_on_system.rpc('WeaponSystem', "empty_scene")
 	replace_loot_on_system.rpc('GadgetSystem', "empty_scene")
 	coins = 70
@@ -844,7 +846,6 @@ func change_nick(new_nick: String):
 # MULTIPLAYER TEMPLATE RPCS
 # MULTIPLAYER TEMPLATE RPCS
 
-
 # So that we're not in falling state during engine hint
 func prevent_engine():
 	return not Engine.is_editor_hint()
@@ -856,7 +857,6 @@ func get_coin(amount):
 func _on_update_coin():
 	$GUI/GUIFullRect/MarginContainer/ItemSlot/CoinCount.text = str(coins)
 	
-
 func _on_eyeline_enter(_interactable):
 	if _interactable && _interactable.is_in_group("interactable"):
 		$GUI/GUIFullRect/InteractTooltip.text = str(_interactable.name)
@@ -904,6 +904,9 @@ func replace_empty_on_system(system_name, scene_name, cost: int):
 						_on_gadget_equipment_changed(system.current_equipment)
 					else:
 						_on_weapon_equipment_changed(system.current_equipment)
+						if system.current_equipment.equipment_info.object_type == "BOW":
+							weapon_change()
+							weapon_change()
 				else:
 					system.stored_equipment = new_scene
 					system.stored_equipment.equipped = false
@@ -933,10 +936,7 @@ func replace_loot_on_system(system_name, scene_name):
 					if (system.name == 'GadgetSystem'):
 						_on_gadget_equipment_changed(system.current_equipment)
 					else:
-						if system.current_equipment.equipment_info.object_type == "BOW":
-							weapon_change()
-						else:
-							_on_weapon_equipment_changed(system.current_equipment)
+						_on_weapon_equipment_changed(system.current_equipment)
 				else:
 					system.stored_equipment = new_scene
 					system.stored_equipment.equipped = false

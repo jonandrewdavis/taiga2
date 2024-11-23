@@ -47,6 +47,8 @@ func _physics_process(_delta):
 			show_health()
 
 func _on_damage_signal(_power_from_emit):
+	if health_bar_control:
+		show_timer.start()
 	if _power_from_emit:
 		_on_damage_signal_sync.rpc(_power_from_emit)
 

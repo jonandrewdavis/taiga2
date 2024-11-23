@@ -5,9 +5,6 @@ class_name HealthBar
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	if not is_multiplayer_authority():
-		hide()
-		
 	if health_system:
 		max_value = health_system.total_health
 		value = health_system.total_health

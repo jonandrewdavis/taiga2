@@ -1,7 +1,7 @@
 extends RigidBody3D
 
 var shell = false
-var Damage: int = 0
+var Damage: int = 1
 var Source: int
 
 func _ready():
@@ -10,13 +10,15 @@ func _ready():
 		$Timer.start()
 
 func _on_body_entered(body):
+	# Prevents self damage.
 	if body.get_multiplayer_authority() == Source:
 		return
 	
-	if body.has_method("Hit_Successful"):
+	if body.has_method("hit"):
+		print(body)
 		# id to hit,
 		# source, damage, position, rotation
-		#body.Hit_Successful.rpc_id(hit_player, Source, Damage, null, null)
+		body.hit_sync.rpc(str(Source), Damage)
 		if multiplayer.is_server(): 
 			queue_free()
 					

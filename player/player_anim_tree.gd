@@ -47,6 +47,7 @@ class_name AnimationTreeSoulsBase
 @onready var landing_type = "SOFT"
 @export var last_oneshot: String = "Attack"
 var lerp_movement
+var lerp_movement_aim
 
 var guard_value :float = 0.0
 
@@ -68,7 +69,7 @@ signal animation_measured
 
 
 func _ready():
-	if not is_multiplayer_authority(): 
+	if not is_multiplayer_authority():
 		return
 	
 	add_child(attack_timer)
@@ -137,7 +138,7 @@ func request_oneshot(oneshot:String):
 	last_oneshot = oneshot
 	set("parameters/" + oneshot + "/request", true)
 	if is_multiplayer_authority():
-		sync_player_oneshot.rpc(oneshot)	
+		sync_player_oneshot.rpc(oneshot)
 	
 
 func _on_landed_fall(_hard_or_soft = "HARD"):
@@ -152,9 +153,9 @@ func set_guarding():
 
 	var new_blend = lerp(get("parameters/Guarding/blend_amount"),guard_value,.2)
 	if player_node.weapon_type == "BOW":
-		set("parameters/Aiming/blend_amount", new_blend)		
+		set("parameters/Aiming/blend_amount", new_blend)
 	else:
-		set("parameters/Guarding/blend_amount", new_blend)		
+		set("parameters/Guarding/blend_amount", new_blend)
 		
 
 func _on_parry_started():
@@ -345,9 +346,15 @@ func set_ladder():
 	#set("parameters/MovementStates/LADDER_tree/LadderBlender/blend_position",ladder_frame - (player_node.input_dir.y * .015)) # otherwise, play the animation at the speed of player input (* a speed if climb anim is slow)
 	set("parameters/MovementStates/LADDER_tree/LadderTime/scale",-player_node.input_dir.y)
 			
-			
-			
 func set_strafe():
+	if player_node.weapon_type == "BOW":
+		#var new_blend_aim = Vector2(player_node.strafe_cross_product,player_node.move_dot_product)
+		var new_blend_aim = Vector2(player_node.input_dir.x, player_node.input_dir.y * -1.0)
+		lerp_movement_aim = get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position")
+		lerp_movement_aim = lerp(lerp_movement_aim,new_blend_aim,.2)
+		set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position", lerp_movement_aim)
+		return
+
 	# Strafe left and right animations run by the player's velocity cross product
 	# Forward and back are acording to input, since direction changes by fixed camera orientation
 	var new_blend = Vector2(player_node.strafe_cross_product,player_node.move_dot_product)
@@ -356,14 +363,11 @@ func set_strafe():
 		new_blend *= .25 # Force a walk animiation
 	else:
 		# apply input as a magnatude for more natural run versus walk animation blending
-		new_blend *= Vector2(abs(player_node.input_dir.x),abs(player_node.input_dir.y)) 
+		new_blend *= Vector2(abs(player_node.input_dir.x),abs(player_node.input_dir.y))
 	lerp_movement = get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafe/blend_position")
 	lerp_movement = lerp(lerp_movement,new_blend,.2)
 	set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafe/blend_position", lerp_movement)
-	if player_node.weapon_type == "BOW":
-		lerp_movement = get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position")
-		lerp_movement = lerp(lerp_movement,new_blend,.2)
-		set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position", lerp_movement)
+	
 	
 func set_free_move():
 	# Non-strafing "free" movement, is just the forward input direction.
@@ -376,9 +380,10 @@ func set_free_move():
 
 
 func _on_animation_started(anim_name):
-	anim_length = get_node(anim_player).get_animation(anim_name).length
-	#print("DEBUG: Animation Measured, emit: " + str(anim_name), anim_length)
-	animation_measured.emit(anim_length)
+	if get_node(anim_player) && anim_name:
+		anim_length = get_node(anim_player).get_animation(anim_name).length
+		#print("DEBUG: Animation Measured, emit: " + str(anim_name), anim_length)
+		animation_measured.emit(anim_length)
 
 
 ## MULTIPLAYER RPCs

@@ -26,14 +26,14 @@ func shoot():
 func LaunchProjectile(Point: Vector3):
 	var Direction_To_Point = (Point - Bullet_Point.global_transform.origin).normalized()
 	var Direction = Direction_To_Point * projectile_velocity
-	spawn_bullet.rpc(Direction, damage, Bullet_Point.global_transform.origin, Point)
+	spawn_bullet.rpc(Direction  + Vector3(0.0, 1.3, 0.3), damage, Bullet_Point.global_transform.origin, Point)
 
 
 @rpc('any_peer', 'call_local')
 func spawn_bullet(Direction, Damage, Position, RotationPoint):
 	if multiplayer.is_server():
 		var Projectile = BULLET_SCENE.instantiate()
-		Projectile.position = Position
+		Projectile.position = Position 
 		Projectile.set_linear_velocity(Direction)
 		Projectile.Damage = Damage
 		Projectile.Source = multiplayer.get_remote_sender_id()

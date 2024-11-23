@@ -105,7 +105,6 @@ func _on_equipment_changed():
 	current_equipment.collision_mask = collision_detect_layers
 	equipment_changed.emit(current_equipment)
 
-		
 func _on_activated():
 	## awaiting so the area3D starts monitoring about after attack wind-up
 	if current_equipment:
