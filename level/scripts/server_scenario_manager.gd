@@ -114,11 +114,15 @@ func clean_up_encounters():
 	get_tree().call_group("encounters", "check_for_clean_up", encounter_tracker.global_position, despawn_distance_radius)
 
 func populate_enemies(_new_encounter_position: Vector3, is_patrol = false):
+	var chance_archer = randi_range(1, 2)
 	var enemy = basic_enemy.instantiate()
+	if chance_archer == 2: 
+		enemy.archer = true
 	Hub.enemies_container.add_child(enemy, true)
 	enemy.global_position = get_spawn_point() + _new_encounter_position
 	if is_patrol:
 		enemy.set_new_default_target(Hub.get_cart())
+	
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 15 # spawn radius

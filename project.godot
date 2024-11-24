@@ -35,7 +35,8 @@ gdscript/warnings/unused_signal=0
 
 window/size/viewport_width=2073
 window/size/viewport_height=1167
-window/stretch/mode="canvas_items"
+window/size/resizable=false
+window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 window/vsync/vsync_mode=2
 

@@ -19,7 +19,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 @export var default_target : Node3D
 @onready var spawn_location : Marker3D = Marker3D.new()
-@export var combat_range :float = 2
+var combat_range :float = 1.9
 @onready var combat_timer : Timer = $CombatTimer
 @onready var chase_timer = $ChaseTimer
 
@@ -36,8 +36,11 @@ signal death_started
 signal attack_started
 signal retreat_started
 
-# Added multiplayer for this
+@export var archer = false
+
+# Added export for multiplayer for this - AD 
 @export var current_state = state.FREE : set = update_current_state # Enemy states controlled by enum PlayerStates
+
 enum state {
 	FREE,
 	CHASE,
@@ -55,6 +58,9 @@ func _enter_tree() -> void:
 
 func _ready():
 	seed(network_randi_seed)
+	
+	if archer == true:
+		combat_range = 10.0
 
 	if animation_tree:
 		animation_tree.animation_measured.connect(_on_animation_measured)
@@ -164,9 +170,13 @@ func evaluate_state(): ## depending on distance to target, run or walk
 ## added random times between attacks. Might be a bit much
 func _on_combat_timer_timeout():
 	if current_state == state.COMBAT && is_multiplayer_authority():
-		combat_randomizer()
-		combat_timer.start(randf_range(0.7,2.8))
-			
+		if archer == false:
+			combat_randomizer()
+			combat_timer.start(randf_range(0.7,2.8))
+		else:
+			attack_ranged()
+			combat_timer.start(randf_range(2.0,5.0))
+
 func combat_randomizer():
 	if multiplayer.is_server():
 		if colliding_with_target == true:
@@ -186,6 +196,12 @@ func combat_randomizer():
 func attack():
 	attack_started.emit()
 
+
+func attack_ranged():
+	animation_tree.request_oneshot("shoot")
+	await get_tree().create_timer(1.8).timeout 
+	$ArrowSystem.LaunchProjectile(target.global_position + Vector3(0.0, 0.8, 0.0))
+
 @rpc("authority", "call_local")
 func retreat(): # Back away for a period of time
 	retreat_started.emit()
@@ -195,10 +211,9 @@ func circle():
 	animation_tree.attack_count = randi_range(1, 2)
 	await get_tree().create_timer(.1).timeout 
 	update_current_state(state.CIRCLE)
-	await get_tree().create_timer(randi_range(2, 5)).timeout
+	await get_tree().create_timer(randi_range(3, 6)).timeout
 	update_current_state(state.COMBAT)
 	
-
 func set_default_target(): 
 	await get_tree().create_timer(.2).timeout
 	$EnemyMarkerSpawn.global_position = global_position * Vector3(1.0, 0, 1.0)
@@ -232,7 +247,7 @@ func _on_chase_timer_timeout():
 	give_up()
 	
 func give_up():
-	await get_tree().create_timer(4).timeout
+	await get_tree().create_timer(3).timeout
 	target = default_target
 	
 func apply_gravity(_delta):

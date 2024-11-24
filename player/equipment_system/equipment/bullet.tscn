@@ -57,7 +57,8 @@ properties/1/replication_mode = 2
 
 [node name="bullet" type="RigidBody3D" groups=["Bullet"]]
 top_level = true
-collision_layer = 4
+collision_layer = 6
+collision_mask = 3
 mass = 0.1
 gravity_scale = 0.1
 continuous_cd = true

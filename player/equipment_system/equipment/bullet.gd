@@ -11,7 +11,13 @@ func _ready():
 
 func _on_body_entered(body):
 	# Prevents self damage.
+
+	if Source == 0:
+		return
+	
 	if body.get_multiplayer_authority() == Source:
+		if Source == 1 && body.is_in_group("players"):
+			body.hit_sync.rpc(str(Source), Damage)
 		return
 	
 	if body.has_method("hit"):
@@ -22,6 +28,8 @@ func _on_body_entered(body):
 		if multiplayer.is_server(): 
 			queue_free()
 					
+						
+
 	if multiplayer.is_server(): 
 		queue_free()
 		

@@ -25,6 +25,7 @@ signal targeting_changed
 @export var camera_3d : Camera3D 
 @export var follow_target : Node3D
 @onready var default_spring :float = spring_length
+@onready var ray_cast: RayCast3D = $Camera3D/CustomEyeline/RayCast3D
 
 ## if no target is set, this node will attempt to find a CharacterBody3D to follow
 var look_target : Node3D 

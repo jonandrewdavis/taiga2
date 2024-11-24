@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=4 uid="uid://brcob4a2vngyt"]
+[gd_scene load_steps=23 format=4 uid="uid://brcob4a2vngyt"]
 
 [ext_resource type="PackedScene" uid="uid://bdiwt6qndl0qy" path="res://assets/interactable/medieval_carriage/carriage.gltf" id="1_0i6nf"]
 [ext_resource type="Script" path="res://assets/interactable/medieval_carriage/cart.gd" id="1_kp5fv"]
@@ -85,8 +85,16 @@ gradient = SubResource("Gradient_447ee")
 width = 256
 height = 28
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qdgc3"]
+albedo_color = Color(0, 0, 0, 1)
+metallic = 0.2
+emission_enabled = true
+emission = Color(0.0556345, 9.49454e-08, 5.33951e-08, 1)
+emission_energy_multiplier = 1.85
+
 [sub_resource type="BoxMesh" id="BoxMesh_bwglm"]
-size = Vector3(1.6, 2.1, 2.3)
+material = SubResource("StandardMaterial3D_qdgc3")
+size = Vector3(1.6, 1.8, 2.3)
 
 [node name="Cart" type="RigidBody3D" groups=["cart"]]
 collision_layer = 3
@@ -207,8 +215,8 @@ sound_trigger_signal = "hurt_started"
 [node name="Store" parent="." instance=ExtResource("8_x3bt8")]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -0.00216115, 0.842226, -2.17725)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.68739, 0.301205)
+[node name="SecretMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.84887, 0.301205)
 mesh = SubResource("BoxMesh_bwglm")
 
 [editable path="Sketchfab_Scene"]

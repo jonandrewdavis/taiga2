@@ -27,6 +27,9 @@ var environment_container: Node3D
 var players_container: Node3D
 var enemies_container: Node3D
 
+var world_environment: WorldEnvironment
+var forest_sun: DirectionalLight3D
+
 const player_scene = preload("res://player/player_charbody3d.tscn")
 
 	

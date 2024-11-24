@@ -25,7 +25,7 @@ shader_parameter/brightness = 0.26
 shader_parameter/contrast = 3.0
 shader_parameter/scale = 1.5
 shader_parameter/rotation = 0.08
-shader_parameter/resolution_downsampling = 1.5
+shader_parameter/resolution_downsampling = 1.8
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_7t4rf"]
 

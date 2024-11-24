@@ -71,5 +71,16 @@ func _on_environment_ignore_add(node: Node3D, given_name: String):
 		if instance.has_method("distribute_meshes"):
 			instance.distribute_meshes()
 
+
+func _on_hide():
+	for instance in get_children():
+		if instance.has_method("distribute_meshes"):
+			instance.hide()
+
+func _on_show():
+	for instance in get_children():
+		if instance.has_method("distribute_meshes"):
+			instance.show()
+
 func _on_environment_ignore_remove(_node: Node3D, given_name: String):
 	environment_ignore.erase(given_name)

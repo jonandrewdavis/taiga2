@@ -29,6 +29,8 @@ func _ready():
 	Hub.players_container = $PlayersContainer
 	Hub.enemies_container = $EnemiesContainer
 	Hub.environment_container = $EnvironmentContainer
+	Hub.world_environment = $Environment/WorldEnvironment
+	Hub.forest_sun = $Environment/ForestSun
 	
 	Hub.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)

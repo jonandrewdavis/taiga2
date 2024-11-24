@@ -12,6 +12,8 @@ signal animation_measured(anim_length)
 
 @onready var hurt_count :int = 1
 
+var attack_near_dist = .2
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -24,6 +26,7 @@ func _ready():
 	enemy.death_started.connect(_on_death_started)
 
 	animation_started.connect(_on_animation_started)
+	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -45,13 +48,13 @@ func set_movement():
 	match enemy.current_state:
 		enemy.state.CIRCLE:
 			target_pos = enemy_target.global_position *  Vector3(1,0,1)
-			near = (target_pos.distance_to(enemy.global_position)  < .2)
+			near = (target_pos.distance_to(enemy.global_position)  < attack_near_dist)
 			var dir = 1.0 if attack_count == 1 else -1.0
 			speed.x = dir
 			speed.y = -0.25
 		enemy.state.FREE:
 			target_pos = enemy_target.global_position *  Vector3(1,0,1)
-			near = (target_pos.distance_to(enemy.global_position)  < .2)
+			near = (target_pos.distance_to(enemy.global_position)  < attack_near_dist)
 			if near:
 				speed.y = 0.0
 			else:
@@ -72,6 +75,8 @@ func set_movement():
 func _on_attack_started():
 	attack_count = randi_range(1, max_attack_count)
 	request_oneshot("attack")
+	
+	
 
 func _on_retreat_started():
 	attack_count = randi_range(1, 2)

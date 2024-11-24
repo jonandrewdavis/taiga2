@@ -21,6 +21,9 @@ func _ready():
 		item.collision_layer = 9
 
 func activate(_activated_player: CharacterBody3D = null, _activated_item = null):
+	if not $PreventTimer.is_stopped(): 
+		return
+	$PreventTimer.start()
 	if chest && chest.has_method("activate"):
 		chest.activate(_activated_player)
 			

@@ -148,7 +148,7 @@ enum state {FREE,STATIC,CLIMB}
 @export var current_state = state.FREE : set = change_state
 signal changed_state(new_state: state)
 
-
+var is_out_of_bounds = false
 
 # TODO: Enum? ADDED - AD 11/21/2024
 var combo_enabled_weapons = ['SLASH', 'HEAVY']
@@ -193,7 +193,8 @@ func _ready():
 		
 	climb_started.connect(_on_climb_started)
 	weapon_change_ended.connect(_hide_or_show_bow)
-		
+	$RelocateTimer.timeout.connect(_show_environment)
+	
 	nickname.visible = false
 
 	$FollowCam.eyeline_enter.connect(_on_eyeline_enter)
@@ -274,12 +275,54 @@ func _physics_process(_delta):
 	fall_check()
 	out_of_bounds_check()
 	
+var mult_lerp = 0.0001
+var dark_lerp = 0.8
+
 func out_of_bounds_check():
-	if global_position.x > 500.0:
-		global_position.x = -250.0
-	elif global_position.x < -500.0:
-		global_position.x = 250.0
-	
+	if abs(global_position.x) > 490.0 or abs(global_position.z) > 490.0:
+		if not $RelocateTimer.is_stopped():
+			return
+		var sign1 = 1 if (randi_range(0,1) == 1) else -1
+		var sign2 = 1 if (randi_range(0,1) == 1) else -1
+		global_position.x = randi_range(0, 450) * sign1
+		global_position.z = randi_range(0, 450) * sign2
+		global_position.y = 1.7
+		fog(true, 0.01, true, 0.0)
+		Hub.get_environment_root()._on_hide()
+		$RelocateTimer.start(2.0)
+	if abs(global_position.x) > 465.0 or abs(global_position.z) > 465.0:
+		fog(true, 0.001, true, 0.3)
+	elif abs(global_position.x) > 430.0 or abs(global_position.z) > 430.0:
+		fog(true, 0.0006, true, 0.5)
+	elif abs(global_position.x) > 390.0 or abs(global_position.z) > 390.0:
+		fog(true, 0.0004, true, 0.9)
+	elif abs(global_position.x) > 350.0 or abs(global_position.z) > 350.0: 
+		fog(true, 0.0002, true)
+	else:
+		fog(false, 0.0001)
+
+func _show_environment():
+	Hub.get_environment_root()._on_show()
+
+func fog(on, mult = 0.0005, sun = true, dark = 1.0):
+	if $RelocateTimer.time_left > 0:
+		return
+	mult_lerp = lerp(mult_lerp, mult, 0.5)
+	dark_lerp = lerp(dark_lerp, dark, 0.5)
+	if on:
+		if abs(global_position.x) > abs(global_position.z):
+			Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp * abs(global_position.x), 0.07, 1.0)
+		else:
+			Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp * abs(global_position.z), 0.07, 1.0)
+		Hub.forest_sun.shadow_enabled = sun
+		Hub.world_environment.environment.adjustment_brightness = dark_lerp
+		return
+	else:
+		Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp, 0.07, 1.0)  
+		Hub.world_environment.environment.adjustment_brightness = dark_lerp
+		Hub.forest_sun.shadow_enabled = true
+		pass
+
 func _input(_event:InputEvent):
 	if not is_multiplayer_authority():
 		return
@@ -644,6 +687,27 @@ func hit(_who, _by_what):
 		else:
 			damage_taken.emit(_by_what.power)
 			hurt()
+			
+@rpc("any_peer", "call_local")
+func hit_sync(_by_who_name: String, power: int):
+	if is_dead:
+		return
+	# only get hit by things on your client.
+	if is_multiplayer_authority(): 
+		if hurt_cool_down.time_left > 0:
+			return
+		if parry_active:
+			parry()
+			#if _who.has_method("parried"):
+				#_who.parried()
+			return
+		elif guarding && gadget_power != 0:
+			block()
+		else:
+			damage_taken.emit(power)
+			hurt()
+
+
 
 func heal(_by_what):
 	print(_by_what)
