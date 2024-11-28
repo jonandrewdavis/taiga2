@@ -15,11 +15,6 @@ class_name FollowCam
 ## The camera by default is has it's H Offset property set to move it over the
 ## right shoulder. Adjust offset there, not here so that the spring arm/camera
 ## don't clip through walls.
-
-
-@export_range(1,50,1) var mouse_sensitivity = 15.0
-@export_range(1,50,1) var joystick_sensitivity = 15.0
-
 var targeting = false
 signal targeting_changed
 @export var camera_3d : Camera3D 
@@ -36,7 +31,8 @@ var look_target : Node3D
 signal target_cleared
 
 var current_cam_buffer = true
-
+var player: CharacterBody3D
+var is_menu_open = false
 
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
@@ -55,6 +51,11 @@ func _ready():
 
 	if not is_multiplayer_authority():
 		return
+
+	player = get_parent() 
+	
+	# Net new stuff for menu - AD:
+	get_parent().menu_open.connect(_on_menu_open)
 
 	## MULTIPLAYER TEMPLATE FUNCS
 	## MULTIPLAYER TEMPLATE FUNCS
@@ -91,10 +92,11 @@ func _physics_process(_delta):
 	
 ## Normal free camera control
 func mouse_control(_event):
-
+	if is_menu_open: 
+		return
 	if _event is InputEventMouseMotion:
-		var new_rotation = rotation.x - _event.relative.y / 10000 * mouse_sensitivity
-		rotation.y -= _event.relative.x /  10000 * mouse_sensitivity
+		var new_rotation = rotation.x - _event.relative.y / 10000 * player.mouse_sensitivity
+		rotation.y -= _event.relative.x /  10000 * player.mouse_sensitivity
 
 		var clamped_rotation = clamp(new_rotation, -.8, 0.8) #rotation clamp
 		rotation.x = clamped_rotation
@@ -105,8 +107,8 @@ func joystick_control(): # For controlling freecam rotation on gamepad
 		#if Input.get_vector("look_left","look_right","look_up","look_down"):
 	# Calculate the target rotation
 	var joy_input = Input.get_vector("look_left","look_right","look_up","look_down")
-	var temporary_rotation = rotation.x + joy_input.y / 400 * joystick_sensitivity
-	rotation.y -= joy_input.x / 300 * joystick_sensitivity
+	var temporary_rotation = rotation.x + joy_input.y / 400 * player.joystick_sensitivity
+	rotation.y -= joy_input.x / 300 * player.joystick_sensitivity
 	
 	var clamped_rotation = clamp(temporary_rotation, -.8, .8)
 	rotation.x = clamped_rotation
@@ -171,3 +173,6 @@ func _on_custom_eyeline_area_entered(area):
 func _on_custom_eyeline_area_exited(area = null):
 	if $Camera3D/CustomEyeline/RayCast3D.is_colliding() == false:
 		eyeline_exit.emit(area)
+	
+func _on_menu_open(_on_off):
+	is_menu_open = _on_off

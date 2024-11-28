@@ -13,10 +13,6 @@ const ignore_zone_radius = 22.0
 
 @onready var scenery_container: Node3D = $SceneryContainer
 
-
-func _enter_tree():
-	set_multiplayer_authority(1)
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	add_to_group("encounters")
@@ -35,16 +31,17 @@ func _ready():
 		ignore_zone.visible = false
 		add_child(ignore_zone)
 		Hub.environment_ignore_add.emit(ignore_zone, name)
-	
+
 	if is_multiplayer_authority():
-		height_map_check.rpc()
-		
-@rpc("call_remote")
+		height_map_check.rpc()	
+
+# TODO: This could possibly be a local only check!
+@rpc
 func height_map_check():
 	if scenery_container:
 		for object in scenery_container.get_children():
 			object.global_position.y = get_heightmap_y(object.global_position.x, object.global_position.z) + 1.0
-
+			
 # If there are no more nearby players, it's safe to remove this encounter
 func check_for_clean_up(tracker_global_position, despawn_distance):
 	var min_distance = INF
@@ -56,9 +53,8 @@ func check_for_clean_up(tracker_global_position, despawn_distance):
 		Hub.environment_ignore_remove.emit(ignore_zone_mesh, name)
 		queue_free()
 
-
 func get_heightmap_y(x, z):
-	var hmap_img = HEIGHTMAP.noise.get_image(512, 512)
+	var hmap_img = HEIGHTMAP.noise.get_image(1024, 1024)
 	var width = hmap_img.get_width()
 	var height = hmap_img.get_height()
 

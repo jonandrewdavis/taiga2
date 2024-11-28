@@ -1,6 +1,6 @@
 extends AnimationTree
 
-@onready var enemy : CharacterBody3D = get_parent()
+var enemy
 @onready var last_oneshot = null
 @onready var anim_length : float = .5
 @onready var state_machine_node : AnimationNodeStateMachinePlayback = self["parameters/Movement/playback"]
@@ -17,6 +17,8 @@ var attack_near_dist = .2
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	enemy = get_parent()
+
 	seed(enemy.network_randi_seed)
 	
 	enemy.attack_started.connect(_on_attack_started)
@@ -26,7 +28,6 @@ func _ready():
 	enemy.death_started.connect(_on_death_started)
 
 	animation_started.connect(_on_animation_started)
-	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -61,21 +62,26 @@ func set_movement():
 				speed.y = .5
 		enemy.state.CHASE:
 			near = (enemy_target.global_position.distance_to(enemy.global_position)  < 4.0)
-			if near:
+			if near && enemy.panic == false:
 				speed.y = .55
 			else:
 				speed.y = 0.90
+				
+
+		# AD NOTE: I think that the check in the aniomation tree had 
+		#	enemy.current_state == state.COMBAT
+		# but that's not right since there's no state enum on this script 
+		# so changed it to:
+		#	enemy.current_state == enemy.state.COMBAT 
 		enemy.state.DEAD:
 			speed.y = 0.0
 	
 	var blend = lerp(get("parameters/Movement/Movement2D/blend_position"),speed,.1)
 	set("parameters/Movement/Movement2D/blend_position",blend)
-
-
+	
 func _on_attack_started():
 	attack_count = randi_range(1, max_attack_count)
 	request_oneshot("attack")
-	
 	
 
 func _on_retreat_started():

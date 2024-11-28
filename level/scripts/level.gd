@@ -24,7 +24,7 @@ func _ready():
 				_on_host_pressed()
 
 	if get_node_or_null('MenuEnvironmentArea'):
-		get_node_or_null('MenuEnvironmentArea').get_node("EnvironmentInstanceRoot").environment_tracker_changed.emit(self)
+		get_node_or_null('MenuEnvironmentArea').get_node("EnvironmentInstanceRoot").environment_tracker_changed.emit($MenuEnvironmentArea/CAMPMARKER)
 
 	Hub.players_container = $PlayersContainer
 	Hub.enemies_container = $EnemiesContainer
@@ -111,10 +111,6 @@ func sync_player_position(id: int, new_position: Vector3):
 		player.position = new_position
 		# TODO: Proper loading signal / bus for users to load their scenery.
 		#$EnvironmentInstanceRoot.set_new_root(player)
-	
-func _on_quit_pressed() -> void:
-	get_tree().quit()
-	
 	
 
 @rpc

@@ -10,11 +10,6 @@ var player_info = {
 	"skin" : "blue"
 }
 
-# NOTE: This is loaded as a global.
-func _process(_delta):
-	if Input.is_action_just_pressed("ui_cancel"):
-		get_tree().quit(0)
-		
 func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_connection_failed)
 	multiplayer.connection_failed.connect(_on_server_disconnected)

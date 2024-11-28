@@ -16,7 +16,9 @@ volume_db = 27.475
 max_db = 5.879
 max_distance = 8.0
 max_polyphony = 2
+bus = &"SFX"
 
 [node name="Pantswish" type="AudioStreamPlayer3D" parent="."]
 volume_db = -15.0
 max_distance = 5.0
+bus = &"SFX"

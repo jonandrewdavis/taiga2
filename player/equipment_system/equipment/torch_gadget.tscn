@@ -13,6 +13,7 @@ object_type = "SHIELD"
 power = 0
 weight = 1
 value = 1
+streak = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ergnq"]
 resource_name = "Hilt"

@@ -9,7 +9,6 @@ class_name EquipmentObject
 @export var equipment_info : EquipmentResource = EquipmentResource.new()
 @onready var equipped = false : set = update_equipped
 
-
 signal equipped_changed
 
 	

@@ -51,6 +51,8 @@ enum state {
 }
 signal state_changed
 
+var panic = false
+
 func _enter_tree() -> void:
 	set_multiplayer_authority(1)
 
@@ -61,6 +63,9 @@ func _ready():
 	
 	if archer == true:
 		combat_range = 10.0
+		$EquipmentSystem/BoneAttachment3D.visible = false
+	else:
+		$EquipmentSystem/LeftHand.visible = false
 
 	if animation_tree:
 		animation_tree.animation_measured.connect(_on_animation_measured)
@@ -75,7 +80,8 @@ func _ready():
 	if health_system:
 		health_system.died.connect(death)
 
-	
+	multiplayer.peer_disconnected.connect(_remove_player_change_target)
+
 	if is_multiplayer_authority():
 		combat_timer.timeout.connect(_on_combat_timer_timeout)
 		chase_timer.timeout.connect(_on_chase_timer_timeout)
@@ -87,7 +93,12 @@ func _ready():
 		
 		$AttackAreaSensor.body_entered.connect(_on_target_entered)
 		$AttackAreaSensor.body_exited.connect(_on_target_exited)
-		
+
+func _remove_player_change_target(id):
+	if target.name == str(id) or default_target.name == str(id):
+		target = Hub.get_random_player()
+		default_target = Hub.get_cart()
+
 func _on_target_entered(_body):
 	if _body == target:
 		colliding_with_target = true
@@ -102,10 +113,13 @@ func _process(delta):
 	apply_gravity(delta)
 	if current_state == state.DEAD:
 		return
+
+	if target == null:
+		return
 	rotate_character()
 	navigation()
 	free_movement(delta)
-	if current_state != state.CIRCLE:
+	if current_state != state.CIRCLE && panic == false:
 		evaluate_state()
 	
 func free_movement(delta):
@@ -139,12 +153,14 @@ func update_current_state(_new_state):
 # TODO: Painful to strip y index everywhere. The default target is always above or below the mesh	
 func navigation():
 	if target != null:
-		nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0)
+		if panic:
+			nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0) * -1.0
+		else: 
+			nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0)
 		var new_dir = (nav_agent_3d.get_next_path_position() - global_position).normalized()
 		new_dir *= Vector3(1,0,1) # strip the y value so enemy stays at current level
 		direction = new_dir
 
-		
 func rotate_character():
 	var rate = .05
 	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position() * Vector3(1,0,1))
@@ -169,20 +185,46 @@ func evaluate_state(): ## depending on distance to target, run or walk
 
 ## added random times between attacks. Might be a bit much
 func _on_combat_timer_timeout():
+	if target == null:
+		return
 	if current_state == state.COMBAT && is_multiplayer_authority():
-		if archer == false:
-			combat_randomizer()
+		if target.is_in_group("players") && target.is_dead:
+			target = Hub.get_cart()
+			default_target = Hub.get_cart()
 			combat_timer.start(randf_range(0.7,2.8))
-		else:
+			return
+
+		if target.is_in_group("cart") && target.is_dead:
+			target = Hub.get_random_player()
+			default_target = Hub.get_cart()
+			combat_timer.start(randf_range(0.7,2.8))
+			return
+
+		if archer == true:
+			if target != null && global_position.distance_to(target.global_position) < combat_range / 3: 
+				start_panic()
+				combat_timer.stop()
+				return
 			attack_ranged()
-			combat_timer.start(randf_range(2.0,5.0))
+			combat_timer.start(randf_range(4.0,5.0))
+			return
+
+		combat_randomizer()
+		combat_timer.start(randf_range(0.7,2.8))
+
+
+func start_panic():
+	panic = true
+	current_state = state.CHASE
+	await get_tree().create_timer(8.0).timeout 
+	combat_timer.start(1.0)
+	panic = false
 
 func combat_randomizer():
 	if multiplayer.is_server():
 		if colliding_with_target == true:
 			attack.rpc()
-			return
-			
+
 		var random_choice = randi_range(1,30)
 		if random_choice <= 4:
 			retreat.rpc()
@@ -196,11 +238,11 @@ func combat_randomizer():
 func attack():
 	attack_started.emit()
 
-
 func attack_ranged():
 	animation_tree.request_oneshot("shoot")
 	await get_tree().create_timer(1.8).timeout 
-	$ArrowSystem.LaunchProjectile(target.global_position + Vector3(0.0, 0.8, 0.0))
+	if target != null: 
+		$ArrowSystem.LaunchProjectile(target.global_position + Vector3(0.0, 0.8, 0.0))
 
 @rpc("authority", "call_local")
 func retreat(): # Back away for a period of time
@@ -270,7 +312,6 @@ func hit(_by_who, _by_what):
 @rpc("any_peer", "call_local")
 func hit_sync(_by_who_name: String, power: int):
 	if multiplayer.is_server():
-		print('on server: ', _by_who_name, power)
 		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
 		var get_player_targeted = Hub.get_player_by_name(_by_who_name)
 		if (get_player_targeted):
@@ -284,7 +325,6 @@ func hit_sync(_by_who_name: String, power: int):
 @rpc("any_peer", "call_local")
 func sync_back_hit():
 		hurt_started.emit()
-
 
 func parried():
 	parried_sync.rpc()

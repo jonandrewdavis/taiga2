@@ -4,7 +4,7 @@ var previous_encounter_location = Vector3.ZERO
 var encounter_tracker = Node3D
 
 
-var distance_interval = 180.0
+var distance_interval = 40.0
 # Position in front of player / tracker
 var distance_during_spawn = 100.0
 
@@ -65,12 +65,11 @@ func prepare_starting_area():
 	Hub.environment_container.add_child(first_town, true)	
 	first_town.global_position = Vector3.ZERO
 	previous_encounter_location = Vector3.ZERO
-
+#
 	populate_enemies(Vector3(10.0, 10.0, 10.0))
-
 	populate_enemies(Vector3(5.0, 5.0, 5.0))
-	#populate_enemies(Vector3(-7.0, 7.0, -7.0))
-	#populate_enemies(Vector3(-12.0, 12.0, -12.0))
+	populate_enemies(Vector3(-7.0, 7.0, -7.0))
+	populate_enemies(Vector3(-12.0, 12.0, -12.0))
 	
 
 

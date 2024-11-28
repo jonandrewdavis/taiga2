@@ -9,14 +9,17 @@ extends RigidBody3D
 
 @onready var idle_timer = $IdleTimer
 var speed: float = 0.2
+
 var player_attached: CharacterBody3D = null
-var player_id_attached: int 
+@export var is_player_attached_sync = false
 
 var cart_speed = 5.0
 
 signal damage_taken
 signal hurt_started
 signal heal_signal
+
+@export var is_dead = false
 
 func _enter_tree():
 	set_multiplayer_authority(1)
@@ -83,6 +86,15 @@ func _integrate_forces(state):
 		rotation = replicated_rotation
 
 func _process(_delta):
+	if not is_multiplayer_authority():
+		return
+
+	if player_attached == null:
+		$Rope.visible = false
+		$Rope2.visible = false
+		rope_end.global_position = $InteractionPoint.global_position
+		return
+		
 	if player_attached:
 		$Rope.visible = true
 		$Rope2.visible = true
@@ -92,8 +104,6 @@ func _process(_delta):
 		$Rope2.visible = false
 		rope_end.global_position = $InteractionPoint.global_position
 
-	if not is_multiplayer_authority():
-		return
 		
 	#$CartCam.global_position = Vector3(global_position.x, $CartCam.global_position.y, global_position.z - 15.00)
 	#$CartCam.look_at(Vector3(global_position.x, 2.0,  global_position.z))
@@ -150,12 +160,17 @@ func hit(_by_who, _by_what):
 		damage_taken.emit(_by_what.power)
 		hit_sync.rpc(_by_who.name, _by_what.power)
 
-@rpc("any_peer")
+@rpc("any_peer", "call_local")
 func hit_sync(_by_who_name: String, power: int):
 	if is_multiplayer_authority():
 		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
 		damage_taken.emit(power)
+	elif $SoundFXTrigger.is_playing() == false:
+		$SoundFXTrigger.play()
 
 func _on_cart_death():
+	is_dead = true
 	global_position = Vector3(-8.0, 1.0, 8.0)
 	heal_signal.emit(500)
+	await get_tree().create_timer(10.0).timeout
+	is_dead = false

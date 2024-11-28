@@ -16,7 +16,6 @@ mat2 rotate(float a) {
 	return mat2(vec2(ca, sa), vec2(-sa, ca));
 }
 
-
 float dot_matrix(vec2 uv) {
 	vec2 rot_uv = rotate(rotation) * uv * scale;
 	return sin(rot_uv.x) * sin(rot_uv.y);

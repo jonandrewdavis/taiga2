@@ -66,6 +66,18 @@ properties/2/replication_mode = 1
 properties/3/path = NodePath(".:replicated_angular_velocity")
 properties/3/spawn = true
 properties/3/replication_mode = 1
+properties/4/path = NodePath(".:is_dead")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath("Rope:visible")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath("Rope2:visible")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath("Rope/End:position")
+properties/7/spawn = true
+properties/7/replication_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_8nrik"]
 offsets = PackedFloat32Array(1)

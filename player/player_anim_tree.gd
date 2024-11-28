@@ -17,6 +17,7 @@ class_name AnimationTreeSoulsBase
 
 ## MULTIPLAYER TEMPLATE FUNCS 
 ## MULTIPLAYER TEMPLATE FUNCS
+var is_menu_open = false
 
 @export var player_node: CharacterBody3D
 @onready var base_state_machine : AnimationNodeStateMachinePlayback = self["parameters/MovementStates/playback"]
@@ -116,7 +117,7 @@ func _ready():
 	_on_gadget_change_ended(player_node.gadget_type)
 	_on_item_change_ended(player_node.current_item)
 	
-
+	player_node.menu_open.connect(_on_menu_open)
 	
 	
 func _process(_delta):
@@ -129,6 +130,7 @@ func _process(_delta):
 		set_strafe()
 	else:
 		set_free_move()
+
 		
 	if player_node.current_state == player_node.state.CLIMB:
 		set_ladder()
@@ -213,28 +215,28 @@ func attack_chain_current_length():
 func attack_chain():
 	if attack_count == 1:
 		request_oneshot("Attack")
-		animation_measured.emit(attack_chain_current_length() - 0.15)
+		animation_measured.emit(attack_chain_current_length() - 0.2)
 		await animation_measured
 		player_node.attack_started.emit()
-		await get_tree().create_timer(attack_chain_current_length() - 0.15).timeout
+		await get_tree().create_timer(attack_chain_current_length() - 0.2).timeout
 		attack_count = 2
 		attack_chain()
 	elif is_combo == true && attack_count == 2 && get("parameters/Attack/active"):
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case()+ str(attack_count))
-		animation_measured.emit(attack_chain_current_length() - 0.15)
+		animation_measured.emit(attack_chain_current_length() - 0.2)
 		await animation_measured
 		player_node.attack_started.emit()
 		sync_combo_attack.rpc(weapon_type, attack_count)
-		await get_tree().create_timer(attack_chain_current_length()  - 0.15).timeout
+		await get_tree().create_timer(attack_chain_current_length()  - 0.2).timeout
 		attack_count = 3
 		attack_chain()
 	elif is_combo == true && attack_count == 3 && get("parameters/Attack/active"):
 		get("parameters/ATTACK_tree/" + weapon_type +"/playback").travel(weapon_type.to_pascal_case() + str(attack_count))
-		animation_measured.emit(attack_chain_current_length()  - 0.15)
+		animation_measured.emit(attack_chain_current_length()  - 0.2)
 		await animation_measured
 		player_node.attack_started.emit()
 		sync_combo_attack.rpc(weapon_type, attack_count)
-		await get_tree().create_timer(attack_chain_current_length()  - 0.15).timeout
+		await get_tree().create_timer(attack_chain_current_length()  - 0.2).timeout
 		_on_attack_end()
 	else:
 		_on_attack_end()
@@ -389,10 +391,10 @@ func set_free_move():
 		# Case where they let go too soon....
 		new_blend = Vector2(player_node.input_dir.x, player_node.input_dir.y * -1.0)
 		new_blend *= .4
+	
 	lerp_movement = get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafe/blend_position")
 	lerp_movement = lerp(lerp_movement,new_blend,.2)
 	set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafe/blend_position",lerp_movement)
-
 
 func _on_animation_started(anim_name):
 	if get_node(anim_player) && anim_name:
@@ -412,3 +414,7 @@ func sync_player_oneshot(one_shot) -> void:
 @rpc("any_peer", "reliable")
 func sync_player_sprinting() -> void:
 	base_state_machine.travel("SPRINT_tree")
+
+
+func _on_menu_open(_on_off):
+	is_menu_open = _on_off

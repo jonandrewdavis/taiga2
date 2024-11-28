@@ -1,7 +1,8 @@
-[gd_scene load_steps=10 format=4 uid="uid://dva7owhrl4wew"]
+[gd_scene load_steps=11 format=4 uid="uid://dva7owhrl4wew"]
 
 [ext_resource type="Script" path="res://player/equipment_system/equipment/equipment_object.gd" id="1_2vkpj"]
 [ext_resource type="Script" path="res://player/equipment_system/equipment/equipment_resource.gd" id="2_15vxs"]
+[ext_resource type="PackedScene" uid="uid://csq5r5uy88v17" path="res://assets/weapons/Espada PS1/Espada PS1.fbx" id="3_r8a01"]
 
 [sub_resource type="Resource" id="Resource_rfg87"]
 script = ExtResource("2_15vxs")
@@ -10,6 +11,7 @@ object_type = "SLASH"
 power = 1
 weight = 1
 value = 1
+streak = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ergnq"]
 resource_name = "Hilt"
@@ -120,9 +122,13 @@ equipment_info = SubResource("Resource_rfg87")
 
 [node name="Sword" type="MeshInstance3D" parent="."]
 transform = Transform3D(1.25722, 0, 0, 0, 1.27074, 0, 0, 0, 1.25083, 0, 0, 0)
+visible = false
 mesh = SubResource("ArrayMesh_1o75e")
 skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.515, 0)
 shape = SubResource("BoxShape3D_jk5hn")
+
+[node name="Espada PS1" parent="." instance=ExtResource("3_r8a01")]
+transform = Transform3D(4.80825e-08, 4.20351e-15, 1.1, 9.61651e-08, -1.1, 0, 1.1, 9.61651e-08, -4.80825e-08, 0, 0.858745, 0)

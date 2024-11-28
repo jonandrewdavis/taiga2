@@ -1,14 +1,24 @@
 extends CharacterBody3D
 
+@export_range(1,50,1) var mouse_sensitivity = 15.0
+@export_range(1,50,1) var joystick_sensitivity = 15.0
+
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
 @export var coins: int = 100
+
+const CONST_MAX_HP = 100;
+const CONST_MAX_STAMNIA = 30;
+
+@export var max_stamina: int = CONST_MAX_STAMNIA
+@export var stamina: int = CONST_MAX_STAMNIA
 
 @onready var nickname: Label3D = $PlayerNick/Nickname
 
 @export_category("Objects")
 #@export var _body: Node3D = null
 #@export var _spring_arm_offset: Node3D = null
+
 
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
@@ -53,6 +63,7 @@ signal attack_requested
 
 ## New stuff - AD
 signal eyeline_check
+signal menu_open
 
 
 ## A helper variable for keyboard events across 2 key inputs "shift+ attack", etc.
@@ -131,7 +142,7 @@ signal ladder_started(top_or_bottom:String)
 signal ladder_finished(top_or_bottom:String)
 
 # State management
-enum state {FREE,STATIC,CLIMB} 
+enum state {FREE,STATIC,CLIMB}
 
 #  EXPORTED FOR MULTIPLAYER
 #  EXPORTED FOR MULTIPLAYER
@@ -139,7 +150,7 @@ enum state {FREE,STATIC,CLIMB}
 #  EXPORTED FOR MULTIPLAYER
 #  EXPORTED FOR MULTIPLAYER
 
-@export var busy : bool = false # substate: to prevent input spamming 
+@export var busy : bool = false # substate: to prevent input spamming
 @export var guarding = false # substate
 @export var sprinting : bool = false # substate
 @export var dodging : bool = false # substate
@@ -157,12 +168,13 @@ var two_handed_weapons = ['HEAVY', 'BOW']
 signal store_error
 signal store_success
 
+@onready var sprint_drain_timer = $SprintDrainTimer
+
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
 
 func _enter_tree():
 	set_multiplayer_authority(str(name).to_int())
-
 ## MULTIPLAYER TEMPLATE FUNCS
 ## MULTIPLAYER TEMPLATE FUNCS
 
@@ -171,7 +183,8 @@ func _ready():
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: Replicated vars + rpc on `request_oneshot` should cover ALL cases.
 	# NOTE: That means we can disable any signals if we're not authority.
-	if not is_multiplayer_authority(): 
+	set_process(is_multiplayer_authority())
+	if not is_multiplayer_authority():
 		return
 	
 	$GUI.hide()
@@ -189,10 +202,10 @@ func _ready():
 		inventory_system.item_used.connect(_on_inventory_item_used)
 			
 	if health_system:
+		health_system.health_updated.connect(func(_health): %HealthLabel.text = str(_health * 10))
 		health_system.died.connect(death)
 		
 	climb_started.connect(_on_climb_started)
-	weapon_change_ended.connect(_hide_or_show_bow)
 	$RelocateTimer.timeout.connect(_show_environment)
 	
 	nickname.visible = false
@@ -211,6 +224,8 @@ func _ready():
 		await animation_tree.animation_measured
 	await get_tree().create_timer(anim_length).timeout
 	current_state = state.FREE
+
+	sprint_drain_timer.timeout.connect(stamina_drain)
 	
 	#weapon_change_ended.emit(weapon_type)
 	
@@ -251,7 +266,13 @@ func change_state(new_state):
 	#else:
 		#system_visible(weapon_system,true)
 		#system_visible(gadget_system,true)
-			
+
+func _process(_delta):
+	%StaminaBar.value = stamina
+	%StaminaLabel.text = str(stamina)
+	if is_on_floor() == true && busy == false && sprinting == false:
+		recover_stamina()
+
 func _physics_process(_delta):
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: All 3 Required for all authorities because of "flying" bug.
@@ -275,68 +296,19 @@ func _physics_process(_delta):
 	fall_check()
 	out_of_bounds_check()
 	
-var mult_lerp = 0.0001
-var dark_lerp = 0.8
-
-func out_of_bounds_check():
-	if abs(global_position.x) > 490.0 or abs(global_position.z) > 490.0:
-		if not $RelocateTimer.is_stopped():
-			return
-		var sign1 = 1 if (randi_range(0,1) == 1) else -1
-		var sign2 = 1 if (randi_range(0,1) == 1) else -1
-		global_position.x = randi_range(0, 450) * sign1
-		global_position.z = randi_range(0, 450) * sign2
-		global_position.y = 1.7
-		fog(true, 0.01, true, 0.0)
-		Hub.get_environment_root()._on_hide()
-		$RelocateTimer.start(2.0)
-	if abs(global_position.x) > 465.0 or abs(global_position.z) > 465.0:
-		fog(true, 0.001, true, 0.3)
-	elif abs(global_position.x) > 430.0 or abs(global_position.z) > 430.0:
-		fog(true, 0.0006, true, 0.5)
-	elif abs(global_position.x) > 390.0 or abs(global_position.z) > 390.0:
-		fog(true, 0.0004, true, 0.9)
-	elif abs(global_position.x) > 350.0 or abs(global_position.z) > 350.0: 
-		fog(true, 0.0002, true)
-	else:
-		fog(false, 0.0001)
-
-func _show_environment():
-	Hub.get_environment_root()._on_show()
-
-func fog(on, mult = 0.0005, sun = true, dark = 1.0):
-	if $RelocateTimer.time_left > 0:
-		return
-	mult_lerp = lerp(mult_lerp, mult, 0.5)
-	dark_lerp = lerp(dark_lerp, dark, 0.5)
-	if on:
-		if abs(global_position.x) > abs(global_position.z):
-			Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp * abs(global_position.x), 0.07, 1.0)
-		else:
-			Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp * abs(global_position.z), 0.07, 1.0)
-		Hub.forest_sun.shadow_enabled = sun
-		Hub.world_environment.environment.adjustment_brightness = dark_lerp
-		return
-	else:
-		Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp, 0.07, 1.0)  
-		Hub.world_environment.environment.adjustment_brightness = dark_lerp
-		Hub.forest_sun.shadow_enabled = true
-		pass
-
 func _input(_event:InputEvent):
 	if not is_multiplayer_authority():
 		return
-	
-		# Update current orientation to camera when nothing pressed
+
+	if $FollowCam.is_menu_open == true:
+		return
+
+	# Update current orientation to camera when nothing pressed
 	if !Input.is_anything_pressed():
 		current_camera = get_viewport().get_camera_3d()
-	
-	if _event.is_action_pressed("ui_cancel"):
-		get_tree().quit()
 
 	if is_dead:
 		return
-
 	## strafe toggle on/off
 	if _event.is_action_pressed("strafe_target"):
 		set_strafe_targeting()
@@ -384,7 +356,8 @@ func _input(_event:InputEvent):
 				if two_handed_weapons.has(weapon_system.current_equipment.equipment_info.object_type):
 					if weapon_type == "BOW":
 						start_guard()
-						return
+					# early return to disallow two handed from doing any gadgets
+					return
 				if secondary_action:
 					use_gadget()
 				elif gadget_type == "SHIELD":
@@ -401,11 +374,16 @@ func _input(_event:InputEvent):
 			abort_climb()
 	
 	if sprinting:
+		
 		if !input_dir:
 			end_sprint()
 		
 		if _event.is_action_released("sprint"):
 			end_sprint()
+		
+		if stamina == 0:
+			end_sprint()
+			start_recovery()
 				
 	if _event.is_action_released("use_gadget_light"):
 		if not secondary_action:
@@ -475,17 +453,14 @@ func attack():
 	attack_face_forward()
 	if busy == true:
 		return
-	
-	# Special case, bow can only be fired while a
+
 	if weapon_type == "BOW":
 		if guarding == true:
 			busy = true
 			animation_tree.request_oneshot("Shoot")
 			animation_tree.attack_once()
 			$ArrowSystem.shoot()
-			return	
-		else:
-			return	
+		return
 
 	busy = true
 	if not is_on_floor():
@@ -535,7 +510,8 @@ func fall_check():
 		if busy:
 			busy = false
 			
-			
+
+
 func sprint():
 	if sprint_timer.is_stopped():
 		sprint_timer.start(.3)
@@ -543,10 +519,11 @@ func sprint():
 		if !dodging && input_dir:
 			sprinting = true
 			sprint_started.emit() # triggers the change in anim tree
-		
+			sprint_drain_timer.start()
+
 func end_sprint():
 	sprinting = false
-		
+	sprint_drain_timer.stop()
 			
 var guard_local
 var strafe_local
@@ -554,6 +531,10 @@ var strafe_local
 func dodge():
 	if dodging or busy:
 		return
+		
+	if check_stamina(actions.DODGE) == false:
+		return
+		
 	# While dodging, save out theese locals	
 	guard_local = guarding
 	strafe_local = strafing
@@ -602,9 +583,14 @@ func abort_climb():
 		current_state = state.FREE
 
 func weapon_change():
+	if busy or guarding:
+		return
 	slowed = true
-	if weapon_type == 'BOW':
-		$WeaponSystem/LeftHand.hide()
+	#_should_show_bow(false)
+	if weapon_system.stored_equipment != null && weapon_system.stored_equipment.equipment_info.object_type == "BOW":
+		$WeaponSystem/BackBone.visible = false
+		$WeaponSystem/LeftHand.visible = false
+		$WeaponSystem/RightHand.visible = true
 	trigger_event("weapon_change_started")
 	await event_finished
 	if two_handed_weapons.has(weapon_type):
@@ -613,7 +599,10 @@ func weapon_change():
 		system_visible(gadget_system,true)
 	weapon_change_ended.emit(weapon_type)
 	slowed = false
-	
+	if weapon_system.current_equipment != null && weapon_system.current_equipment.equipment_info.object_type == "BOW":
+		$WeaponSystem/RightHand.visible = false
+		$WeaponSystem/LeftHand.visible = true
+		$WeaponSystem/BackBone.visible = true
 	
 func _on_weapon_equipment_changed(_new_weapon:EquipmentObject):
 	weapon_type = _new_weapon.equipment_info.object_type
@@ -674,7 +663,7 @@ func hit(_who, _by_what):
 	if is_dead:
 		return
 	# only get hit by things on your client.
-	if is_multiplayer_authority(): 
+	if is_multiplayer_authority():
 		if hurt_cool_down.time_left > 0:
 			return
 		if parry_active:
@@ -693,7 +682,7 @@ func hit_sync(_by_who_name: String, power: int):
 	if is_dead:
 		return
 	# only get hit by things on your client.
-	if is_multiplayer_authority(): 
+	if is_multiplayer_authority():
 		if hurt_cool_down.time_left > 0:
 			return
 		if parry_active:
@@ -750,7 +739,7 @@ func use_item():
 # TODO: Reset their weapons somehow.................
 # TODO: Would be nice to do anyway so they can drop something. 
 func death():
-	if not is_multiplayer_authority(): 
+	if not is_multiplayer_authority():
 		return
 	if is_dead == true:
 		return
@@ -783,8 +772,11 @@ func restore():
 	visible = true
 	current_state = state.FREE
 	animation_tree._on_weapon_change_ended('')
-	_hide_or_show_bow('')
 	animation_tree._on_spawn_started()
+	$WeaponSystem/RightHand.visible = true
+	$WeaponSystem/BackBone.visible = true
+	$WeaponSystem/LeftHand.visible = false
+	
 
 
 func get_spawn_point() -> Vector3:
@@ -792,8 +784,8 @@ func get_spawn_point() -> Vector3:
 	return Vector3(spawn_point.x, 5.0, spawn_point.y)
 
 func system_visible(_system_node,_new_toggle):
-		if _system_node:
-			_system_node.visible = _new_toggle
+	if _system_node:
+		_system_node.visible = _new_toggle
 
 func trigger_interact(interact_type:String):
 	if busy:
@@ -807,7 +799,7 @@ func trigger_interact(interact_type:String):
 func trigger_event(signal_name:String):
 	if busy or dodging:
 		return
-	if is_multiplayer_authority(): 
+	if is_multiplayer_authority():
 		trigger_event_sync.rpc(signal_name)
 	busy = true
 	emit_signal(signal_name)
@@ -827,6 +819,8 @@ func jump():
 	# Handle jump.
 	# Added some extra checks to prevent nonsense - AD.
 	if is_on_floor() && busy == false && dodging == false && guarding == false:
+		if check_stamina(actions.JUMP) == false:
+			return
 		jump_started.emit()
 		await get_tree().create_timer(.1).timeout # for the windup
 		velocity.y = jump_velocity
@@ -880,7 +874,7 @@ func calc_direction() -> Vector3 :
 	return new_direction
 
 # New: - AD
-func calc_direction_based_on_camera() -> Vector3: 
+func calc_direction_based_on_camera() -> Vector3:
 	var new_camera_direction = current_camera.global_transform.basis.z + current_camera.global_transform.basis.x
 	return new_camera_direction
 	
@@ -939,7 +933,7 @@ var empty_scene = preload("res://player/equipment_system/equipment/EmptyEquipmen
 
 ## EQUIPMENT
 
-var new_packed_scene = { 
+var new_packed_scene = {
 	"shield_scene": shield_scene,
 	"axe_scene": axe_scene,
 	"bow_scene": bow_scene,
@@ -949,65 +943,65 @@ var new_packed_scene = {
 # NOTE: This is an RPC because we are spawning items (see mulitplayer spawner in player).
 @rpc("authority", "call_local")
 func replace_empty_on_system(system_name, scene_name, cost: int):
-		if coins < cost:
-			store_error.emit()
-			return
-		var system = get_node_or_null(system_name)
-		if system != null: 
-			var mount_string = system._find_empty_pivot()
-			if mount_string != null:
-				var mount_point = system[mount_string]
-				var free_eq = mount_point.get_child(0)
-				mount_point.remove_child(free_eq)
-				var new_scene = new_packed_scene[scene_name].instantiate()
-				system[mount_string].add_child(new_scene)
-				if mount_string == "held_mount_point":
-					system.current_equipment = new_scene
-					system._on_stop_signal()
-					if (system.name == 'GadgetSystem'):
-						_on_gadget_equipment_changed(system.current_equipment)
-					else:
-						_on_weapon_equipment_changed(system.current_equipment)
-						if system.current_equipment.equipment_info.object_type == "BOW":
-							weapon_change()
-							weapon_change()
+	if coins < cost:
+		store_error.emit()
+		return
+	var system = get_node_or_null(system_name)
+	if system != null:
+		var mount_string = system._find_empty_pivot()
+		if mount_string != null:
+			var mount_point = system[mount_string]
+			var free_eq = mount_point.get_child(0)
+			mount_point.remove_child(free_eq)
+			var new_scene = new_packed_scene[scene_name].instantiate()
+			system[mount_string].add_child(new_scene)
+			if mount_string == "held_mount_point":
+				system.current_equipment = new_scene
+				system._on_stop_signal()
+				if (system.name == 'GadgetSystem'):
+					_on_gadget_equipment_changed(system.current_equipment)
 				else:
-					system.stored_equipment = new_scene
-					system.stored_equipment.equipped = false
-					system.stored_equipment.monitoring = false
-				# Remove the empty equipment
-				coins = coins - cost
-				store_success.emit()
-				await get_tree().create_timer(.1).timeout
-				free_eq.queue_free()
+					_on_weapon_equipment_changed(system.current_equipment)
+					if system.current_equipment.equipment_info.object_type == "BOW":
+						weapon_change()
+						weapon_change()
 			else:
-				store_error.emit()
+				system.stored_equipment = new_scene
+				system.stored_equipment.equipped = false
+				system.stored_equipment.monitoring = false
+				# Remove the empty equipment
+			coins = coins - cost
+			store_success.emit()
+			await get_tree().create_timer(.1).timeout
+			free_eq.queue_free()
+		else:
+			store_error.emit()
 
 @rpc("authority", "call_local")
 func replace_loot_on_system(system_name, scene_name):
-		var system = get_node_or_null(system_name)
-		if system != null: 
-			var mount_string = system._find_loot_pivot(["Ax", "Bow", "Shield"])
-			if mount_string != null:
-				var mount_point = system[mount_string]
-				var free_eq = mount_point.get_child(0)
-				mount_point.remove_child(free_eq)
-				var new_scene = new_packed_scene[scene_name].instantiate()
-				system[mount_string].add_child(new_scene)
-				if mount_string == "held_mount_point":
-					system.current_equipment = new_scene
-					system._on_stop_signal()
-					if (system.name == 'GadgetSystem'):
-						_on_gadget_equipment_changed(system.current_equipment)
-					else:
-						_on_weapon_equipment_changed(system.current_equipment)
+	var system = get_node_or_null(system_name)
+	if system != null:
+		var mount_string = system._find_loot_pivot(["Ax", "Bow", "Shield"])
+		if mount_string != null:
+			var mount_point = system[mount_string]
+			var free_eq = mount_point.get_child(0)
+			mount_point.remove_child(free_eq)
+			var new_scene = new_packed_scene[scene_name].instantiate()
+			system[mount_string].add_child(new_scene)
+			if mount_string == "held_mount_point":
+				system.current_equipment = new_scene
+				system._on_stop_signal()
+				if (system.name == 'GadgetSystem'):
+					_on_gadget_equipment_changed(system.current_equipment)
 				else:
-					system.stored_equipment = new_scene
-					system.stored_equipment.equipped = false
-					system.stored_equipment.monitoring = false
+					_on_weapon_equipment_changed(system.current_equipment)
+			else:
+				system.stored_equipment = new_scene
+				system.stored_equipment.equipped = false
+				system.stored_equipment.monitoring = false
 				# Remove the empty equipment
-				await get_tree().create_timer(.1).timeout
-				free_eq.queue_free()
+			await get_tree().create_timer(.1).timeout
+			free_eq.queue_free()
 				
 # TODO: make this a lot more robust
 func spawn():
@@ -1016,7 +1010,7 @@ func spawn():
 	#animation_tree.request_oneshot("Spawn")
 	
 func add_new_potion(_cost):
-	if coins >= _cost:	
+	if coins >= _cost:
 		$InventorySystem.add_potion()
 		coins = coins - _cost
 		store_success.emit()
@@ -1024,10 +1018,91 @@ func add_new_potion(_cost):
 		store_error.emit()
 
 
-func _hide_or_show_bow(_new_weapon):
-	if _new_weapon == "BOW":
-		$WeaponSystem/LeftHand.visible = true
-		$WeaponSystem/RightHand.visible = false
+enum actions { SLASH, DODGE, BOW, HEAVY, JUMP}
+
+var actions_cost = {
+	actions.SLASH: 6,
+	actions.DODGE: 12,
+	actions.BOW: 7,
+	actions.HEAVY: 9,
+	actions.JUMP: 12,
+}
+
+func check_stamina(_action: actions):
+	var current_cost = actions_cost[_action]
+	if current_cost <= stamina: 
+		stamina = stamina - current_cost	
+		return true
 	else:
-		$WeaponSystem/RightHand.visible = true
-		$WeaponSystem/LeftHand.visible = false
+		flash_stamina()
+		return false
+
+func start_recovery():
+	$RecoveryTimer.start(0.6)
+
+func recover_stamina():
+	if $RecoveryTimer.time_left == 0:
+		$RecoveryTimer.start(0.1)
+		stamina = clamp(stamina + 2, 0, CONST_MAX_STAMNIA)
+
+func flash_stamina():
+	start_recovery()
+	%StaminaContainer.modulate.a = 0
+	await get_tree().create_timer(0.1).timeout
+	%StaminaContainer.modulate.a = 1
+	await get_tree().create_timer(0.1).timeout
+	%StaminaContainer.modulate.a = 0
+	await get_tree().create_timer(0.1).timeout
+	%StaminaContainer.modulate.a = 1
+
+
+func stamina_drain():
+	stamina = stamina - 2
+	
+var mult_lerp = 0.0001
+var dark_lerp = 0.8
+	
+func out_of_bounds_check():
+	if abs(global_position.x) < 350.0 && abs(global_position.z) < 350.0:
+		fog(false)
+		return
+	
+	if abs(global_position.x) > 490.0 or abs(global_position.z) > 490.0:
+		if not $RelocateTimer.is_stopped():
+			return
+		var sign1 = 1 if (randi_range(0,1) == 1) else -1
+		var sign2 = 1 if (randi_range(0,1) == 1) else -1
+		global_position.x = randi_range(0, 450) * sign1
+		global_position.z = randi_range(0, 450) * sign2
+		global_position.y = 1.7
+		fog(true, 0.01, 0.0)
+		Hub.get_environment_root()._on_hide()
+		$RelocateTimer.start(1.5)
+		return
+
+	if abs(global_position.x) > 465.0 or abs(global_position.z) > 465.0:
+		fog(true, 0.001, 0.3)
+	elif abs(global_position.x) > 430.0 or abs(global_position.z) > 430.0:
+		fog(true, 0.0006, 0.5)
+	elif abs(global_position.x) > 390.0 or abs(global_position.z) > 390.0:
+		fog(true, 0.0004, 0.9)
+	elif abs(global_position.x) > 350.0 or abs(global_position.z) > 350.0:
+		fog(true, 0.0002)
+
+func _show_environment():
+	Hub.get_environment_root()._on_show()
+
+func fog(on, mult = 0.0005, dark = 1.0):
+	if $RelocateTimer.time_left > 0:
+		return
+	mult_lerp = lerp(mult_lerp, mult, 0.5)
+	dark_lerp = lerp(dark_lerp, dark, 0.5)
+	if on:
+		if abs(global_position.x) > abs(global_position.z):
+			Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp * abs(global_position.x), 0.07, 1.0)
+		else:
+			Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp * abs(global_position.z), 0.07, 1.0)
+		Hub.world_environment.environment.adjustment_brightness = dark_lerp
+	else:
+		Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp, 0.07, 1.0)
+		Hub.world_environment.environment.adjustment_brightness = dark_lerp

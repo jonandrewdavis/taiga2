@@ -10,6 +10,7 @@ class_name SoundFXTrigger
 @export var play_delay : float = 0.0
 
 func _ready():
+	bus = "SFX"
 	if triggering_node:
 		if triggering_node.has_signal(sound_trigger_signal):
 			triggering_node.connect(sound_trigger_signal,_on_sound_trigger_signal)

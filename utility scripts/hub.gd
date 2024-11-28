@@ -20,7 +20,6 @@ signal equipment_is_using
 signal coin
 signal debug_spawn_new_enemy
 
-
 # Nodes for spawning
 # Remember to add new Scenes to the Auto Spawn List
 var environment_container: Node3D
@@ -32,7 +31,7 @@ var forest_sun: DirectionalLight3D
 
 const player_scene = preload("res://player/player_charbody3d.tscn")
 
-	
+
 func get_player(player_id: int):
 	for player in players_container.get_children():
 		if player.name == str(player_id):
@@ -42,6 +41,15 @@ func get_player_by_name(player_name: StringName):
 	for player in players_container.get_children():
 		if player.name == player_name:
 			return player
+
+func get_random_player():
+	var count_up = 0
+	var roll_for_player = randi_range(0, players_container.get_children().size() - 1)
+	for player in players_container.get_children():
+		if count_up == roll_for_player:
+			return player
+		else:
+			count_up = count_up + 1
 
 func get_cart() -> Node3D:
 	return environment_container.get_node("Cart")

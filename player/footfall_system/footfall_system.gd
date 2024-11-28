@@ -27,5 +27,3 @@ func step_check():
 		if floorcast.is_colliding():
 			foot_stepped.emit()
 			on_floor = true
-
-
