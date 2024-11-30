@@ -111,11 +111,13 @@ signal item_change_ended(current_item:ItemObject)
 signal use_item_started
 signal item_used
 
+var is_using_item = false
+
 # Jump and Gravity
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
-@export var jump_velocity = 7
+@export var jump_velocity = 8
 @onready var last_altitude = global_position
-@export var hard_landing_height :float = 4 # how far they can fall before 'hard landing'
+@export var hard_landing_height :float = 2 # how far they can fall before 'hard landing'
 signal landed_fall(hard_or_soft:String)
 signal jump_started
 
@@ -126,7 +128,7 @@ signal sprint_started
 
 # Movement Mechanics
 @export var input_dir : Vector2
-@export var default_speed = 4.0
+@export var default_speed = 6.0
 @onready var speed = default_speed
 
 @export_category("PLAYER NETWORK EXPORTS")
@@ -203,6 +205,7 @@ func _ready():
 			
 	if health_system:
 		health_system.health_updated.connect(func(_health): %HealthLabel.text = str(_health * 10))
+		%HealthLabel.text = str(health_system.current_health * 10)
 		health_system.died.connect(death)
 		
 	climb_started.connect(_on_climb_started)
@@ -395,8 +398,9 @@ func apply_gravity(_delta):
 		velocity.y -= gravity * _delta
 		
 func rotate_player():
-	if busy && not dodging:
+	if busy && not dodging && not is_using_item:
 		return
+
 	var rate = .15
 	
 	var target_rotation
@@ -502,7 +506,7 @@ func fall_check():
 	if !is_on_floor() && last_altitude == null:
 		last_altitude = global_position
 	if is_on_floor() && last_altitude != null:
-		var fall_distance = abs(last_altitude.y - global_position.y)
+		var fall_distance = last_altitude.y - global_position.y
 		if fall_distance > hard_landing_height:
 			trigger_event("landed_fall")
 		last_altitude = null
@@ -584,7 +588,8 @@ func abort_climb():
 
 func weapon_change():
 	if busy or guarding:
-		return
+		return	
+	is_using_item = true
 	slowed = true
 	#_should_show_bow(false)
 	if weapon_system.stored_equipment != null && weapon_system.stored_equipment.equipment_info.object_type == "BOW":
@@ -599,6 +604,7 @@ func weapon_change():
 		system_visible(gadget_system,true)
 	weapon_change_ended.emit(weapon_type)
 	slowed = false
+	is_using_item = false
 	if weapon_system.current_equipment != null && weapon_system.current_equipment.equipment_info.object_type == "BOW":
 		$WeaponSystem/RightHand.visible = false
 		$WeaponSystem/LeftHand.visible = true
@@ -637,6 +643,7 @@ func start_guard(): # Guarding, and for a short window, parring is possible
 	set_strafe_targeting()
 	slowed = true
 	guard_local = true
+	strafe_local = true
 	guarding = true
 	parry_active = true
 	Hub.equipment_is_using.emit(true)
@@ -646,6 +653,7 @@ func start_guard(): # Guarding, and for a short window, parring is possible
 func end_guard():
 	guarding = false
 	guard_local = false
+	strafe_local = false
 
 	parry_active = false
 	slowed = false
@@ -696,10 +704,7 @@ func hit_sync(_by_who_name: String, power: int):
 			damage_taken.emit(power)
 			hurt()
 
-
-
 func heal(_by_what):
-	print(_by_what)
 	health_received.emit(_by_what.power)
 
 func block():
@@ -727,6 +732,7 @@ func use_item():
 	if not busy or dodging:
 		busy = true
 		slowed = true
+		is_using_item = true
 		use_item_started.emit()
 		await animation_tree.animation_measured
 		await get_tree().create_timer(anim_length * .5).timeout
@@ -734,7 +740,8 @@ func use_item():
 		await get_tree().create_timer(anim_length * .5).timeout
 		slowed = false
 		busy = false
-
+		is_using_item = false
+		
 # TODO: Death is messy.
 # TODO: Reset their weapons somehow.................
 # TODO: Would be nice to do anyway so they can drop something. 
@@ -822,7 +829,7 @@ func jump():
 		if check_stamina(actions.JUMP) == false:
 			return
 		jump_started.emit()
-		await get_tree().create_timer(.1).timeout # for the windup
+		await get_tree().create_timer(.02).timeout # for the windup
 		velocity.y = jump_velocity
 
 func set_root_move(delta):
@@ -1057,6 +1064,9 @@ func flash_stamina():
 
 
 func stamina_drain():
+	if stamina == 0:
+		end_sprint()
+		return
 	stamina = stamina - 2
 	
 var mult_lerp = 0.0001

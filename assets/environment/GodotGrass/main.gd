@@ -79,7 +79,9 @@ func _physics_process(_delta: float) -> void:
 
 
 func _setup_heightmap_collision(_offset: Vector3) -> void:
-	var heightmap := HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
+	
+	# DIVIDE INTO 4s.
+	var heightmap = HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
 
 	# TODO: Inifinite collision map not working.
 	# Clone the noise with the same settings to avoid updating the offset on the actual asset... 
@@ -93,15 +95,15 @@ func _setup_heightmap_collision(_offset: Vector3) -> void:
 	#texture.noise.frequency = 0.025
 	#texture.noise.fractal_gain = 0.1
 	#texture.noise.offset = _offset
-	#var heightmap = texture.noise.get_image(HEIGHTMAP_NOISE_WIDTH , HEIGHTMAP_NOISE_WIDTH)
 	
+	#var heightmap = texture.noise.get_image(HEIGHTMAP_NOISE_WIDTH , HEIGHTMAP_NOISE_WIDTH)
 	var dims := Vector2i(heightmap.get_height(), heightmap.get_width())
 	#print('DEBUG: main.gd heightmap collision', heightmap.get_height(), heightmap.get_width())
 	var map_data : PackedFloat32Array
 	# Off by one: print(map_data.size())
 	for j in dims.x:
 		for i in dims.y:
-			map_data.push_back((heightmap.get_pixel(i, j).r - 0.5) * HEIGHTMAP_SCALE)
+			map_data.push_back((heightmap.get_pixel(i + 512, j + 512).r - 0.5) * HEIGHTMAP_SCALE)
 
 	var heightmap_shape := HeightMapShape3D.new()
 	heightmap_shape.map_width = dims.x
@@ -110,7 +112,7 @@ func _setup_heightmap_collision(_offset: Vector3) -> void:
 	grass_collision_shape.shape = heightmap_shape
 	
 	#$NavigationRegion3D.bake_navigation_mesh()
-	#grass_collision_shape.global_position = _offset
+	grass_collision_shape.global_position = Vector3(0, 0, 0)
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:

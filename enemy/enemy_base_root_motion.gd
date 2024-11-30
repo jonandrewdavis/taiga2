@@ -201,13 +201,19 @@ func _on_combat_timer_timeout():
 			return
 
 		if archer == true:
-			if target != null && global_position.distance_to(target.global_position) < combat_range / 3: 
+			if target != null && global_position.distance_to(target.global_position) < combat_range / 4: 
 				start_panic()
 				combat_timer.stop()
 				return
 			attack_ranged()
 			combat_timer.start(randf_range(4.0,5.0))
 			return
+
+		@warning_ignore("integer_division")
+		if health_system.current_health < (health_system.total_health / 2):
+			if randi_range(0, 3) == 0:
+				start_panic() 
+				return
 
 		combat_randomizer()
 		combat_timer.start(randf_range(0.7,2.8))
@@ -216,7 +222,7 @@ func _on_combat_timer_timeout():
 func start_panic():
 	panic = true
 	current_state = state.CHASE
-	await get_tree().create_timer(8.0).timeout 
+	await get_tree().create_timer(5.0).timeout 
 	combat_timer.start(1.0)
 	panic = false
 

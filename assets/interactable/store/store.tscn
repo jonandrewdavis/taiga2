@@ -149,7 +149,7 @@ wait_time = 5.0
 one_shot = true
 
 [node name="PreventTimer" type="Timer" parent="."]
-wait_time = 0.2
+wait_time = 0.3
 one_shot = true
 
 [connection signal="area_entered" from="Open" to="." method="_on_open_store_area_entered"]

@@ -78,6 +78,9 @@ properties/6/replication_mode = 2
 properties/7/path = NodePath("Rope/End:position")
 properties/7/spawn = true
 properties/7/replication_mode = 1
+properties/8/path = NodePath(".:visible")
+properties/8/spawn = true
+properties/8/replication_mode = 2
 
 [sub_resource type="Gradient" id="Gradient_8nrik"]
 offsets = PackedFloat32Array(1)
@@ -191,8 +194,8 @@ replication_config = SubResource("SceneReplicationConfig_7alqc")
 
 [node name="HealthSystem" type="Node" parent="." node_paths=PackedStringArray("hit_reporting_node", "heal_reporting_node", "health_bar_control")]
 script = ExtResource("4_rewff")
-total_health = 500
-current_health = 500
+total_health = 25
+current_health = 250
 hit_reporting_node = NodePath("..")
 heal_reporting_node = NodePath("..")
 health_bar_control = NodePath("Control/HealthBar")
@@ -230,5 +233,16 @@ transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -0.002
 [node name="SecretMesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.84887, 0.301205)
 mesh = SubResource("BoxMesh_bwglm")
+
+[node name="SoundFXTrigger2" type="AudioStreamPlayer3D" parent="." node_paths=PackedStringArray("triggering_node")]
+stream = ExtResource("6_o72a1")
+volume_db = 37.416
+pitch_scale = 0.68
+panning_strength = 0.0
+bus = &"Echo"
+script = ExtResource("6_2eeam")
+triggering_node = NodePath("..")
+sound_trigger_signal = "death_signal"
+play_delay = 1.0
 
 [editable path="Sketchfab_Scene"]

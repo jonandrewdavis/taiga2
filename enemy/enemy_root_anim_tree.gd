@@ -26,7 +26,6 @@ func _ready():
 	enemy.parried_started.connect(_on_parried_started)
 	enemy.hurt_started.connect(_on_hurt_started)
 	enemy.death_started.connect(_on_death_started)
-
 	animation_started.connect(_on_animation_started)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -62,11 +61,13 @@ func set_movement():
 				speed.y = .5
 		enemy.state.CHASE:
 			near = (enemy_target.global_position.distance_to(enemy.global_position)  < 4.0)
-			if near && enemy.panic == false:
+			if enemy.panic == true:
+				speed.y = .72
+			elif near:
 				speed.y = .55
 			else:
 				speed.y = 0.90
-				
+			
 
 		# AD NOTE: I think that the check in the aniomation tree had 
 		#	enemy.current_state == state.COMBAT

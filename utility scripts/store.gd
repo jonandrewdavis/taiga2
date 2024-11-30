@@ -51,6 +51,9 @@ func show_all_items():
 	
 
 func buy_item(player, item_area_name):
+	if not $PreventTimer.is_stopped(): 
+		return
+	$PreventTimer.start()
 	var item_name = item_area_name.split("(")[0].strip_edges()
 	# please don't look at me like that. this is game dev.
 	var item_cost = int(item_area_name.split("(")[1].split(")")[0].split('g')[0])

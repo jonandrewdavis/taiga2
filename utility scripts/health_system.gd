@@ -14,6 +14,11 @@ class_name HealthSystem
 @export var hit_reporting_node : Node
 @export var damage_signal :String = "damage_taken"
 
+
+# NOTE: I got a bug here because "health_received" was the default name, yet I used "heal_signal"
+# TODO: Rename "heal_signal" var to be "heal_signal signal". I called "heal_signal" on the parent. 
+# would be nice if we could choose it... but may be better to be slightly more programmatic ...
+ 
 @export var heal_reporting_node : Node
 @export var heal_signal : String = "health_received"
 
