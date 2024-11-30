@@ -220,6 +220,13 @@ sprint={
 3d_physics/layer_4="Interactable"
 3d_physics/layer_5="Ladder"
 
+[navigation]
+
+3d/default_cell_size=0.1
+3d/default_cell_height=0.1
+3d/merge_rasterizer_cell_scale=0.5
+baking/use_crash_prevention_checks=false
+
 [physics]
 
 3d/physics_engine="JoltPhysics3D"

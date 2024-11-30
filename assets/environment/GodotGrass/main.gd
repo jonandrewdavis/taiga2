@@ -76,12 +76,11 @@ func _physics_process(_delta: float) -> void:
 	previous_tile_id = tile_id
 
 ## Creates a HeightMapShape3D from the provided NoiseTexture2D
-
-
 func _setup_heightmap_collision(_offset: Vector3) -> void:
 	
-	# DIVIDE INTO 4s.
+	# DIVIDE INTO 4s??
 	var heightmap = HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
+	var test_mesh: MeshInstance3D = $NavigationRegion3D/MeshInstance3D
 
 	# TODO: Inifinite collision map not working.
 	# Clone the noise with the same settings to avoid updating the offset on the actual asset... 
@@ -103,16 +102,14 @@ func _setup_heightmap_collision(_offset: Vector3) -> void:
 	# Off by one: print(map_data.size())
 	for j in dims.x:
 		for i in dims.y:
-			map_data.push_back((heightmap.get_pixel(i + 512, j + 512).r - 0.5) * HEIGHTMAP_SCALE)
+			map_data.push_back((heightmap.get_pixel(i, j).r - 0.5) * HEIGHTMAP_SCALE)
 
 	var heightmap_shape := HeightMapShape3D.new()
 	heightmap_shape.map_width = dims.x
 	heightmap_shape.map_depth = dims.y
 	heightmap_shape.map_data = map_data
 	grass_collision_shape.shape = heightmap_shape
-	
-	#$NavigationRegion3D.bake_navigation_mesh()
-	grass_collision_shape.global_position = Vector3(0, 0, 0)
+
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:
