@@ -80,7 +80,6 @@ func _setup_heightmap_collision(_offset: Vector3) -> void:
 	
 	# DIVIDE INTO 4s??
 	var heightmap = HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
-	var test_mesh: MeshInstance3D = $NavigationRegion3D/MeshInstance3D
 
 	# TODO: Inifinite collision map not working.
 	# Clone the noise with the same settings to avoid updating the offset on the actual asset... 

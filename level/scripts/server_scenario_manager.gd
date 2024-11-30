@@ -4,7 +4,7 @@ var previous_encounter_location = Vector3.ZERO
 var encounter_tracker = Node3D
 
 
-var distance_interval = 40.0
+var distance_interval = 50.0
 # Position in front of player / tracker
 var distance_during_spawn = 100.0
 

@@ -7,7 +7,6 @@ extends Node3D
 
 const HEIGHTMAP := preload('res://assets/environment/heightmap_grass_main.tres')
 const HEIGHTMAP_SCALE = 5.0
-const HEIGHTMAP_WIDTH = 512
 
 const ignore_zone_radius = 22.0
 

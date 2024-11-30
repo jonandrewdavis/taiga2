@@ -47,15 +47,15 @@ func set_movement():
 	#if enemy.current_state:
 	match enemy.current_state:
 		enemy.state.CIRCLE:
-			target_pos = enemy_target.global_position *  Vector3(1,0,1)
+			target_pos = enemy_target.global_position
 			near = (target_pos.distance_to(enemy.global_position)  < attack_near_dist)
 			var dir = 1.0 if attack_count == 1 else -1.0
 			speed.x = dir
 			speed.y = -0.25
 		enemy.state.FREE:
-			target_pos = enemy_target.global_position *  Vector3(1,0,1)
-			near = (target_pos.distance_to(enemy.global_position)  < attack_near_dist)
-			if near:
+			target_pos = enemy_target.global_position
+			near = (target_pos.distance_to(enemy.global_position) < attack_near_dist)
+			if enemy.nav_agent_3d.is_navigation_finished():
 				speed.y = 0.0
 			else:
 				speed.y = .5

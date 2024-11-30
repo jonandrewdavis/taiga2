@@ -194,7 +194,7 @@ replication_config = SubResource("SceneReplicationConfig_7alqc")
 
 [node name="HealthSystem" type="Node" parent="." node_paths=PackedStringArray("hit_reporting_node", "heal_reporting_node", "health_bar_control")]
 script = ExtResource("4_rewff")
-total_health = 25
+total_health = 250
 current_health = 250
 hit_reporting_node = NodePath("..")
 heal_reporting_node = NodePath("..")

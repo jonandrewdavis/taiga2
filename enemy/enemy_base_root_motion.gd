@@ -156,14 +156,14 @@ func navigation():
 		if panic:
 			nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0) * -1.0
 		else: 
-			nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0)
+			nav_agent_3d.target_position = target.global_position
 		var new_dir = (nav_agent_3d.get_next_path_position() - global_position).normalized()
 		new_dir *= Vector3(1,0,1) # strip the y value so enemy stays at current level
 		direction = new_dir
 
 func rotate_character():
 	var rate = .05
-	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position() * Vector3(1,0,1))
+	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position())
 	var current_rotation = global_transform.basis.get_rotation_quaternion()
 	var target_rotation = current_rotation.slerp(Quaternion(Vector3.UP, atan2(new_direction.x, new_direction.z)), rate)
 	global_transform.basis = Basis(target_rotation)
