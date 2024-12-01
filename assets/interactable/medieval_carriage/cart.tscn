@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=4 uid="uid://brcob4a2vngyt"]
+[gd_scene load_steps=26 format=4 uid="uid://brcob4a2vngyt"]
 
 [ext_resource type="PackedScene" uid="uid://bdiwt6qndl0qy" path="res://assets/interactable/medieval_carriage/carriage.gltf" id="1_0i6nf"]
 [ext_resource type="Script" path="res://assets/interactable/medieval_carriage/cart.gd" id="1_kp5fv"]
@@ -44,8 +44,17 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_wpiq2")
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_k3ulb"]
+size = Vector3(0.1, 1, 1.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_v8c0h"]
+size = Vector3(0.7, 0.4, 1.5)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_nkrui"]
-size = Vector3(2, 3, 5)
+size = Vector3(2, 3, 4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_d5f6c"]
+size = Vector3(2, 0.5, 1.8)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ey22n"]
 
@@ -131,9 +140,25 @@ transform = Transform3D(-7.256e-09, -0.165998, -7.256e-09, 0, -7.256e-09, 0.1659
 [node name="pCube182_aiStandardSurface1_0" parent="Sketchfab_Scene/Sketchfab_model/Carriage_2_fbx/RootNode/Carriage/Wall_2/pCube182" index="0"]
 mesh = SubResource("ArrayMesh_3rrnf")
 
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.834689, 1.34623, -1.57685)
+shape = SubResource("BoxShape3D_k3ulb")
+
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.0694566, 1.16783, -2.11775)
+shape = SubResource("BoxShape3D_v8c0h")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.83488, 1.34623, -1.57685)
+shape = SubResource("BoxShape3D_k3ulb")
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35921, 0.317593)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.57, 1.06333)
 shape = SubResource("BoxShape3D_nkrui")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.81131, -1.45546)
+shape = SubResource("BoxShape3D_d5f6c")
 
 [node name="InteractionPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00210643, 1.11572, 3.66055)

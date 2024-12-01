@@ -91,7 +91,12 @@ theme_override_constants/separation = 18
 [node name="Settings" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
-text = "Taiga - Settings"
+text = "Forest Bath"
+
+[node name="Settings2" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Settings"
 
 [node name="VBoxContainer" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -153,16 +158,36 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Controls"
 
-[node name="RichTextLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "E: Interact
-R: Change Primary Weapon
-Z: Change Secondary
-G: Item (Heal)
-F: Jump
-Shift: Sprint
-Space: Roll (Evade)
+theme_override_constants/separation = 60
+
+[node name="RichTextLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "[E]: Interact
+[G]: Item (Heal)
+[R]: Change Primary Weapon
+[Z]: Change Secondary"
+
+[node name="RichTextLabel2" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+text = "[F]: Jump
+[Shift]: Sprint
+[Space]: Roll (Evade)
 "
+
+[node name="PVP Box" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 70
+
+[node name="Label" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/PVP Box"]
+layout_mode = 2
+text = "PVP Enabled"
+
+[node name="PVPCheck" type="CheckButton" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/PVP Box"]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="buttons" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -204,5 +229,6 @@ layout_mode = 2
 [connection signal="value_changed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/Master" to="." method="_on_master_value_changed"]
 [connection signal="value_changed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/SFX" to="." method="_on_sfx_value_changed"]
 [connection signal="value_changed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/BackgroundSlider" to="." method="_on_background_value_changed"]
+[connection signal="toggled" from="MarginContainer/Panel/MarginContainer/VBoxContainer/PVP Box/PVPCheck" to="." method="_on_pvp_check_toggled"]
 [connection signal="pressed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/buttons/Respawn" to="." method="_on_respawn_pressed"]
 [connection signal="pressed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/buttons/Quit" to="." method="_on_quit_pressed"]

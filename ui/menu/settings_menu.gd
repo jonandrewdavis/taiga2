@@ -12,7 +12,8 @@ extends Control
 
 var bus_master = AudioServer.get_bus_index("Master")
 var bus_sfx = AudioServer.get_bus_index("SFX")
-var bus_background = AudioServer.get_bus_index("Background")	
+var bus_echo = AudioServer.get_bus_index("Echo")
+var bus_background = AudioServer.get_bus_index("Background")
 
 var volume_master_value
 var volume_sfx_value
@@ -40,7 +41,7 @@ func _ready():
 	background_slider.max_value = volume_background_value * 2
 
 	# values
-	master_slider.value = volume_master_value 
+	master_slider.value = volume_master_value
 	sfx_slider.value = volume_sfx_value
 	background_slider.value = volume_background_value
 
@@ -50,7 +51,7 @@ func _ready():
 
 # TODO: refactor & use the emit on the signal exclusively. 
 func toggleMenu():
-	if self.visible == false: 
+	if self.visible == false:
 		self.visible = true
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		player.current_state = player.state.STATIC
@@ -62,17 +63,12 @@ func toggleMenu():
 		player.menu_open.emit(false)
 
 func _on_respawn_pressed():
-	#SWITCH.disabled = true
-	#RESPAWN.disabled = true
-	#$TeamTimer.start()
-	#toggleMenu()
+	toggleMenu()
 	await get_tree().create_timer(0.2).timeout
-	#player.die()
+	player.health_system.died.emit()
 
 func _on_quit_pressed():
-	get_tree().quit()	
-
-
+	get_tree().quit()
 
 func _on_sensitivity_slider_value_changed(value):
 	player.mouse_sensitivity = value
@@ -83,6 +79,11 @@ func _on_master_value_changed(value):
 
 func _on_sfx_value_changed(value):
 	AudioServer.set_bus_volume_db(bus_sfx, linear_to_db(value))
+	AudioServer.set_bus_volume_db(bus_echo, linear_to_db(value))
 
 func _on_background_value_changed(value):
 	AudioServer.set_bus_volume_db(bus_background, linear_to_db(value))
+
+func _on_pvp_check_toggled(toggled_on):
+	player.pvp = toggled_on
+	pass # Replace with function body.

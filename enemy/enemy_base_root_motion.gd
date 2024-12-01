@@ -22,6 +22,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var combat_range :float = 1.9
 @onready var combat_timer : Timer = $CombatTimer
 @onready var chase_timer = $ChaseTimer
+@onready var patrol_timer = $PatrolTimer
 
 @onready var hurt_cool_down = $HurtTimer
 @onready var ragdoll_death :bool = false
@@ -82,7 +83,8 @@ func _ready():
 
 	multiplayer.peer_disconnected.connect(_remove_player_change_target)
 
-	if is_multiplayer_authority():
+	if multiplayer.is_server():
+		patrol_timer.timeout.connect(_on_patrol_timer_timeout)
 		combat_timer.timeout.connect(_on_combat_timer_timeout)
 		chase_timer.timeout.connect(_on_chase_timer_timeout)
 		combat_timer.start()
@@ -93,6 +95,13 @@ func _ready():
 		
 		$AttackAreaSensor.body_entered.connect(_on_target_entered)
 		$AttackAreaSensor.body_exited.connect(_on_target_exited)
+	else:
+		# NOTE: HUUUUUUUUUUGE frame rate and processing savings if we disable Collision shapes on the client side. 24 -> 60 fps
+		# NOTE: TODO: make sure all collisions still happen for the most part! 
+		set_process(false)
+		set_physics_process(false)
+		$AttackAreaSensor/AttackAreaCollisionShape.disabled = true
+
 
 func _remove_player_change_target(id):
 	if target.name == str(id) or default_target.name == str(id):
@@ -107,9 +116,6 @@ func _on_target_exited(_body):
 	colliding_with_target = false
 		
 func _process(delta):
-	if not is_multiplayer_authority():
-		return
-
 	apply_gravity(delta)
 	if current_state == state.DEAD:
 		return
@@ -155,7 +161,9 @@ func navigation():
 	if target != null:
 		if panic:
 			nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0) * -1.0
-		else: 
+		elif is_patrolling && current_state == state.FREE: 
+			nav_agent_3d.target_position = target.global_position + Vector3(patrol_dir.x, 0.0, patrol_dir.y) 
+		else:
 			nav_agent_3d.target_position = target.global_position
 		var new_dir = (nav_agent_3d.get_next_path_position() - global_position).normalized()
 		new_dir *= Vector3(1,0,1) # strip the y value so enemy stays at current level
@@ -202,7 +210,8 @@ func _on_combat_timer_timeout():
 
 		if archer == true:
 			if target != null && global_position.distance_to(target.global_position) < combat_range / 4: 
-				start_panic()
+				if randi_range(0, 1) == 0:
+					start_panic()
 				combat_timer.stop()
 				return
 			attack_ranged()
@@ -221,6 +230,8 @@ func _on_combat_timer_timeout():
 
 func start_panic():
 	panic = true
+	print(panic,   ', archer: ', archer)
+	
 	current_state = state.CHASE
 	await get_tree().create_timer(5.0).timeout 
 	combat_timer.start(1.0)
@@ -282,6 +293,7 @@ func _target_to_player_node(_spotted_target: Node3D):
 
 func _on_target_spotted(_spotted_target): # Updates from a TargetSensor if a target is found.
 	if target != null && target.name != _spotted_target.name:
+		print(target, ' spotted! starting timer')
 		target = _spotted_target
 	chase_timer.start()
 	
@@ -292,6 +304,7 @@ func _on_target_lost():
 	pass
 
 func _on_chase_timer_timeout():
+	print(target, ' gave up!')
 	give_up()
 	
 func give_up():
@@ -380,3 +393,18 @@ func apply_ragdoll():
 
 func _on_animation_measured(_new_length):
 	anim_length = _new_length - .05 # offset slightly for the process frame
+
+var is_patrolling = false
+var patrol_dir: Vector2
+
+func _on_patrol_timer_timeout():
+	if current_state == state.FREE && is_patrolling == false && randi_range(0, 3) != 0:
+		patrol_dir = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
+		is_patrolling = true
+		patrol_timer.start(randi_range(5, 10))
+	else:
+		is_patrolling = false
+		patrol_timer.start(randi_range(8, 16))
+
+func _on_eyeline_interval_timeout():
+	pass # Replace with function body.

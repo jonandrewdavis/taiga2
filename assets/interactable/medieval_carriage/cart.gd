@@ -28,6 +28,10 @@ func _enter_tree():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	if not multiplayer.is_server():
+		set_process(false)
+		set_physics_process(false)
+	
 	add_to_group("interactable")
 	collision_layer = 9
 	#$CartCam.clear_current()

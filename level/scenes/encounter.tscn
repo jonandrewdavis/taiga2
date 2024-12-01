@@ -29,7 +29,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.39018, 0, 0)
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 1.34594, -1.53314, 0)
 
 [node name="Loot" parent="SceneryContainer" instance=ExtResource("4_arx5f")]
-transform = Transform3D(0.942204, 0, 0.33504, 0, 1, 0, -0.33504, 0, 0.942204, -13.7553, 0.397213, -10.8165)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.7553, 0.397213, -10.8165)
 
 [node name="Campfire" parent="SceneryContainer" instance=ExtResource("2_cu1m1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.39018, 0, 0)

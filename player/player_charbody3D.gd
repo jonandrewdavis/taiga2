@@ -5,9 +5,9 @@ extends CharacterBody3D
 
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
-@export var coins: int = 100
+@export var coins: int = 0
 
-const CONST_MAX_HP = 100;
+const CONST_MAX_HEALTH = 8;
 const CONST_MAX_STAMNIA = 30;
 
 @export var max_stamina: int = CONST_MAX_STAMNIA
@@ -19,10 +19,8 @@ const CONST_MAX_STAMNIA = 30;
 #@export var _body: Node3D = null
 #@export var _spring_arm_offset: Node3D = null
 
-
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
-
 @onready var sensor_cast : ShapeCast3D
 @export var animation_tree : AnimationTree
 
@@ -112,6 +110,7 @@ signal use_item_started
 signal item_used
 
 var is_using_item = false
+var pvp_on = false
 
 # Jump and Gravity
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -125,6 +124,7 @@ signal jump_started
 @onready var sprint_timer :Timer = Timer.new()
 signal dodge_started
 signal sprint_started
+signal stamina_depleted
 
 # Movement Mechanics
 @export var input_dir : Vector2
@@ -142,6 +142,8 @@ signal strafe_toggled(toggle:bool)
 # Laddering
 signal ladder_started(top_or_bottom:String)
 signal ladder_finished(top_or_bottom:String)
+signal status
+
 
 # State management
 enum state {FREE,STATIC,CLIMB}
@@ -231,11 +233,15 @@ func _ready():
 	sprint_drain_timer.timeout.connect(stamina_drain)
 	
 	#weapon_change_ended.emit(weapon_type)
-	
+	health_system.total_health = CONST_MAX_HEALTH
+	$GUI/GUIFullRect/HealthMarginContainer/HealthBar.max_value = CONST_MAX_HEALTH
+	health_received.emit(CONST_MAX_HEALTH)
+
 	Hub.coin.connect(get_coin)
 	store_error.connect(_on_update_coin)
 	store_success.connect(_on_update_coin)
 	_on_update_coin()
+	status.connect(_on_status)
 	
 	# TODO: Remove before launch
 	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT
@@ -273,7 +279,7 @@ func change_state(new_state):
 func _process(_delta):
 	%StaminaBar.value = stamina
 	%StaminaLabel.text = str(stamina)
-	if is_on_floor() == true && busy == false && sprinting == false:
+	if is_on_floor() == true && busy == false && sprinting == false && guarding == false:
 		recover_stamina()
 
 func _physics_process(_delta):
@@ -632,7 +638,6 @@ func gadget_change():
 # TODO: We're just using health potion for now.
 func item_change():
 	return
-	
 	#slowed = true
 	#trigger_event("item_change_started")
 	#await event_finished
@@ -670,24 +675,15 @@ func use_gadget(): # emits to start the gadget, and runs some timers before stop
 func hit(_who, _by_what):
 	if is_dead:
 		return
-	# only get hit by things on your client.
-	if is_multiplayer_authority():
-		if hurt_cool_down.time_left > 0:
-			return
-		if parry_active:
-			parry()
-			if _who.has_method("parried"):
-				_who.parried()
-			return
-		elif guarding && gadget_power != 0:
-			block()
-		else:
-			damage_taken.emit(_by_what.power)
-			hurt()
+	hit_sync.rpc(_who.name, _by_what.power)
+
 			
 @rpc("any_peer", "call_local")
 func hit_sync(_by_who_name: String, power: int):
 	if is_dead:
+		return
+		
+	if multiplayer.get_remote_sender_id() != 1 && pvp_on == false:
 		return
 	# only get hit by things on your client.
 	if is_multiplayer_authority():
@@ -700,6 +696,10 @@ func hit_sync(_by_who_name: String, power: int):
 			return
 		elif guarding && gadget_power != 0:
 			block()
+			stamina = stamina - 5
+			if stamina <= 0:
+				hurt_cool_down.start(0.3)
+				end_guard()
 		else:
 			damage_taken.emit(power)
 			hurt()
@@ -746,8 +746,6 @@ func use_item():
 # TODO: Reset their weapons somehow.................
 # TODO: Would be nice to do anyway so they can drop something. 
 func death():
-	if not is_multiplayer_authority():
-		return
 	if is_dead == true:
 		return
 	#$CollisionShape3D.disabled = true
@@ -766,12 +764,13 @@ func death():
 # TODO: Needs to take all your weapons away.
 # Could also orbit the Cart cam for a hot second... 
 # Could... also. QUEUE Free the player for a bit. LOL.
-
 func restore():
 	# I'm kind of a genius 0_0. i just reversed the Store shopping logic (after like 2hours) to strip loot
 	replace_loot_on_system.rpc('WeaponSystem', "empty_scene")
 	replace_loot_on_system.rpc('GadgetSystem', "empty_scene")
-	coins = 70
+	health_system.total_health = CONST_MAX_HEALTH
+	max_stamina = CONST_MAX_STAMNIA
+	coins = 0
 	_on_update_coin()
 	health_received.emit(health_system.total_health)
 	global_position = get_spawn_point() + Hub.get_cart().global_position
@@ -783,8 +782,6 @@ func restore():
 	$WeaponSystem/RightHand.visible = true
 	$WeaponSystem/BackBone.visible = true
 	$WeaponSystem/LeftHand.visible = false
-	
-
 
 func get_spawn_point() -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
@@ -829,7 +826,7 @@ func jump():
 		if check_stamina(actions.JUMP) == false:
 			return
 		jump_started.emit()
-		await get_tree().create_timer(.02).timeout # for the windup
+		await get_tree().create_timer(.1).timeout # for the windup
 		velocity.y = jump_velocity
 
 func set_root_move(delta):
@@ -1050,9 +1047,10 @@ func start_recovery():
 func recover_stamina():
 	if $RecoveryTimer.time_left == 0:
 		$RecoveryTimer.start(0.1)
-		stamina = clamp(stamina + 2, 0, CONST_MAX_STAMNIA)
+		stamina = clamp(stamina + 2, 0, max_stamina)
 
 func flash_stamina():
+	stamina_depleted.emit()
 	start_recovery()
 	%StaminaContainer.modulate.a = 0
 	await get_tree().create_timer(0.1).timeout
@@ -1064,6 +1062,8 @@ func flash_stamina():
 
 
 func stamina_drain():
+	if is_on_floor() == false:
+		return
 	if stamina == 0:
 		end_sprint()
 		return
@@ -1093,11 +1093,11 @@ func out_of_bounds_check():
 	if abs(global_position.x) > 465.0 or abs(global_position.z) > 465.0:
 		fog(true, 0.001, 0.3)
 	elif abs(global_position.x) > 430.0 or abs(global_position.z) > 430.0:
-		fog(true, 0.0006, 0.5)
+		fog(true, 0.0004, 0.6)
 	elif abs(global_position.x) > 390.0 or abs(global_position.z) > 390.0:
-		fog(true, 0.0004, 0.9)
+		fog(true, 0.0002, 0.9)
 	elif abs(global_position.x) > 350.0 or abs(global_position.z) > 350.0:
-		fog(true, 0.0002)
+		fog(true, 0.0001)
 
 func _show_environment():
 	Hub.get_environment_root()._on_show()
@@ -1116,3 +1116,38 @@ func fog(on, mult = 0.0005, dark = 1.0):
 	else:
 		Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp, 0.07, 1.0)
 		Hub.world_environment.environment.adjustment_brightness = dark_lerp
+		
+# emit
+func get_loot():
+	var random = randi_range(0, 2)
+	match random:
+		0:
+			health_system.total_health = health_system.total_health + 1
+			$GUI/GUIFullRect/HealthMarginContainer/HealthBar.max_value = health_system.total_health
+			status.emit('+10 Health.')
+			await get_tree().create_timer(1).timeout
+			health_received.emit(health_system.total_health)
+		1:
+			max_stamina = max_stamina + 5
+			%StaminaBar.max_value = max_stamina
+			status.emit('+5 Sta.')
+			await get_tree().create_timer(1).timeout
+			start_recovery()
+		2:
+			get_coin(10)	
+			status.emit('+10 coin')
+		
+func _on_status(_status):
+	var status_label = $PlayerNick/Status
+	status_label.text = _status
+	status_label.visible = true
+	await get_tree().create_timer(1.2).timeout
+	status_label.visible = false
+	status_label.text = ''
+
+
+@rpc("any_peer")
+func environment_clean_up(_encounter_name: String):
+	print('emitting on: ',  get_multiplayer_authority())
+	print('removing:', _encounter_name)
+	Hub.environment_ignore_remove.emit(_encounter_name)

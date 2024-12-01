@@ -46,37 +46,31 @@ func _ready():
 		show_timer.timeout.connect(_on_show_timer_timeout)
 		add_child(show_timer)
 		
-func _physics_process(_delta):
-	if show_timer:
-		if show_timer.time_left:
-			show_health()
 
 func _on_damage_signal(_power_from_emit):
 	if health_bar_control:
-		show_timer.start()
+		show_health()
 	if _power_from_emit:
 		_on_damage_signal_sync.rpc(_power_from_emit)
 
 @rpc("any_peer", "call_local")
 func _on_damage_signal_sync(_power):
 	if health_bar_control:
-		show_timer.start()
+		show_health()
 	var damage_power = _power
 	current_health -= damage_power
 	health_updated.emit(current_health)
 	if current_health <= 0:
 		died.emit()
 
-
 func _on_health_signal(_power_from_emit):
 	if _power_from_emit:
 		_on_health_signal_sync.rpc(_power_from_emit)
 
-
 @rpc("any_peer", "call_local")
 func _on_health_signal_sync(_power):
 	if health_bar_control:
-		show_timer.start()
+		show_health()
 	var healing_power = _power
 	current_health += healing_power
 	if current_health > total_health:
@@ -84,11 +78,13 @@ func _on_health_signal_sync(_power):
 	health_updated.emit(current_health)
 	
 func show_health():
-	var current_camera = get_viewport().get_camera_3d()
-	if current_camera:
-		var screenspace = current_camera.unproject_position(hit_reporting_node.global_position)
-		health_bar_control.position = screenspace 
-		health_bar_control.show()
+	if show_timer.is_stopped():
+		show_timer.start(show_time)
+		var current_camera = get_viewport().get_camera_3d()
+		if current_camera:
+			var screenspace = current_camera.unproject_position(hit_reporting_node.global_position)
+			health_bar_control.position = screenspace 
+			health_bar_control.show()
 
 func _on_show_timer_timeout():
 	health_bar_control.hide()

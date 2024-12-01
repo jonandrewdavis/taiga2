@@ -30,7 +30,7 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	if not is_multiplayer_authority():
+	if not multiplayer.is_server():
 		return
 
 	set_movement()
@@ -62,9 +62,9 @@ func set_movement():
 		enemy.state.CHASE:
 			near = (enemy_target.global_position.distance_to(enemy.global_position)  < 4.0)
 			if enemy.panic == true:
-				speed.y = .72
+				speed.y = .65
 			elif near:
-				speed.y = .55
+				speed.y = .62
 			else:
 				speed.y = 0.90
 			

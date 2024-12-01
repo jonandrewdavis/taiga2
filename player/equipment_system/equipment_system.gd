@@ -117,7 +117,11 @@ func _on_activated():
 
 		
 func _on_body_entered(_hit_body):
-	if _hit_body: 
+	if _hit_body:
+		# Early return to prevent self damage.
+		if _hit_body == player_node:
+			return
+			
 		if _hit_body.is_in_group(target_group) || _hit_body.is_in_group(target_group_secondary):
 			if _hit_body.has_method("hit"):
 				hit_target.emit()

@@ -10,7 +10,6 @@ class_name AreaEnemyTargetSensor
 @onready var eyeline : RayCast3D = $Eyeline
 @export var target_group_name : String = "players"
 @export_flags_3d_physics var dectection_layer_mask
-@onready var check_interval = $CheckInterval
 
 signal target_spotted
 signal target_lost
@@ -26,7 +25,16 @@ func _ready():
 	if player_node:
 		if player_node.has_signal("chase_ended"):
 			player_node.chase_ended.connect(_on_chase_ended)
-			
+
+	if not multiplayer.is_server():
+		set_process(false)
+		set_physics_process(false)
+		$AreaEnemyTargetColShape.disabled = true
+		$Eyeline.enabled = false
+		# NOTE: HUUUUUUUUUUGE frame rate and processing savings if we disable these on the client side. 24 -> 60 fps
+		# NOTE: TODO: make sure all collisions still happen for the most part! 
+
+
 ## Lookat a sensed body's direction, if there is a clean line of site
 ## return that node to be assigned as a target
 func eyeline_check():
@@ -53,6 +61,6 @@ func _on_body_exited(_body):
 
 func _on_chase_ended():
 	potential_target = null
-	
-func _on_check_interval_timeout():
+
+func _on_eyeline_interval_timeout():
 	eyeline_check()

@@ -4,12 +4,12 @@ var previous_encounter_location = Vector3.ZERO
 var encounter_tracker = Node3D
 
 
-var distance_interval = 50.0
+var distance_interval = 225.0
 # Position in front of player / tracker
-var distance_during_spawn = 100.0
+var distance_during_spawn = 80.0
 
 # Nothing nearby
-var spawn_distance_radius = 80.0
+var spawn_distance_radius = 65.0
 var despawn_distance_radius = 200.0
 
 var recent_directions = {}
@@ -55,7 +55,8 @@ func _on_encounter_tracker_changed(new_encounter_tracker):
 # a node in the server......
 func prepare_encounter(new_encounter_position: Vector3):
 	var first_encounter = first_encounter_scene.instantiate()
-	Hub.environment_container.add_child(first_encounter, true)	
+	Hub.environment_container.call_deferred('add_child', first_encounter, true)
+	await get_tree().process_frame
 	first_encounter.global_position = new_encounter_position
 	previous_encounter_location = new_encounter_position
 	populate_enemies(new_encounter_position)
@@ -65,12 +66,11 @@ func prepare_starting_area():
 	Hub.environment_container.add_child(first_town, true)	
 	first_town.global_position = Vector3.ZERO
 	previous_encounter_location = Vector3.ZERO
-#
+
 	populate_enemies(Vector3(10.0, 10.0, 10.0))
 	populate_enemies(Vector3(5.0, 5.0, 5.0))
 	populate_enemies(Vector3(-7.0, 7.0, -7.0))
 	populate_enemies(Vector3(-12.0, 12.0, -12.0))
-	
 
 
 func check_surrounding_area(new_encounter_position) -> bool:
@@ -98,10 +98,10 @@ func _record_recent_dir():
 		dir_index = 0
 
 func check_for_encounter():
-	#print('CHECKING FOR ENCOUNTER...', encounter_tracker)
 	if encounter_tracker:
 		var average_recent_directions =  recent_directions.values().reduce(func(a, b): return a + b, Vector3.ZERO) / recent_directions.size()
 		var new_encounter_position = encounter_tracker.global_position + (average_recent_directions * Vector3(distance_during_spawn, 0.0, distance_during_spawn))
+		print('CHECKING FOR ENCOUNTER...', new_encounter_position.distance_to(previous_encounter_location))
 		if check_surrounding_area(new_encounter_position) && check_distance_from_previous(new_encounter_position):
 			print("DEBUG: ENCOUNTER ALLOWED AT: ", new_encounter_position)
 			prepare_encounter(new_encounter_position)
