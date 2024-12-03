@@ -32,7 +32,7 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 1.34594, -1.53314, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.7553, 0.397213, -10.8165)
 
 [node name="Campfire" parent="SceneryContainer" instance=ExtResource("2_cu1m1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.39018, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.41589, 0, 0)
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_obu5x")

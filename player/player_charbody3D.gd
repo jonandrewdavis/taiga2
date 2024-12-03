@@ -142,7 +142,6 @@ signal strafe_toggled(toggle:bool)
 # Laddering
 signal ladder_started(top_or_bottom:String)
 signal ladder_finished(top_or_bottom:String)
-signal status
 
 
 # State management
@@ -171,6 +170,7 @@ var two_handed_weapons = ['HEAVY', 'BOW']
 
 signal store_error
 signal store_success
+signal store_loot
 
 @onready var sprint_drain_timer = $SprintDrainTimer
 
@@ -189,6 +189,8 @@ func _ready():
 	# NOTE: That means we can disable any signals if we're not authority.
 	set_process(is_multiplayer_authority())
 	if not is_multiplayer_authority():
+		if multiplayer.is_server():
+			set_physics_process(false)
 		return
 	
 	$GUI.hide()
@@ -241,7 +243,7 @@ func _ready():
 	store_error.connect(_on_update_coin)
 	store_success.connect(_on_update_coin)
 	_on_update_coin()
-	status.connect(_on_status)
+	store_loot.connect(_on_loot_added)
 	
 	# TODO: Remove before launch
 	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT
@@ -335,7 +337,10 @@ func _input(_event:InputEvent):
 		if _event.is_action_pressed("debug"):
 			Hub.debug_spawn_new_enemy_sync.rpc()
 
-		if _event.is_action_pressed("use_weapon_light"):
+		if _event.is_action_pressed("debug_1"):
+			Hub.debug_kill_all_enemies_sync.rpc()
+
+		if _event.is_action_pressed("use_weapon_light") && hurt_cool_down.is_stopped():
 			attack()
 		elif _event.is_action_pressed("use_weapon_strong"):
 			attack_strong()
@@ -734,7 +739,6 @@ func use_item():
 		slowed = true
 		is_using_item = true
 		use_item_started.emit()
-		await animation_tree.animation_measured
 		await get_tree().create_timer(anim_length * .5).timeout
 		item_used.emit()
 		await get_tree().create_timer(anim_length * .5).timeout
@@ -803,8 +807,7 @@ func trigger_interact(interact_type:String):
 func trigger_event(signal_name:String):
 	if busy or dodging:
 		return
-	if is_multiplayer_authority():
-		trigger_event_sync.rpc(signal_name)
+	trigger_event_sync.rpc(signal_name)
 	busy = true
 	emit_signal(signal_name)
 	await animation_tree.animation_measured
@@ -812,7 +815,7 @@ func trigger_event(signal_name:String):
 	event_finished.emit()
 	busy = false
 
-@rpc("call_remote")
+@rpc("any_peer", "call_remote")
 func trigger_event_sync(signal_name):
 	emit_signal(signal_name)
 	await animation_tree.animation_measured
@@ -914,10 +917,12 @@ func prevent_engine():
 
 func get_coin(amount):
 	coins = coins + amount
+	# Adds the coins (GetLoot) sound.
 	_on_update_coin()
 
 func _on_update_coin():
 	$GUI/GUIFullRect/MarginContainer/ItemSlot/CoinCount.text = str(coins)
+	store_loot.emit()
 	
 func _on_eyeline_enter(_interactable):
 	if _interactable && _interactable.is_in_group("interactable"):
@@ -947,7 +952,7 @@ var new_packed_scene = {
 # NOTE: This is an RPC because we are spawning items (see mulitplayer spawner in player).
 @rpc("authority", "call_local")
 func replace_empty_on_system(system_name, scene_name, cost: int):
-	if coins < cost:
+	if Hub.get_player(multiplayer.get_remote_sender_id()).coins < cost:
 		store_error.emit()
 		return
 	var system = get_node_or_null(system_name)
@@ -976,6 +981,9 @@ func replace_empty_on_system(system_name, scene_name, cost: int):
 				# Remove the empty equipment
 			coins = coins - cost
 			store_success.emit()
+			# sound
+			# TODO: Double emit here... lame
+			store_loot.emit()
 			await get_tree().create_timer(.1).timeout
 			free_eq.queue_free()
 		else:
@@ -1124,26 +1132,28 @@ func get_loot():
 		0:
 			health_system.total_health = health_system.total_health + 1
 			$GUI/GUIFullRect/HealthMarginContainer/HealthBar.max_value = health_system.total_health
-			status.emit('+10 Health.')
+			store_loot.emit('+10 Health.')
 			await get_tree().create_timer(1).timeout
 			health_received.emit(health_system.total_health)
 		1:
 			max_stamina = max_stamina + 5
 			%StaminaBar.max_value = max_stamina
-			status.emit('+5 Sta.')
+			store_loot.emit('+5 Stamina.')
 			await get_tree().create_timer(1).timeout
 			start_recovery()
 		2:
-			get_coin(10)	
-			status.emit('+10 coin')
-		
-func _on_status(_status):
-	var status_label = $PlayerNick/Status
-	status_label.text = _status
-	status_label.visible = true
-	await get_tree().create_timer(1.2).timeout
-	status_label.visible = false
-	status_label.text = ''
+			var coin_rand = randi_range(8, 18)
+			get_coin(coin_rand)	
+			store_loot.emit('+' + str(coin_rand) + ' coin')
+
+func _on_loot_added(_status = null):
+	if _status:
+		var status_label = $PlayerNick/Status
+		status_label.text = _status
+		status_label.visible = true
+		await get_tree().create_timer(1.2).timeout
+		status_label.visible = false
+		status_label.text = ''
 
 
 @rpc("any_peer")

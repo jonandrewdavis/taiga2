@@ -45,7 +45,7 @@ var is_menu_open = false
 
 @export var anim_length = 0.0
 
-@onready var landing_type = "SOFT"
+@export var landing_type = "SOFT"
 @export var last_oneshot: String = "Attack"
 var lerp_movement
 var lerp_movement_aim
@@ -95,7 +95,7 @@ func _ready():
 	player_node.weapon_change_started.connect(_on_weapon_change_started)
 	player_node.weapon_change_ended.connect(_on_weapon_change_ended)
 	# NOTE: Disabled - AD
-	#player_node.attack_started.connect(_on_attack_started)
+	player_node.attack_started.connect(_on_attack_started)
 	# Added. - AD
 	player_node.attack_requested.connect(_on_attack_requested)
 	
@@ -143,9 +143,10 @@ func request_oneshot(oneshot:String):
 		sync_player_oneshot.rpc(oneshot)
 	
 
-func _on_landed_fall(_hard_or_soft = "HARD"):
+func _on_landed_fall(_hard_or_soft = "SOFT"):
 	landing_type = _hard_or_soft
-	request_oneshot("Landed")
+	if _hard_or_soft == "HARD":
+		request_oneshot("Landed")
 
 func set_guarding():
 	if player_node.guarding && !player_node.busy && player_node.dodging == false:
@@ -154,7 +155,7 @@ func set_guarding():
 		guard_value = 0
 
 	var new_blend = lerp(get("parameters/Guarding/blend_amount"),guard_value,.2)
-	if player_node.weapon_type == "BOW":
+	if weapon_type == "BOW":
 		set("parameters/Aiming/blend_amount", new_blend)
 	else:
 		set("parameters/Guarding/blend_amount", new_blend)
@@ -190,7 +191,12 @@ func _on_attack_requested_timeout():
 # NOTE: Emitting attack now only handles things outside animation tree, like turning weapons
 # on and off
 func _on_attack_started():
+	_on_sync_attack_started.rpc()
 	pass
+
+@rpc("any_peer", "call_remote")
+func _on_sync_attack_started():
+	player_node.attack_started.emit()
 
 func attack_once():
 	await animation_measured
@@ -276,8 +282,18 @@ func abort_oneshot(_last_oneshot:String):
 
 func _on_death_started():
 	base_state_machine.travel("Death")
+	_death_started_sync.rpc()
+
+@rpc("any_peer")
+func _death_started_sync():
+	base_state_machine.travel("Death")
 
 func _on_spawn_started():
+	base_state_machine.travel("Start")
+	_on_spawn_started_sync.rpc()
+
+@rpc('any_peer')
+func _on_spawn_started_sync():
 	base_state_machine.travel("Start")
 
 func _on_use_item_started():

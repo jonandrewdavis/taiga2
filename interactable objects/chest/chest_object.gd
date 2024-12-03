@@ -37,11 +37,13 @@ func activate(player: CharacterBody3D):
 	if opened:
 		return
 	if roll != 0:
-		shake_chest()
+		if $ChestAnimPlayer.is_playing() == false:
+			shake_chest()
 		$InteractTimer.start(0.4)
 	else:
+		$ChestAnimPlayer.play("RESET")
+		$InteractTimer.start(1.0)
 		interactable_activated.emit()
-		
 		var new_translation = global_transform.translated_local(player_offset).rotated_local(Vector3.UP,PI)
 
 		var tween = create_tween()

@@ -112,7 +112,6 @@ func sync_player_position(id: int, new_position: Vector3):
 		# TODO: Proper loading signal / bus for users to load their scenery.
 		#$EnvironmentInstanceRoot.set_new_root(player)
 	
-
 @rpc
 func sync_player_client_only_nodes(peer_id):
 	$MenuEnvironmentArea.queue_free()

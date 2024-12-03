@@ -19,6 +19,9 @@ signal environment_ignore_remove
 signal equipment_is_using
 signal coin
 signal debug_spawn_new_enemy
+signal debug_kill_all_enemies
+
+const HEIGHTMAP = preload('res://assets/environment/heightmap_grass_main.tres')
 
 # Nodes for spawning
 # Remember to add new Scenes to the Auto Spawn List
@@ -64,10 +67,15 @@ func add_coins_sync(amount):
 @rpc('any_peer')
 func debug_spawn_new_enemy_sync():
 	debug_spawn_new_enemy.emit()
-	
+
+@rpc('any_peer')
+func debug_kill_all_enemies_sync():
+	if multiplayer.is_server():
+		for enemy in enemies_container.get_children():
+			print(enemy.global_position.distance_to(enemy.target.global_position),  ' loc: ', enemy.global_position)
+
 func get_environment_root() -> Node3D:
 	return environment_container.get_node("EnvironmentInstanceRoot")
-
 
 # TODO: Ambitious way to reset the player.... but bug prone.
 

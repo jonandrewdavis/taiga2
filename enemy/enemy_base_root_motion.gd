@@ -20,9 +20,9 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 @export var default_target : Node3D
 @onready var spawn_location : Marker3D = Marker3D.new()
 var combat_range :float = 1.9
-@onready var combat_timer : Timer = $CombatTimer
-@onready var chase_timer = $ChaseTimer
-@onready var patrol_timer = $PatrolTimer
+@onready var combat_timer: Timer = $CombatTimer
+@onready var chase_timer: Timer = $ChaseTimer2
+@onready var patrol_timer: Timer = $PatrolTimer
 
 @onready var hurt_cool_down = $HurtTimer
 @onready var ragdoll_death :bool = false
@@ -91,7 +91,7 @@ func _ready():
 
 		if target_sensor:
 			target_sensor.target_spotted.connect(_on_target_spotted)
-			target_sensor.target_lost.connect(_on_target_lost)
+			#target_sensor.target_lost.connect(_on_target_lost)
 		
 		$AttackAreaSensor.body_entered.connect(_on_target_entered)
 		$AttackAreaSensor.body_exited.connect(_on_target_exited)
@@ -212,7 +212,7 @@ func _on_combat_timer_timeout():
 			if target != null && global_position.distance_to(target.global_position) < combat_range / 4: 
 				if randi_range(0, 1) == 0:
 					start_panic()
-				combat_timer.stop()
+					combat_timer.stop()
 				return
 			attack_ranged()
 			combat_timer.start(randf_range(4.0,5.0))
@@ -230,11 +230,9 @@ func _on_combat_timer_timeout():
 
 func start_panic():
 	panic = true
-	print(panic,   ', archer: ', archer)
 	
 	current_state = state.CHASE
 	await get_tree().create_timer(5.0).timeout 
-	combat_timer.start(1.0)
 	panic = false
 
 func combat_randomizer():
@@ -254,6 +252,7 @@ func combat_randomizer():
 @rpc("authority", "call_local")
 func attack():
 	attack_started.emit()
+	chase_timer.start()
 
 func attack_ranged():
 	animation_tree.request_oneshot("shoot")
@@ -274,7 +273,7 @@ func circle():
 	update_current_state(state.COMBAT)
 	
 func set_default_target(): 
-	await get_tree().create_timer(.2).timeout
+	await get_tree().create_timer(1.0).timeout
 	$EnemyMarkerSpawn.global_position = global_position * Vector3(1.0, 0, 1.0)
 	if not default_target:
 		default_target = $EnemyMarkerSpawn
@@ -293,18 +292,11 @@ func _target_to_player_node(_spotted_target: Node3D):
 
 func _on_target_spotted(_spotted_target): # Updates from a TargetSensor if a target is found.
 	if target != null && target.name != _spotted_target.name:
-		print(target, ' spotted! starting timer')
 		target = _spotted_target
-	chase_timer.start()
-	
-# NOTE: Target lost can make it spin in circles in multiplayer.
-# TODO: Restore.
-func _on_target_lost():
-	print('TARGET LOST')
-	pass
+		chase_timer.start()
 
 func _on_chase_timer_timeout():
-	print(target, ' gave up!')
+	print("ABOUT TO GIVE UP")
 	give_up()
 	
 func give_up():
@@ -341,6 +333,7 @@ func hit_sync(_by_who_name: String, power: int):
 				sync_back_hit.rpc()
 				damage_taken.emit(power)
 
+
 @rpc("any_peer", "call_local")
 func sync_back_hit():
 		hurt_started.emit()
@@ -361,10 +354,12 @@ func death():
 	update_current_state(state.DEAD)
 	hurt_cool_down.start(10)
 	death_sync.rpc()
-	# Note: always queue_free on the server. - AD
-	await get_tree().create_timer(4).timeout
 	if multiplayer.is_server():
+		await get_tree().create_timer(2.0).timeout
 		Hub.add_coins(randi_range(1,5))
+	# Note: always queue_free on the server. - AD
+	await get_tree().create_timer(2.0).timeout
+	if multiplayer.is_server():
 		queue_free()
 		
 @rpc("any_peer", "call_local")
@@ -398,7 +393,7 @@ var is_patrolling = false
 var patrol_dir: Vector2
 
 func _on_patrol_timer_timeout():
-	if current_state == state.FREE && is_patrolling == false && randi_range(0, 3) != 0:
+	if current_state == state.FREE && is_patrolling == false && randi_range(0, 2) != 0:
 		patrol_dir = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
 		is_patrolling = true
 		patrol_timer.start(randi_range(5, 10))

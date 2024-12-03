@@ -4,7 +4,7 @@ var previous_encounter_location = Vector3.ZERO
 var encounter_tracker = Node3D
 
 
-var distance_interval = 225.0
+var distance_interval = 180.0
 # Position in front of player / tracker
 var distance_during_spawn = 80.0
 
@@ -59,19 +59,21 @@ func prepare_encounter(new_encounter_position: Vector3):
 	await get_tree().process_frame
 	first_encounter.global_position = new_encounter_position
 	previous_encounter_location = new_encounter_position
-	populate_enemies(new_encounter_position)
+	for count in range(0, 4):
+		populate_enemies(new_encounter_position)
+		await get_tree().create_timer(0.7).timeout
 
 func prepare_starting_area():
 	var first_town = town.instantiate()
 	Hub.environment_container.add_child(first_town, true)	
 	first_town.global_position = Vector3.ZERO
 	previous_encounter_location = Vector3.ZERO
-
-	populate_enemies(Vector3(10.0, 10.0, 10.0))
-	populate_enemies(Vector3(5.0, 5.0, 5.0))
-	populate_enemies(Vector3(-7.0, 7.0, -7.0))
-	populate_enemies(Vector3(-12.0, 12.0, -12.0))
-
+#
+	#populate_enemies(Vector3(10.0, 10.0, 10.0))
+	#populate_enemies(Vector3(5.0, 5.0, 5.0))
+	#populate_enemies(Vector3(-7.0, 7.0, -7.0))
+	#populate_enemies(Vector3(-12.0, 12.0, -12.0))
+#
 
 func check_surrounding_area(new_encounter_position) -> bool:
 	var min_dist = INF
@@ -87,7 +89,6 @@ func check_surrounding_area(new_encounter_position) -> bool:
 
 func check_distance_from_previous(new_encounter_position): 
 	return new_encounter_position.distance_to(previous_encounter_location) > distance_interval
-
 
 var dir_index = 0
 func _record_recent_dir():
@@ -112,21 +113,22 @@ func check_for_encounter():
 func clean_up_encounters():
 	get_tree().call_group("encounters", "check_for_clean_up", encounter_tracker.global_position, despawn_distance_radius)
 
-func populate_enemies(_new_encounter_position: Vector3, is_patrol = false):
-	var chance_archer = randi_range(1, 2)
+func populate_enemies(_new_encounter_position: Vector3, is_seeking_players = false):
+	var chance_archer = randi_range(0, 2)
 	var enemy = basic_enemy.instantiate()
-	if chance_archer == 2: 
+	if chance_archer == 0: 
 		enemy.archer = true
 	Hub.enemies_container.add_child(enemy, true)
-	enemy.global_position = get_spawn_point() + _new_encounter_position
-	if is_patrol:
-		enemy.set_new_default_target(Hub.get_cart())
-	
+	enemy.global_position = get_spawn_point(_new_encounter_position)
+	if is_seeking_players == true:
+		if chance_archer == 0:
+			enemy.set_new_default_target(Hub.get_cart())
+		else: 
+			enemy.set_new_default_target(Hub.get_random_player())
 
-func get_spawn_point() -> Vector3:
-	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 15 # spawn radius
-	return Vector3(spawn_point.x, 5.0, spawn_point.y)
-
+func get_spawn_point(_new_encounter_position) -> Vector3:
+	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * randi_range(1, 12)# spawn radius
+	return Vector3(spawn_point.x + _new_encounter_position.x, 4.0, spawn_point.y + _new_encounter_position.z)
 
 func _on_debug_spawn_new_enemy():
 	# TODO: Add archers?
@@ -134,6 +136,3 @@ func _on_debug_spawn_new_enemy():
 	# -100 is behind the current facing of the cart!!!
 	# They'll sneak up. lol
 	populate_enemies(Hub.get_cart().transform.basis.x * Vector3(-100.0, 0.0, -100.0), true)
-
-func _on_debug_kill_all_enemies():
-	pass

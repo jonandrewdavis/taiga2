@@ -22,9 +22,9 @@ func _ready():
 	collision_mask = dectection_layer_mask
 	eyeline.collision_mask = dectection_layer_mask
 
-	if player_node:
-		if player_node.has_signal("chase_ended"):
-			player_node.chase_ended.connect(_on_chase_ended)
+	#if player_node:
+		#if player_node.has_signal("chase_ended"):
+			#player_node.chase_ended.connect(_on_chase_ended)
 
 	if not multiplayer.is_server():
 		set_process(false)
@@ -54,10 +54,6 @@ func _on_body_entered(_body):
 		checking_active = true
 		eyeline_check()
 
-func _on_body_exited(_body):
-	pass
-	#if _body.is_in_group(target_group_name):
-		#target_lost.emit()
 
 func _on_chase_ended():
 	potential_target = null

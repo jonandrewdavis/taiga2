@@ -85,5 +85,6 @@ func _on_background_value_changed(value):
 	AudioServer.set_bus_volume_db(bus_background, linear_to_db(value))
 
 func _on_pvp_check_toggled(toggled_on):
-	player.pvp = toggled_on
+	if player:
+		player.pvp_on = toggled_on
 	pass # Replace with function body.
