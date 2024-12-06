@@ -95,7 +95,7 @@ material = SubResource("StandardMaterial3D_mkewk")
 script = ExtResource("3_rt61q")
 
 [node name="Axe (20g)" type="Area3D" parent="Items"]
-transform = Transform3D(-0.998273, 0.0385775, 0.0442909, 0.0515429, 0.936951, 0.345639, -0.0281646, 0.347324, -0.937322, -0.467941, 1.12265, 0)
+transform = Transform3D(-0.998273, 0.0385775, 0.0442909, 0.0422629, 0.995438, 0.0855335, -0.0407893, 0.0872567, -0.995351, -0.351595, 1.12265, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Items/Axe (20g)"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0309252, 0)
@@ -106,21 +106,21 @@ transform = Transform3D(0.0691079, 0.00956475, -0.393869, -0.087249, 0.390325, -
 mesh = ExtResource("7_s8p3j")
 
 [node name="Shield (15g)" type="Area3D" parent="Items"]
-transform = Transform3D(-0.991601, 0, 0.129332, 0.0533516, 0.91095, 0.409052, -0.117815, 0.412516, -0.9033, 0, 1.1116, 0)
+transform = Transform3D(-0.991601, 0, 0.129332, 0.0533516, 0.91095, 0.409052, -0.117815, 0.412516, -0.9033, -0.0372312, 1.1116, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Items/Shield (15g)"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0309252, 0)
+transform = Transform3D(0.998491, 0.0536804, -0.0115685, -0.0536804, 0.909795, -0.411573, -0.0115685, 0.411573, 0.911304, -0.00235153, -0.0309254, 0.000306696)
 shape = SubResource("CapsuleShape3D_s4b0l")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Items/Shield (15g)"]
-transform = Transform3D(0.5, 0, 0, 0, 0.163155, 0.472631, 0, -0.472631, 0.163155, 0, 0, 0)
+transform = Transform3D(0.499995, -0.000715036, -0.00219674, 0.00230983, 0.146311, 0.478108, -4.0926e-05, -0.478113, 0.146312, 0, 0, 0)
 mesh = ExtResource("2_bwoih")
 
 [node name="Bow (40g)" type="Area3D" parent="Items"]
-transform = Transform3D(-0.989678, -0.012929, 0.142726, 0.0156236, 0.980252, 0.197135, -0.142455, 0.19733, -0.969931, 0.48682, 1.16761, 0.0203215)
+transform = Transform3D(-0.989678, -0.012929, 0.142726, 0.0156236, 0.980252, 0.197135, -0.142455, 0.19733, -0.969931, 0.343003, 1.16761, 0.0203215)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Items/Bow (40g)"]
-transform = Transform3D(1, 6.98492e-09, 0, -1.39698e-08, 1, 1.86265e-09, -2.98023e-08, -5.96046e-08, 1, 0.0312179, -0.0238481, 0.00704715)
+transform = Transform3D(0.999883, 0.0153141, 0.00057295, -0.0151678, 0.994283, -0.105693, -0.00218831, 0.105672, 0.994399, 0.0312179, -0.0238483, 0.00704715)
 shape = SubResource("CapsuleShape3D_rix7m")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Items/Bow (40g)"]
@@ -128,7 +128,7 @@ transform = Transform3D(2, 0, 0, 0, 0.167043, -1.99301, 0, 1.99301, 0.167043, 0,
 mesh = ExtResource("3_nockq")
 
 [node name="Potion (3g)" type="Area3D" parent="Items"]
-transform = Transform3D(-0.988539, -0.0519062, 0.141767, -0.0485055, 0.998448, 0.0273422, -0.142966, 0.0201524, -0.989522, 0.849942, 1.17164, 0.0203215)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.614938, 1.07102, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Items/Potion (3g)"]
 transform = Transform3D(1, 7.45058e-09, 0, -1.49012e-08, 1, 0, -2.98023e-08, -5.96046e-08, 1, 0, -0.0242559, 0.0115492)

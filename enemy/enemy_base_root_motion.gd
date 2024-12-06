@@ -74,6 +74,7 @@ func _ready():
 	hurt_cool_down.one_shot = true
 	
 	add_to_group(group_name)
+	add_to_group('enemies')
 	collision_layer = 5
 
 	set_default_target()
@@ -227,13 +228,13 @@ func _on_combat_timer_timeout():
 		combat_randomizer()
 		combat_timer.start(randf_range(0.7,2.8))
 
-
 func start_panic():
 	panic = true
-	
 	current_state = state.CHASE
 	await get_tree().create_timer(5.0).timeout 
 	panic = false
+	current_state = state.COMBAT
+	combat_timer.start(1.0)
 
 func combat_randomizer():
 	if multiplayer.is_server():
@@ -256,9 +257,12 @@ func attack():
 
 func attack_ranged():
 	animation_tree.request_oneshot("shoot")
-	await get_tree().create_timer(1.8).timeout 
+	await get_tree().create_timer(1.4).timeout 
+	# Allows strafing / evading... they can't be perfect, but if you're standing still they hit.
+	var save_prev_pos = target.global_position
+	await get_tree().create_timer(0.4).timeout 
 	if target != null: 
-		$ArrowSystem.LaunchProjectile(target.global_position + Vector3(0.0, 0.8, 0.0))
+		$ArrowSystem.LaunchProjectile(save_prev_pos + Vector3(0.0, 0.8, 0.0))
 
 @rpc("authority", "call_local")
 func retreat(): # Back away for a period of time
@@ -308,7 +312,6 @@ func apply_gravity(_delta):
 		velocity.y -= gravity * _delta
 		move_and_slide()
 
-
 func hit(_by_who, _by_what):
 	#var get_player_targeted = _target_to_player_node(_by_who)
 	#if (get_player_targeted):
@@ -322,7 +325,7 @@ func hit(_by_who, _by_what):
 
 @rpc("any_peer", "call_local")
 func hit_sync(_by_who_name: String, power: int):
-	if multiplayer.is_server():
+	if is_multiplayer_authority():
 		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
 		var get_player_targeted = Hub.get_player_by_name(_by_who_name)
 		if (get_player_targeted):
@@ -338,14 +341,11 @@ func hit_sync(_by_who_name: String, power: int):
 func sync_back_hit():
 		hurt_started.emit()
 
-func parried():
-	parried_sync.rpc()
 
 @rpc("any_peer", "call_local")
-func parried_sync():
+func parried():
 	if multiplayer.is_server() && hurt_cool_down.is_stopped():
 		combat_timer.stop()
-		hurt_cool_down.start()
 		parried_started.emit()
 		combat_timer.start(3)
 		

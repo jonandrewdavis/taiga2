@@ -87,7 +87,7 @@ signal gadget_started ## when the gadget attack starts
 
 
 ## Turns on when the perfect parry window is active, making regular blocks turn into parries.
-@onready var parry_active = false
+@export var parry_active = false
 ## How brief the perfect parry window is in seconds.
 @export var parry_window = .3
 signal parry_started
@@ -110,7 +110,7 @@ signal use_item_started
 signal item_used
 
 var is_using_item = false
-var pvp_on = false
+@export var pvp_on = false
 
 # Jump and Gravity
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -236,13 +236,14 @@ func _ready():
 	
 	#weapon_change_ended.emit(weapon_type)
 	health_system.total_health = CONST_MAX_HEALTH
+	health_system.max_health_updated.emit(CONST_MAX_HEALTH)
 	$GUI/GUIFullRect/HealthMarginContainer/HealthBar.max_value = CONST_MAX_HEALTH
+	await get_tree().process_frame
 	health_received.emit(CONST_MAX_HEALTH)
 
 	Hub.coin.connect(get_coin)
 	store_error.connect(_on_update_coin)
 	store_success.connect(_on_update_coin)
-	_on_update_coin()
 	store_loot.connect(_on_loot_added)
 	
 	# TODO: Remove before launch
@@ -284,6 +285,8 @@ func _process(_delta):
 	if is_on_floor() == true && busy == false && sprinting == false && guarding == false:
 		recover_stamina()
 
+
+
 func _physics_process(_delta):
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: All 3 Required for all authorities because of "flying" bug.
@@ -310,7 +313,7 @@ func _physics_process(_delta):
 func _input(_event:InputEvent):
 	if not is_multiplayer_authority():
 		return
-
+		
 	if $FollowCam.is_menu_open == true:
 		return
 
@@ -334,6 +337,9 @@ func _input(_event:InputEvent):
 		emit_signal("attack_requested")
 	
 	if current_state == state.FREE:
+		if nickname.text == 'z' && busy == false:
+			attack()
+
 		if _event.is_action_pressed("debug"):
 			Hub.debug_spawn_new_enemy_sync.rpc()
 
@@ -579,11 +585,12 @@ func _on_animation_measured(_new_length ):
 
 func interact():
 	if is_on_floor() && !busy:
-		# ADDED: For shopping... - AD
-		if interactable_custom && interactable_custom.get_parent().has_method("activate"):
+		# ADDED: For shopping... & Cart - AD
+		if interactable_custom && interactable_custom.name == 'Cart':
+			interactable_custom.get_parent().activate(self)
+		elif interactable_custom && interactable_custom.get_parent().has_method("activate"):
 			interactable_custom.get_parent().activate(self, interactable_custom.name)
-			
-		if interactable && interactable.has_method("activate"):
+		elif interactable && interactable.has_method("activate"):
 			interactable.activate(self)
 		elif ladder:
 			ladder.activate(self)
@@ -655,24 +662,21 @@ func start_guard(): # Guarding, and for a short window, parring is possible
 	guard_local = true
 	strafe_local = true
 	guarding = true
-	parry_active = true
 	Hub.equipment_is_using.emit(true)
-	await get_tree().create_timer(parry_window).timeout
-	parry_active = false
+	if weapon_type != "BOW":
+		parry_active = true
+		await get_tree().create_timer(parry_window).timeout
+		parry_active = false
 
 func end_guard():
 	guarding = false
 	guard_local = false
 	strafe_local = false
-
-	parry_active = false
 	slowed = false
-
 	strafing = false
 	strafe_local = false
 	strafe_toggled.emit(false)
 	Hub.equipment_is_using.emit(false)
-
 
 func use_gadget(): # emits to start the gadget, and runs some timers before stopping the gadget
 	trigger_event("gadget_started")
@@ -680,24 +684,28 @@ func use_gadget(): # emits to start the gadget, and runs some timers before stop
 func hit(_who, _by_what):
 	if is_dead:
 		return
-	hit_sync.rpc(_who.name, _by_what.power)
-
+	if parry_active:
+		parry.rpc()
+		if _who.has_method("parried"):
+			_who.parried.rpc()
+			return
+	else:
+		hit_sync.rpc(_who.name, _by_what.power)
 			
 @rpc("any_peer", "call_local")
 func hit_sync(_by_who_name: String, power: int):
 	if is_dead:
 		return
-		
 	if multiplayer.get_remote_sender_id() != 1 && pvp_on == false:
 		return
+
 	# only get hit by things on your client.
 	if is_multiplayer_authority():
-		if hurt_cool_down.time_left > 0:
-			return
 		if parry_active:
-			parry()
-			#if _who.has_method("parried"):
-				#_who.parried()
+			print('ignored damage')
+			return
+
+		if hurt_cool_down.is_stopped() == false:
 			return
 		elif guarding && gadget_power != 0:
 			block()
@@ -706,8 +714,8 @@ func hit_sync(_by_who_name: String, power: int):
 				hurt_cool_down.start(0.3)
 				end_guard()
 		else:
-			damage_taken.emit(power)
 			hurt()
+			damage_taken.emit(power)
 
 func heal(_by_what):
 	health_received.emit(_by_what.power)
@@ -715,20 +723,32 @@ func heal(_by_what):
 func block():
 	block_started.emit()
 
-func parry():
-	parry_started.emit()
-	if animation_tree:
-		await animation_tree.animation_measured
-	await get_tree().create_timer(anim_length).timeout
-	hurt_cool_down.start(anim_length)
+@rpc('any_peer', 'call_local')
+func parried():
+	if is_multiplayer_authority():
+		animation_tree.abort_oneshot(animation_tree.last_oneshot)
+		animation_tree._on_attack_end()
+		busy = true
+		animation_tree.request_oneshot("Parried")
+		await get_tree().create_timer(4.0).timeout
+		busy = false
 
+@rpc('any_peer', 'call_local')
+func parry():
+	if is_multiplayer_authority():
+		parry_active = true
+		parry_started.emit()
+		if animation_tree:
+			await animation_tree.animation_measured
+		await get_tree().create_timer(anim_length).timeout
+		hurt_cool_down.start(anim_length)
+		parry_active = false
+		
 func hurt():
-	if not is_multiplayer_authority():
-		return
 	hurt_started.emit() # before state change in case on ladder,etc
 	if animation_tree:
 		await animation_tree.animation_measured
-	hurt_cool_down.start(anim_length)
+	hurt_cool_down.start(anim_length + 0.8)
 	await get_tree().create_timer(anim_length).timeout
 
 func use_item():
@@ -773,10 +793,11 @@ func restore():
 	replace_loot_on_system.rpc('WeaponSystem', "empty_scene")
 	replace_loot_on_system.rpc('GadgetSystem', "empty_scene")
 	health_system.total_health = CONST_MAX_HEALTH
+	health_system.max_health_updated.emit(CONST_MAX_HEALTH)
 	max_stamina = CONST_MAX_STAMNIA
 	coins = 0
 	_on_update_coin()
-	health_received.emit(health_system.total_health)
+	health_received.emit(CONST_MAX_HEALTH)
 	global_position = get_spawn_point() + Hub.get_cart().global_position
 	is_dead = false
 	visible = true
@@ -919,13 +940,13 @@ func get_coin(amount):
 	coins = coins + amount
 	# Adds the coins (GetLoot) sound.
 	_on_update_coin()
+	store_loot.emit()
 
 func _on_update_coin():
 	$GUI/GUIFullRect/MarginContainer/ItemSlot/CoinCount.text = str(coins)
-	store_loot.emit()
 	
 func _on_eyeline_enter(_interactable):
-	if _interactable && _interactable.is_in_group("interactable"):
+	if _interactable && _interactable.is_in_group("interactable") or _interactable.name == "Cart":
 		$GUI/GUIFullRect/InteractTooltip.text = str(_interactable.name)
 		interactable_custom = _interactable
 	
@@ -1125,13 +1146,14 @@ func fog(on, mult = 0.0005, dark = 1.0):
 		Hub.world_environment.environment.volumetric_fog_density = clampf(mult_lerp, 0.07, 1.0)
 		Hub.world_environment.environment.adjustment_brightness = dark_lerp
 		
-# emit
+# TODO: more Signals emit
 func get_loot():
 	var random = randi_range(0, 2)
 	match random:
 		0:
 			health_system.total_health = health_system.total_health + 1
 			$GUI/GUIFullRect/HealthMarginContainer/HealthBar.max_value = health_system.total_health
+			health_system.max_health_updated.emit(health_system.total_health)
 			store_loot.emit('+10 Health.')
 			await get_tree().create_timer(1).timeout
 			health_received.emit(health_system.total_health)

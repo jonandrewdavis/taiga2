@@ -1,5 +1,6 @@
 extends Node3D
 
+@onready var master_slider: HSlider = $Menu/MainContainer/MarginContainer2/Panel/MarginContainer/VBoxContainer/MenuMasterSlider
 @onready var skin_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option2/SkinInput
 @onready var nick_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option1/NickInput
 @onready var address_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option3/AddressInput
@@ -7,11 +8,15 @@ extends Node3D
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
 
+var bus_master = AudioServer.get_bus_index("Master")
+
 const environment_arena = preload("res://level/scenes/arena.tscn")
 const environment_instance_root_scene = preload("res://assets/environment_instances/environment_instance_root.tscn")
 const enemy_scene = preload('res://enemy/enemy_base_root_motion.tscn')
 const cart_scene = preload("res://assets/interactable/medieval_carriage/cart.tscn")
 const server_scenario_manager_scene = preload("res://level/scenes/server_scenario_manager.tscn")
+
+var volume_master_value
 
 func _ready():
 	# Check for -- server
@@ -35,6 +40,10 @@ func _ready():
 	Hub.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
 
+	volume_master_value = db_to_linear(AudioServer.get_bus_volume_db(bus_master))
+	print(volume_master_value)
+	master_slider.max_value = volume_master_value * 2
+	master_slider.value = volume_master_value
 
 func _spawn_enemy(): 
 	await get_tree().create_timer(5.0).timeout
@@ -90,10 +99,9 @@ func _add_player(id: int):
 	# Call from the server to a specific client, in this case, the player we just added.
 	# Runs this function to attach the environment, etc.
 	rpc_id(id, "sync_player_client_only_nodes", id)
-	
 
 func get_spawn_point() -> Vector3:
-	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
+	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 15 # spawn radius
 	return Vector3(spawn_point.x, 5.0, spawn_point.y)
 	
 func _remove_player(id):
@@ -147,3 +155,7 @@ func add_server_only_nodes():
 	# Begin Scenarios
 	Hub.encounter_timer_start.emit()
 	Hub.encounter_tracker_changed.emit(cart)
+
+
+func _on_menu_master_slider_value_changed(value):
+	AudioServer.set_bus_volume_db(bus_master, linear_to_db(value))

@@ -119,8 +119,10 @@ func _on_body_entered(_hit_body):
 		# Early return to prevent self damage.
 		if _hit_body == player_node:
 			return
-			
+		
 		if _hit_body.is_in_group(target_group) || _hit_body.is_in_group(target_group_secondary):
+			if get_multiplayer_authority() != 1 && _hit_body.is_in_group("players") && _hit_body.pvp_on == false:
+				return
 			if _hit_body.has_method("hit"):
 				hit_target.emit()
 				_hit_body.hit(player_node,current_equipment.equipment_info)

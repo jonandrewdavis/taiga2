@@ -23,7 +23,7 @@ var should_render_imgui := true
 @onready var clumping_factor := [GRASS_MAT.get_shader_parameter('clumping_factor')]
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
 
-@onready var grass_collision_shape = $NavigationRegion3D/Ground/GrassCollisionShape
+@onready var grass_collision_shape: CollisionShape3D
 
 # TODO: I adjusted the collision shape up 0.2...
 
@@ -51,10 +51,12 @@ func _ready() -> void:
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	await get_tree().create_timer(1.0).timeout
 	# TODO: 
-	_setup_heightmap_collision(Vector3(0.0, 0.0, 0.0))
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
 
+	if (get_node_or_null('NavigationRegion3D/Ground/GrassCollisionShape')):
+		grass_collision_shape = $NavigationRegion3D/Ground/GrassCollisionShape
+		_setup_heightmap_collision(Vector3(0.0, 0.0, 0.0))
 	
 func set_new_grass_tracker(node):
 	# TODO: Change this to be player agnostic.

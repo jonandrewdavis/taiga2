@@ -36,7 +36,7 @@ func _ready():
 	volume_background_value = db_to_linear(AudioServer.get_bus_volume_db(bus_background))
 	
 	# sliders
-	master_slider.max_value = volume_master_value * 2
+	master_slider.max_value = 1.0 * 2
 	sfx_slider.max_value = volume_sfx_value * 2
 	background_slider.max_value = volume_background_value * 2
 

@@ -57,3 +57,18 @@ shape = SubResource("BoxShape3D_x8bls")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D3"]
 mesh = SubResource("BoxMesh_esxc2")
+
+[node name="StaticBody3D4" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.186874, 0)
+collision_layer = 512
+collision_mask = 512
+
+[node name="CollisionPolygon3D" type="CollisionPolygon3D" parent="StaticBody3D4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.103584)
+depth = 4.6
+polygon = PackedVector2Array(9, -2, 2.28313, 1.16872, -2.283, 1.169, -9, -2)
+
+[node name="CollisionPolygon3D2" type="CollisionPolygon3D" parent="StaticBody3D4"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0.084749)
+depth = 4.6
+polygon = PackedVector2Array(9, -2, 2.28313, 1.16872, -2.283, 1.169, -9, -2)

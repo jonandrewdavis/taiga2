@@ -72,7 +72,8 @@ func debug_spawn_new_enemy_sync():
 func debug_kill_all_enemies_sync():
 	if multiplayer.is_server():
 		for enemy in enemies_container.get_children():
-			print(enemy.global_position.distance_to(enemy.target.global_position),  ' loc: ', enemy.global_position)
+			if enemy.global_position.distance_to(enemy.target.global_position) > 120.0:
+				enemy.queue_free()			
 
 func get_environment_root() -> Node3D:
 	return environment_container.get_node("EnvironmentInstanceRoot")

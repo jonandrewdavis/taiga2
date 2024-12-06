@@ -50,6 +50,7 @@ targets="enemies and such"
 players=""
 encounters=""
 cart=""
+enemies=""
 
 [input]
 
