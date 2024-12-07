@@ -15,8 +15,10 @@ properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 2
 
-[node name="FirstEncounter" type="Node3D"]
+[node name="FirstEncounter" type="Node3D" node_paths=PackedStringArray("custom_ignore_mesh", "scenery_container")]
 script = ExtResource("1_eeox6")
+custom_ignore_mesh = NodePath("IgnoreZone")
+scenery_container = NodePath("SceneryContainer")
 
 [node name="IgnoreZone" type="MeshInstance3D" parent="."]
 visible = false

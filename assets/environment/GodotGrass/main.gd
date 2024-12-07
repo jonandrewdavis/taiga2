@@ -69,9 +69,11 @@ func _physics_process(_delta: float) -> void:
 		return
 	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
 
+	#NOTE!!!!! REMOVED EDITOR FOR FINAL BUILD
 	# Correct LOD by repositioning tiles when the player moves into a new tile
-	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else player
-	var tile_id : Vector3 = ((lod_target.global_position + Vector3.ONE*TILE_SIZE*0.5) / TILE_SIZE * Vector3(1,0,1)).floor()
+
+	#var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else player
+	var tile_id : Vector3 = ((player.global_position + Vector3.ONE*TILE_SIZE*0.5) / TILE_SIZE * Vector3(1,0,1)).floor()
 	if tile_id != previous_tile_id:
 		for data in grass_multimeshes:
 			data[0].global_position = data[1] + Vector3(1,0,1)*TILE_SIZE*tile_id

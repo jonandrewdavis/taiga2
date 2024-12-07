@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://donc6jtlr06dp"]
+
+[ext_resource type="Script" path="res://level/scripts/encounter.gd" id="1_dfyaa"]
+[ext_resource type="PackedScene" uid="uid://dhemtdwfxuwnl" path="res://level/scenes/bell_root_node.tscn" id="2_ufbh4"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_2wn20"]
+top_radius = 20.0
+bottom_radius = 20.0
+height = 15.0
+
+[node name="EncounterBell" type="Node3D" node_paths=PackedStringArray("custom_ignore_mesh", "scenery_container")]
+script = ExtResource("1_dfyaa")
+custom_ignore_mesh = NodePath("IgnoreZone")
+scenery_container = NodePath("SceneryContainer")
+
+[node name="IgnoreZone" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("CylinderMesh_2wn20")
+
+[node name="SceneryContainer" type="Node3D" parent="."]
+
+[node name="BellRootNode" parent="SceneryContainer" instance=ExtResource("2_ufbh4")]

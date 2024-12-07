@@ -30,7 +30,6 @@ signal max_health_updated
 signal health_updated
 signal died
 
-
 func _ready():
 	# dont' show the health bar at our feet if it's ours... we just pass.
 	if is_multiplayer_authority():
@@ -83,13 +82,12 @@ func _on_health_signal_sync(_power):
 		current_health = total_health
 	health_updated.emit(current_health)
 	
-	# TODO???
 	if health_bar_control:
 		show_timer.start()
 	
 func show_health():
 	var current_camera = get_viewport().get_camera_3d()
-	if current_camera:
+	if current_camera && current_camera.global_position.distance_to(hit_reporting_node.global_position) < 30.0:
 		var screenspace = current_camera.unproject_position(hit_reporting_node.global_position)
 		health_bar_control.position = screenspace 
 		health_bar_control.show()

@@ -43,7 +43,6 @@ func _ready():
 	
 	$HealthSystem.died.connect(_on_cart_death)
 	
-
 func _integrate_forces(state):
 	if is_multiplayer_authority():
 		if not player_attached:

@@ -143,7 +143,7 @@ func request_oneshot(oneshot:String):
 		sync_player_oneshot.rpc(oneshot)
 	
 
-func _on_landed_fall(_hard_or_soft = "SOFT"):
+func _on_landed_fall(_hard_or_soft = "HARD"):
 	landing_type = _hard_or_soft
 	if _hard_or_soft == "HARD":
 		request_oneshot("Landed")

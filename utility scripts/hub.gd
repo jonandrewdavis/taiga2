@@ -21,7 +21,9 @@ signal coin
 signal debug_spawn_new_enemy
 signal debug_kill_all_enemies
 
+
 const HEIGHTMAP = preload('res://assets/environment/heightmap_grass_main.tres')
+const basic_enemy = preload('res://enemy/enemy_base_root_motion.tscn')
 
 # Nodes for spawning
 # Remember to add new Scenes to the Auto Spawn List
@@ -64,9 +66,10 @@ func add_coins(amount):
 func add_coins_sync(amount):
 	coin.emit(amount)
 
-@rpc('any_peer')
+@rpc('any_peer', 'call_local')
 func debug_spawn_new_enemy_sync():
-	debug_spawn_new_enemy.emit()
+	if multiplayer.is_server():
+		debug_spawn_new_enemy.emit()
 
 @rpc('any_peer')
 func debug_kill_all_enemies_sync():
@@ -78,31 +81,21 @@ func debug_kill_all_enemies_sync():
 func get_environment_root() -> Node3D:
 	return environment_container.get_node("EnvironmentInstanceRoot")
 
-# TODO: Ambitious way to reset the player.... but bug prone.
+@rpc("any_peer", 'call_local')
+func spawn_enemy_at_location(_new_location: Vector3, _dist: = 70.0, _target_name = null, _radius = 10):
+	if multiplayer.is_server():
+		var chance_archer = randi_range(0, 2)
+		var spawn_point = Vector2.from_angle(randf() * 2 * PI) * _radius # spawn radius
+		var spawn_dir = Vector2.from_angle(randf() * 2 * PI)
+		var _new_location_dist = _new_location + Vector3(spawn_dir.x, 1.0, spawn_dir.y) * Vector3(_dist, 1.0, _dist)
+		var final_location = Vector3(spawn_point.x + _new_location_dist.x, 4.0, spawn_point.y + _new_location_dist.z)
 
-#@rpc('any_peer')
-#func _remove_player(id):
-	#if not multiplayer.is_server() or not players_container.has_node(str(id)):
-		#return
-	#var player_node = players_container.get_node(str(id))
-	#if player_node:
-		#player_node.queue_free()
-	#
-	#await get_tree().create_timer(5).timeout	
-	#_add_player_as_respawn.rpc(id)
-#
-#@rpc("any_peer", "call_local")
-#func _add_player_as_respawn(id: int):
-	#if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
-		#return
-	#
-	#var player = player_scene.instantiate()
-	#player.name = str(id)
-	#players_container.add_child(player, true)
-#
-	#var nick = Network.players[id]["nick"]
-	#player.rpc("change_nick", nick)
-	#
-	#player.global_position = Vector3(3.0, 3.0, 3.0)
-	#
-	#get_environment_root().environment_tracker_changed.emit(player)
+		var enemy = basic_enemy.instantiate()
+		if chance_archer == 0: 
+			enemy.archer = true
+		Hub.enemies_container.add_child(enemy, true)
+		enemy.global_position = final_location
+		if _target_name != null:
+			enemy.set_new_default_target(Hub.get_player_by_name(_target_name))
+		else:
+			enemy.set_new_default_target(Hub.get_random_player())

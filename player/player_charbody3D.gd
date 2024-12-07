@@ -286,11 +286,18 @@ func _process(_delta):
 		recover_stamina()
 
 
-
 func _physics_process(_delta):
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: All 3 Required for all authorities because of "flying" bug.
 	# TODO: Adding Ladders may just need everything here.
+	#for col_idx in get_slide_collision_count():
+		#var col := get_slide_collision(col_idx)
+		#if col.get_collider() is RigidBody3D:
+			#col.get_collider().apply_central_impulse(-col.get_normal() * 1.2)
+			#col.get_collider().apply_impulse(-col.get_normal() * 0.01, col.get_position())
+#
+   ## col.get_collider().apply_impulse(-col.get_normal() * 100 * delta, col.get_position() - col.get_collider().global_position)
+
 	if not is_multiplayer_authority():
 		apply_gravity(_delta)
 		fall_check()
@@ -406,8 +413,7 @@ func _input(_event:InputEvent):
 			start_recovery()
 				
 	if _event.is_action_released("use_gadget_light"):
-		if not secondary_action:
-			end_guard()
+		end_guard()
 
 func apply_gravity(_delta):
 	if !is_on_floor() \
@@ -702,7 +708,6 @@ func hit_sync(_by_who_name: String, power: int):
 	# only get hit by things on your client.
 	if is_multiplayer_authority():
 		if parry_active:
-			print('ignored damage')
 			return
 
 		if hurt_cool_down.is_stopped() == false:

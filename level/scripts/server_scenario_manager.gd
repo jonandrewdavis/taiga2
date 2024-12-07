@@ -14,7 +14,12 @@ var despawn_distance_radius = 200.0
 
 var recent_directions = {}
 
+
+# DO NOT FORGET TO ADD ENCOUNTERS TO SPAWNER
 var first_encounter_scene = preload("res://level/scenes/encounter.tscn")
+var encounter_rock_scene = preload("res://level/scenes/encounter_rock.tscn")
+var encounter_bell_scene = preload("res://level/scenes/encounter_bell.tscn")
+
 var basic_enemy = preload("res://enemy/enemy_base_root_motion.tscn")
 var town = preload("res://level/scenes/town.tscn")
 
@@ -53,13 +58,20 @@ func _on_encounter_tracker_changed(new_encounter_tracker):
 # WHY DOES THIS NEED TO BE RPC'd TO BE SEEN ON OTHER CLIENTS???
 # They are spawning infinitly on the servber now, so i I think the game master only needs to be 
 # a node in the server......
+
+# DO NOT FORGET TO ADD ENCOUNTERS TO SPAWNER
 func prepare_encounter(new_encounter_position: Vector3):
-	var first_encounter = first_encounter_scene.instantiate()
+	var first_encounter = encounter_bell_scene.instantiate()
 	Hub.environment_container.call_deferred('add_child', first_encounter, true)
 	await get_tree().process_frame
-	first_encounter.global_position = new_encounter_position
+	if first_encounter.name == "EncounterBell":
+		print('PLACING MANUALLy')
+		first_encounter.place_location_sync.rpc(new_encounter_position)
+	else:
+		first_encounter.global_position = new_encounter_position
 	previous_encounter_location = new_encounter_position
-	for count in range(0, 4):
+	var enemy_count = int(Hub.players_container.get_children().size() * 1.5)
+	for count in range(0, enemy_count):
 		populate_enemies(new_encounter_position)
 		await get_tree().create_timer(0.7).timeout
 
@@ -125,14 +137,16 @@ func populate_enemies(_new_encounter_position: Vector3, is_seeking_players = fal
 			enemy.set_new_default_target(Hub.get_cart())
 		else: 
 			enemy.set_new_default_target(Hub.get_random_player())
+			
+
 
 func get_spawn_point(_new_encounter_position) -> Vector3:
-	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * randi_range(1, 12)# spawn radius
+	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 18 # spawn radius
 	return Vector3(spawn_point.x + _new_encounter_position.x, 4.0, spawn_point.y + _new_encounter_position.z)
 
 func _on_debug_spawn_new_enemy():
 	# TODO: Add archers?
-	print('Spawn a new Debuged Enemy')
+	print('DEBUG: Spawn a new Debuged Enemy')
 	# -100 is behind the current facing of the cart!!!
 	# They'll sneak up. lol
 	populate_enemies(Hub.get_cart().transform.basis.x * Vector3(-100.0, 0.0, -100.0), true)

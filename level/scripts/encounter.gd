@@ -1,6 +1,7 @@
 extends Node3D
 
 @export var custom_ignore_mesh: MeshInstance3D 
+@export var scenery_container: Node3D 
 
 @onready var ignore_zone = MeshInstance3D.new()
 @onready var ignore_zone_mesh = CylinderMesh.new()
@@ -10,9 +11,7 @@ const HEIGHTMAP_NOISE_WIDTH = 1024
 
 const h_scale = 1.0
 
-const ignore_zone_radius = 22.0
-
-@onready var scenery_container: Node3D = $SceneryContainer
+const ignore_zone_radius = 17.0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -37,7 +36,6 @@ func _ready():
 		height_map_check()
 
 func height_map_check():
-	print('FIRED HEIGHTMAP')
 	var hmap_img = Hub.HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
 	if scenery_container:
 		for object in scenery_container.get_children():
@@ -77,3 +75,7 @@ func get_heightmap_y(x, z, _hmap_img):
 	var color = (_hmap_img.get_pixel(pixel_x, pixel_z).r - 0.5)* HEIGHTMAP_SCALE
 	#return color.r * terrain_height * v_scale
 	return color
+	
+@rpc("authority")	
+func place_location_sync(_position):
+	position = _position

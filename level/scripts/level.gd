@@ -41,7 +41,6 @@ func _ready():
 	multiplayer.peer_disconnected.connect(_remove_player)
 
 	volume_master_value = db_to_linear(AudioServer.get_bus_volume_db(bus_master))
-	print(volume_master_value)
 	master_slider.max_value = volume_master_value * 2
 	master_slider.value = volume_master_value
 
@@ -136,9 +135,8 @@ func sync_player_client_only_nodes(peer_id):
 	await tween.finished
 	player_node.spawn()
 	
-	
 func add_server_only_nodes():
-	$MenuEnvironmentArea.queue_free()
+	#$MenuEnvironmentArea.queue_free()
 
 	var prepare_environment = environment_instance_root_scene.instantiate()
 	var server_scenario_manager = server_scenario_manager_scene.instantiate()
@@ -150,12 +148,14 @@ func add_server_only_nodes():
 
 	await get_tree().create_timer(.1).timeout
 	prepare_environment.environment_tracker_changed.emit(cart) 
-	cart.global_position = Vector3(-8.0, 1.0, 8.0)
-
+	cart.global_position = Vector3(8.0, 1.0, -8.0)
+	
 	# Begin Scenarios
 	Hub.encounter_timer_start.emit()
 	Hub.encounter_tracker_changed.emit(cart)
 
-
-func _on_menu_master_slider_value_changed(value):
+func _on_menu_master_slider_value_changed(value):	
 	AudioServer.set_bus_volume_db(bus_master, linear_to_db(value))
+
+func _on_quit_pressed():
+	get_tree().quit()
