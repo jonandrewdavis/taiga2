@@ -13,7 +13,6 @@ const MAP_RADIUS = 200.0
 const HEIGHTMAP_SCALE = 5.0
 const HEIGHTMAP_NOISE_WIDTH = 1024
 
-
 @export var instance_amount : int = 100  # Number of instances to generate
 @export var generate_colliders: bool = false
 @export var collider_coverage_dist : float = 50

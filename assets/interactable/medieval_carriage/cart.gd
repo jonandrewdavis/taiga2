@@ -17,8 +17,10 @@ var cart_speed = 5.0
 
 signal damage_taken
 signal hurt_started
-signal heal_signal
+signal health_received
+signal death_signal
 
+# change to to signal?
 @export var is_dead = false
 
 func _enter_tree():
@@ -26,6 +28,10 @@ func _enter_tree():
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	if not multiplayer.is_server():
+		set_process(false)
+		set_physics_process(false)
+	
 	add_to_group("interactable")
 	collision_layer = 9
 	#$CartCam.clear_current()
@@ -37,8 +43,11 @@ func _ready():
 	
 	$HealthSystem.died.connect(_on_cart_death)
 	
-
 func _integrate_forces(state):
+	if global_position.distance_to(prev_position) > 1.0:
+		prev_position = global_position
+		Hub.distance_travelled = Hub.distance_travelled + 1
+
 	if is_multiplayer_authority():
 		if not player_attached:
 			var down = 0.0
@@ -85,9 +94,17 @@ func _integrate_forces(state):
 		position = replicated_position
 		rotation = replicated_rotation
 
+var prev_position = Vector3.ZERO
+
 func _process(_delta):
 	if not is_multiplayer_authority():
 		return
+
+	if abs(global_position.x) > 465.0 or abs(global_position.z) > 465.0:
+		death_signal.emit()
+		await get_tree().create_timer(1.0).timeout
+		_on_cart_death()
+
 
 	if player_attached == null:
 		$Rope.visible = false
@@ -157,7 +174,6 @@ func hit(_by_who, _by_what):
 	if (_by_who.name && _by_what.power):
 		#hurt_cool_down.start()
 		hurt_started.emit()
-		damage_taken.emit(_by_what.power)
 		hit_sync.rpc(_by_who.name, _by_what.power)
 
 @rpc("any_peer", "call_local")
@@ -169,8 +185,13 @@ func hit_sync(_by_who_name: String, power: int):
 		$SoundFXTrigger.play()
 
 func _on_cart_death():
+	death_signal.emit()
 	is_dead = true
+	await get_tree().create_timer(2.0).timeout
+	visible = false
 	global_position = Vector3(-8.0, 1.0, 8.0)
-	heal_signal.emit(500)
+	health_received.emit(500)
 	await get_tree().create_timer(10.0).timeout
 	is_dead = false
+	visible = true
+	Hub.distance_travelled = 0

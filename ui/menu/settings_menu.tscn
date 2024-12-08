@@ -39,6 +39,48 @@ grow_vertical = 2
 theme = SubResource("Theme_6a556")
 script = ExtResource("1_1fdt1")
 
+[node name="MarginContainer2" type="MarginContainer" parent="."]
+layout_mode = 1
+offset_right = 514.0
+offset_bottom = 496.0
+
+[node name="Panel" type="PanelContainer" parent="MarginContainer2"]
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_wacxy")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="MarginContainer2/Panel"]
+layout_mode = 2
+texture = ExtResource("3_1chtl")
+patch_margin_left = 20
+patch_margin_top = 20
+patch_margin_right = 20
+patch_margin_bottom = 20
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer2/Panel"]
+self_modulate = Color(1, 1, 1, 0.145098)
+layout_mode = 2
+texture = SubResource("NoiseTexture2D_wcpwf")
+expand_mode = 2
+stretch_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer2/Panel"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Scoreboard" type="RichTextLabel" parent="MarginContainer2/Panel/MarginContainer"]
+layout_mode = 2
+bbcode_enabled = true
+text = "
+
+"
+fit_content = true
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
@@ -91,7 +133,12 @@ theme_override_constants/separation = 18
 [node name="Settings" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
-text = "Taiga - Settings"
+text = "Forest Bath"
+
+[node name="Settings2" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Settings"
 
 [node name="VBoxContainer" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -100,35 +147,66 @@ theme_override_constants/separation = 50
 [node name="HBoxContainer" type="VBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="SensitivityLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="MasterLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "Look Sensitivity"
+text = "Sound - Master"
+
+[node name="HSeparator3" type="HSeparator" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="SFXLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Sound - Effects"
+
+[node name="HSeparator4" type="HSeparator" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Background" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Sound - Background"
 
 [node name="HSeparator" type="HSeparator" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="MasterLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="SensitivityLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "Sound
-"
+text = "Look Sensitivity"
 
-[node name="SFXLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "SFX
-"
 
-[node name="Background" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="Shadows" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "Background"
+text = "Enhanced Shadows"
 
 [node name="HBoxContainer2" type="VBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
-[node name="SensitivitySlider" type="HSlider" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
+[node name="Master" type="HSlider" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
-step = 0.01
+step = 0.0
+
+[node name="HSeparator3" type="HSeparator" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SFX" type="HSlider" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+step = 0.0
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BackgroundSlider" type="HSlider" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+step = 0.0
 
 [node name="HSeparator" type="HSeparator" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
 self_modulate = Color(1, 1, 1, 0)
@@ -136,33 +214,51 @@ custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Master" type="HSlider" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
+[node name="SensitivitySlider" type="HSlider" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
-step = 0.0
+step = 0.01
 
-[node name="SFX" type="HSlider" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
+[node name="CheckButton" type="CheckButton" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
 layout_mode = 2
-step = 0.0
-
-[node name="BackgroundSlider" type="HSlider" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2"]
-layout_mode = 2
-step = 0.0
+button_pressed = true
 
 [node name="Controls" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Controls"
 
-[node name="RichTextLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "E: Interact
-R: Change Primary Weapon
-Z: Change Secondary
-G: Item (Heal)
-F: Jump
-Shift: Sprint
-Space: Roll (Evade)
-"
+theme_override_constants/separation = 60
+
+[node name="RichTextLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "[WASD]: Move
+[E]: Interact
+[G]: Item (Heal)
+[R]: Swap Primary Weapon
+[Q]: Swap Secondary"
+
+[node name="RichTextLabel2" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+text = "[F]: Jump
+[Shift]: Sprint
+[Space]: Roll (Evade)
+
+Note: Controller Supported"
+
+[node name="PVP Box" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 70
+
+[node name="Label" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/PVP Box"]
+layout_mode = 2
+text = "PVP Enabled Toggle"
+
+[node name="PVPCheck" type="CheckButton" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/PVP Box"]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="buttons" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -200,9 +296,11 @@ text = "Show Host IP"
 visible = false
 layout_mode = 2
 
-[connection signal="value_changed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/SensitivitySlider" to="." method="_on_sensitivity_slider_value_changed"]
 [connection signal="value_changed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/Master" to="." method="_on_master_value_changed"]
 [connection signal="value_changed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/SFX" to="." method="_on_sfx_value_changed"]
 [connection signal="value_changed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/BackgroundSlider" to="." method="_on_background_value_changed"]
+[connection signal="value_changed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/SensitivitySlider" to="." method="_on_sensitivity_slider_value_changed"]
+[connection signal="toggled" from="MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/CheckButton" to="." method="_on_check_button_toggled"]
+[connection signal="toggled" from="MarginContainer/Panel/MarginContainer/VBoxContainer/PVP Box/PVPCheck" to="." method="_on_pvp_check_toggled"]
 [connection signal="pressed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/buttons/Respawn" to="." method="_on_respawn_pressed"]
 [connection signal="pressed" from="MarginContainer/Panel/MarginContainer/VBoxContainer/buttons/Quit" to="." method="_on_quit_pressed"]

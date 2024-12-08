@@ -23,7 +23,7 @@ var should_render_imgui := true
 @onready var clumping_factor := [GRASS_MAT.get_shader_parameter('clumping_factor')]
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
 
-@onready var grass_collision_shape = $NavigationRegion3D/Ground/GrassCollisionShape
+@onready var grass_collision_shape: CollisionShape3D
 
 # TODO: I adjusted the collision shape up 0.2...
 
@@ -51,10 +51,12 @@ func _ready() -> void:
 	RenderingServer.viewport_set_measure_render_time(get_tree().root.get_viewport_rid(), true)
 	await get_tree().create_timer(1.0).timeout
 	# TODO: 
-	_setup_heightmap_collision(Vector3(0.0, 0.0, 0.0))
 	_setup_grass_instances()
 	_generate_grass_multimeshes()
 
+	if (get_node_or_null('NavigationRegion3D/Ground/GrassCollisionShape')):
+		grass_collision_shape = $NavigationRegion3D/Ground/GrassCollisionShape
+		_setup_heightmap_collision(Vector3(0.0, 0.0, 0.0))
 	
 func set_new_grass_tracker(node):
 	# TODO: Change this to be player agnostic.
@@ -67,19 +69,21 @@ func _physics_process(_delta: float) -> void:
 		return
 	RenderingServer.global_shader_parameter_set('player_position', player.global_position)
 
+	#NOTE!!!!! REMOVED EDITOR FOR FINAL BUILD
 	# Correct LOD by repositioning tiles when the player moves into a new tile
-	var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else player
-	var tile_id : Vector3 = ((lod_target.global_position + Vector3.ONE*TILE_SIZE*0.5) / TILE_SIZE * Vector3(1,0,1)).floor()
+
+	#var lod_target : Node3D = EditorInterface.get_editor_viewport_3d(0).get_camera_3d() if Engine.is_editor_hint() else player
+	var tile_id : Vector3 = ((player.global_position + Vector3.ONE*TILE_SIZE*0.5) / TILE_SIZE * Vector3(1,0,1)).floor()
 	if tile_id != previous_tile_id:
 		for data in grass_multimeshes:
 			data[0].global_position = data[1] + Vector3(1,0,1)*TILE_SIZE*tile_id
 	previous_tile_id = tile_id
 
 ## Creates a HeightMapShape3D from the provided NoiseTexture2D
-
-
 func _setup_heightmap_collision(_offset: Vector3) -> void:
-	var heightmap := HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
+	
+	# DIVIDE INTO 4s??
+	var heightmap = HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
 
 	# TODO: Inifinite collision map not working.
 	# Clone the noise with the same settings to avoid updating the offset on the actual asset... 
@@ -93,8 +97,8 @@ func _setup_heightmap_collision(_offset: Vector3) -> void:
 	#texture.noise.frequency = 0.025
 	#texture.noise.fractal_gain = 0.1
 	#texture.noise.offset = _offset
-	#var heightmap = texture.noise.get_image(HEIGHTMAP_NOISE_WIDTH , HEIGHTMAP_NOISE_WIDTH)
 	
+	#var heightmap = texture.noise.get_image(HEIGHTMAP_NOISE_WIDTH , HEIGHTMAP_NOISE_WIDTH)
 	var dims := Vector2i(heightmap.get_height(), heightmap.get_width())
 	#print('DEBUG: main.gd heightmap collision', heightmap.get_height(), heightmap.get_width())
 	var map_data : PackedFloat32Array
@@ -108,9 +112,7 @@ func _setup_heightmap_collision(_offset: Vector3) -> void:
 	heightmap_shape.map_depth = dims.y
 	heightmap_shape.map_data = map_data
 	grass_collision_shape.shape = heightmap_shape
-	
-	#$NavigationRegion3D.bake_navigation_mesh()
-	#grass_collision_shape.global_position = _offset
+
 
 ## Creates initial tiled multimesh instances.
 func _setup_grass_instances() -> void:

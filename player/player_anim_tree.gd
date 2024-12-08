@@ -45,7 +45,7 @@ var is_menu_open = false
 
 @export var anim_length = 0.0
 
-@onready var landing_type = "SOFT"
+@export var landing_type = "SOFT"
 @export var last_oneshot: String = "Attack"
 var lerp_movement
 var lerp_movement_aim
@@ -95,7 +95,7 @@ func _ready():
 	player_node.weapon_change_started.connect(_on_weapon_change_started)
 	player_node.weapon_change_ended.connect(_on_weapon_change_ended)
 	# NOTE: Disabled - AD
-	#player_node.attack_started.connect(_on_attack_started)
+	player_node.attack_started.connect(_on_attack_started)
 	# Added. - AD
 	player_node.attack_requested.connect(_on_attack_requested)
 	
@@ -124,9 +124,7 @@ func _process(_delta):
 	## MULTIPLAYER TEMPLATE FUNCS
 	# NOTE: Required for all authorities
 
-	if player_node.weapon_type == "BOW" && player_node.strafing:
-		set_strafe_bow()
-	elif player_node.strafing:
+	if player_node.strafing:
 		set_strafe()
 	else:
 		set_free_move()
@@ -147,16 +145,17 @@ func request_oneshot(oneshot:String):
 
 func _on_landed_fall(_hard_or_soft = "HARD"):
 	landing_type = _hard_or_soft
-	request_oneshot("Landed")
+	if _hard_or_soft == "HARD":
+		request_oneshot("Landed")
 
 func set_guarding():
-	if player_node.guarding && !player_node.busy:
+	if player_node.guarding && !player_node.busy && player_node.dodging == false:
 		guard_value = 1
 	else:
 		guard_value = 0
 
 	var new_blend = lerp(get("parameters/Guarding/blend_amount"),guard_value,.2)
-	if player_node.weapon_type == "BOW":
+	if weapon_type == "BOW":
 		set("parameters/Aiming/blend_amount", new_blend)
 	else:
 		set("parameters/Guarding/blend_amount", new_blend)
@@ -192,7 +191,12 @@ func _on_attack_requested_timeout():
 # NOTE: Emitting attack now only handles things outside animation tree, like turning weapons
 # on and off
 func _on_attack_started():
+	_on_sync_attack_started.rpc()
 	pass
+
+@rpc("any_peer", "call_remote")
+func _on_sync_attack_started():
+	player_node.attack_started.emit()
 
 func attack_once():
 	await animation_measured
@@ -278,8 +282,18 @@ func abort_oneshot(_last_oneshot:String):
 
 func _on_death_started():
 	base_state_machine.travel("Death")
+	_death_started_sync.rpc()
+
+@rpc("any_peer")
+func _death_started_sync():
+	base_state_machine.travel("Death")
 
 func _on_spawn_started():
+	base_state_machine.travel("Start")
+	_on_spawn_started_sync.rpc()
+
+@rpc('any_peer')
+func _on_spawn_started_sync():
 	base_state_machine.travel("Start")
 
 func _on_use_item_started():
@@ -356,31 +370,49 @@ func set_strafe():
 	# Forward and back are acording to input, since direction changes by fixed camera orientation
 	var new_blend = Vector2(player_node.strafe_cross_product,player_node.move_dot_product)
 	#if player_node.current_state == player_node.state.DYNAMIC_ACTION:
+	if new_blend == null:
+		return
+
 	if player_node.slowed:
 		new_blend *= .25 # Force a walk animiation
 	else:
 		# apply input as a magnatude for more natural run versus walk animation blending
 		new_blend *= Vector2(abs(player_node.input_dir.x),abs(player_node.input_dir.y))
 	lerp_movement = get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafe/blend_position")
+	if !lerp_movement:
+		lerp_movement = Vector2(0.0, 0.0)
+		return
+
+	if get("parameters/Shoot/active") == true:
+		# Case where they let go too soon....
+		new_blend = Vector2(player_node.input_dir.x, player_node.input_dir.y * -1.0)
+		new_blend *= .1
+
 	lerp_movement = lerp(lerp_movement,new_blend,.2)
 	set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafe/blend_position", lerp_movement)
-	
+	set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position", lerp_movement)
+
 # TODO: Clean all this up... - AD
 # Cloning this func cause of all the bugs... i hate this thing
-func set_strafe_bow():
-	
+# TON OF BUGS HERE...
+#func set_strafe_bow():
+	##var new_blend_aim = Vector2(player_node.strafe_cross_product,player_node.move_dot_product)
 	#var new_blend_aim = Vector2(player_node.strafe_cross_product,player_node.move_dot_product)
-	var new_blend_aim = Vector2(player_node.input_dir.x, player_node.input_dir.y * -1.0)
-	if new_blend_aim == null:
-		return
-	if get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position") == null:
-		return
-	if !lerp_movement_aim:
-		lerp_movement_aim = Vector2(0.0, 0.0)
-
-	lerp_movement_aim = lerp(lerp_movement_aim,new_blend_aim,.2)
-	set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position", lerp_movement_aim)
-	return
+	#if new_blend_aim == null:
+		#return
+	#if get("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position") == null:
+		#return
+	#if !lerp_movement_aim:
+		#lerp_movement_aim = Vector2(0.0, 0.0)
+#
+	#if get("parameters/Shoot/active") == true:
+		## Case where they let go too soon....
+		#new_blend_aim = Vector2(player_node.input_dir.x, player_node.input_dir.y * -1.0)
+		#new_blend_aim *= .4
+#
+	#lerp_movement_aim = lerp(lerp_movement_aim,new_blend_aim,.2)
+	#set("parameters/MovementStates/" + weapon_type + "_tree/MoveStrafeAim/blend_position", lerp_movement_aim)
+	#return
 
 func set_free_move():
 	# Non-strafing "free" movement, is just the forward input direction.

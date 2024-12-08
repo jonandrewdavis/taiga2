@@ -30,13 +30,20 @@ func activate(player: CharacterBody3D):
 			
 		# return early if we're the store chest...
 		return
-
-	if locked:
-		shake_chest()
-		
+	
+	var roll = randi_range(0, 10)
+	#if locked:
+		#shake_chest()
+	if opened:
+		return
+	if roll != 0:
+		if $ChestAnimPlayer.is_playing() == false:
+			shake_chest()
+		$InteractTimer.start(0.4)
 	else:
+		$ChestAnimPlayer.play("RESET")
+		$InteractTimer.start(1.0)
 		interactable_activated.emit()
-		
 		var new_translation = global_transform.translated_local(player_offset).rotated_local(Vector3.UP,PI)
 
 		var tween = create_tween()
@@ -47,6 +54,9 @@ func activate(player: CharacterBody3D):
 			player.trigger_interact(interact_type)
 			await get_tree().create_timer(anim_delay).timeout
 			open_chest()
+			await get_tree().create_timer(1.0).timeout
+			player.get_loot()
+
 
 func shake_chest():
 	chest_anim_player.play("Locked")
@@ -55,7 +65,8 @@ func open_chest():
 	anim = "open"
 	chest_anim_player.play(anim)
 	opened = true
-
+	
+	
 func close_chest():
 	anim = "open"
 	chest_anim_player.play_backwards(anim)

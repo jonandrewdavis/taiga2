@@ -48,7 +48,6 @@ signal equipment_changed(new_equipment : EquipmentObject)
 signal deactivate
 
 func _ready():
-	
 	if player_node:
 		if player_node.has_signal(change_signal):
 			player_node.connect(change_signal,_on_equipment_changed)
@@ -115,10 +114,15 @@ func _on_activated():
 		## after moment turn off monitoring to not hit things
 		current_equipment.monitoring = false
 
-		
 func _on_body_entered(_hit_body):
-	if _hit_body: 
+	if _hit_body:
+		# Early return to prevent self damage.
+		if _hit_body == player_node:
+			return
+		
 		if _hit_body.is_in_group(target_group) || _hit_body.is_in_group(target_group_secondary):
+			if get_multiplayer_authority() != 1 && _hit_body.is_in_group("players") && _hit_body.pvp_on == false:
+				return
 			if _hit_body.has_method("hit"):
 				hit_target.emit()
 				_hit_body.hit(player_node,current_equipment.equipment_info)
@@ -129,6 +133,10 @@ func _on_body_entered(_hit_body):
 func _on_stop_signal():
 	if current_equipment: 
 		current_equipment.monitoring = false
+
+
+# MULTIPLAYER LOOT
+
 
 func _find_empty_pivot():
 	if held_mount_point.get_node_or_null("EmptyEquipment") != null:

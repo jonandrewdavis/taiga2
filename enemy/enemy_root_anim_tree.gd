@@ -26,12 +26,11 @@ func _ready():
 	enemy.parried_started.connect(_on_parried_started)
 	enemy.hurt_started.connect(_on_hurt_started)
 	enemy.death_started.connect(_on_death_started)
-
 	animation_started.connect(_on_animation_started)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	if not is_multiplayer_authority():
+	if not multiplayer.is_server():
 		return
 
 	set_movement()
@@ -48,25 +47,27 @@ func set_movement():
 	#if enemy.current_state:
 	match enemy.current_state:
 		enemy.state.CIRCLE:
-			target_pos = enemy_target.global_position *  Vector3(1,0,1)
+			target_pos = enemy_target.global_position
 			near = (target_pos.distance_to(enemy.global_position)  < attack_near_dist)
 			var dir = 1.0 if attack_count == 1 else -1.0
 			speed.x = dir
 			speed.y = -0.25
 		enemy.state.FREE:
-			target_pos = enemy_target.global_position *  Vector3(1,0,1)
-			near = (target_pos.distance_to(enemy.global_position)  < attack_near_dist)
-			if near:
+			target_pos = enemy_target.global_position
+			near = (target_pos.distance_to(enemy.global_position) < attack_near_dist)
+			if enemy.nav_agent_3d.is_navigation_finished():
 				speed.y = 0.0
 			else:
 				speed.y = .5
 		enemy.state.CHASE:
 			near = (enemy_target.global_position.distance_to(enemy.global_position)  < 4.0)
-			if near && enemy.panic == false:
-				speed.y = .55
+			if enemy.panic == true:
+				speed.y = .65
+			elif near:
+				speed.y = .62
 			else:
 				speed.y = 0.90
-				
+			
 
 		# AD NOTE: I think that the check in the aniomation tree had 
 		#	enemy.current_state == state.COMBAT
@@ -77,12 +78,15 @@ func set_movement():
 			speed.y = 0.0
 	
 	var blend = lerp(get("parameters/Movement/Movement2D/blend_position"),speed,.1)
+	if enemy.brute == true:
+		blend = lerp(get("parameters/Movement/Movement2D/blend_position"),speed * 0.6,.1)
 	set("parameters/Movement/Movement2D/blend_position",blend)
 	
 func _on_attack_started():
 	attack_count = randi_range(1, max_attack_count)
+	if enemy.brute == true:
+		attack_count = 5
 	request_oneshot("attack")
-	
 
 func _on_retreat_started():
 	attack_count = randi_range(1, 2)
@@ -112,16 +116,18 @@ func abort_oneshot_sync(oneshot):
 
 func _on_hurt_started():
 	hurt_count = randi_range(1,2)
-	abort_oneshot(last_oneshot)
-	request_oneshot("hurt")
+	if enemy.brute == false:
+		abort_oneshot(last_oneshot)
+		request_oneshot("hurt")
 	if is_multiplayer_authority():
 		_on_hurt_started_sync.rpc()
 	
 @rpc("any_peer", "call_remote")
 func _on_hurt_started_sync():
 	hurt_count = randi_range(1,2)
-	abort_oneshot(last_oneshot)
-	request_oneshot("hurt")
+	if enemy.brute == false:
+		abort_oneshot(last_oneshot)
+		request_oneshot("hurt")
 
 func _on_parried_started():
 	abort_oneshot(last_oneshot)

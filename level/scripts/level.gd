@@ -1,5 +1,6 @@
 extends Node3D
 
+@onready var master_slider: HSlider = $Menu/MainContainer/MarginContainer2/Panel/MarginContainer/VBoxContainer/MenuMasterSlider
 @onready var skin_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option2/SkinInput
 @onready var nick_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option1/NickInput
 @onready var address_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option3/AddressInput
@@ -7,11 +8,15 @@ extends Node3D
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
 
+var bus_master = AudioServer.get_bus_index("Master")
+
 const environment_arena = preload("res://level/scenes/arena.tscn")
 const environment_instance_root_scene = preload("res://assets/environment_instances/environment_instance_root.tscn")
 const enemy_scene = preload('res://enemy/enemy_base_root_motion.tscn')
 const cart_scene = preload("res://assets/interactable/medieval_carriage/cart.tscn")
 const server_scenario_manager_scene = preload("res://level/scenes/server_scenario_manager.tscn")
+
+var volume_master_value
 
 func _ready():
 	# Check for -- server
@@ -35,6 +40,9 @@ func _ready():
 	Hub.connect("player_connected", Callable(self, "_on_player_connected"))
 	multiplayer.peer_disconnected.connect(_remove_player)
 
+	volume_master_value = db_to_linear(AudioServer.get_bus_volume_db(bus_master))
+	master_slider.max_value = volume_master_value * 2
+	master_slider.value = volume_master_value
 
 func _spawn_enemy(): 
 	await get_tree().create_timer(5.0).timeout
@@ -71,7 +79,11 @@ func _on_join_pressed():
 	var tween = create_tween()
 	tween.tween_property($LoadingControl,"modulate:a", 1, 1.5)
 	await tween.finished
-	Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
+	var check_join_game = Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
+	if check_join_game != OK:
+		$LoadingControl.visible = false
+		menu.show()
+		$Menu/MainContainer/MarginContainer/MainMenu/Error.show()
 	
 func _add_player(id: int):
 	# Skip a lot of nodes
@@ -90,10 +102,9 @@ func _add_player(id: int):
 	# Call from the server to a specific client, in this case, the player we just added.
 	# Runs this function to attach the environment, etc.
 	rpc_id(id, "sync_player_client_only_nodes", id)
-	
 
 func get_spawn_point() -> Vector3:
-	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
+	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 15 # spawn radius
 	return Vector3(spawn_point.x, 5.0, spawn_point.y)
 	
 func _remove_player(id):
@@ -112,7 +123,6 @@ func sync_player_position(id: int, new_position: Vector3):
 		# TODO: Proper loading signal / bus for users to load their scenery.
 		#$EnvironmentInstanceRoot.set_new_root(player)
 	
-
 @rpc
 func sync_player_client_only_nodes(peer_id):
 	$MenuEnvironmentArea.queue_free()
@@ -122,16 +132,17 @@ func sync_player_client_only_nodes(peer_id):
 	$EnvironmentContainer.add_child(prepare_environment)
 	prepare_environment.environment_tracker_changed.emit(player_node) 
 	player_node.position = get_spawn_point()
+	var server_scenario_manager = server_scenario_manager_scene.instantiate()
+	add_child(server_scenario_manager)
 
-	await get_tree().create_timer(1.1).timeout
+	await get_tree().create_timer(1.2).timeout
 	var tween = create_tween()
 	tween.tween_property($LoadingControl,"modulate:a", 0, 1.5)
 	await tween.finished
 	player_node.spawn()
 	
-	
 func add_server_only_nodes():
-	$MenuEnvironmentArea.queue_free()
+	#$MenuEnvironmentArea.queue_free()
 
 	var prepare_environment = environment_instance_root_scene.instantiate()
 	var server_scenario_manager = server_scenario_manager_scene.instantiate()
@@ -143,8 +154,14 @@ func add_server_only_nodes():
 
 	await get_tree().create_timer(.1).timeout
 	prepare_environment.environment_tracker_changed.emit(cart) 
-	cart.global_position = Vector3(-8.0, 1.0, 8.0)
-
+	cart.global_position = Vector3(-7.0, 1.0, -10.0)
+	
 	# Begin Scenarios
 	Hub.encounter_timer_start.emit()
 	Hub.encounter_tracker_changed.emit(cart)
+
+func _on_menu_master_slider_value_changed(value):	
+	AudioServer.set_bus_volume_db(bus_master, linear_to_db(value))
+
+func _on_quit_pressed():
+	get_tree().quit()

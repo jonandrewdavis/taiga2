@@ -1,6 +1,6 @@
 extends Node
 
-const SERVER_ADDRESS: String = "127.0.0.1"
+const SERVER_ADDRESS: String = "108.31.13.188"
 const SERVER_PORT: int = 8080
 const MAX_PLAYERS : int = 10
 
@@ -39,6 +39,7 @@ func join_game(nickname: String, skin_color: String, address: String = SERVER_AD
 		skin_color = "blue"
 	player_info["nick"] = nickname
 	player_info["skin"] = skin_color
+	return OK
 	
 func _on_connected_ok():
 	var peer_id = multiplayer.get_unique_id()
@@ -60,6 +61,7 @@ func _on_player_disconnected(id):
 	
 func _on_connection_failed():
 	multiplayer.multiplayer_peer = null
+	get_tree().quit()
 
 func _on_server_disconnected():
 	multiplayer.multiplayer_peer = null

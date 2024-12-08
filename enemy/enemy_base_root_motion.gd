@@ -20,8 +20,9 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 @export var default_target : Node3D
 @onready var spawn_location : Marker3D = Marker3D.new()
 var combat_range :float = 1.9
-@onready var combat_timer : Timer = $CombatTimer
-@onready var chase_timer = $ChaseTimer
+@onready var combat_timer: Timer = $CombatTimer
+@onready var chase_timer: Timer = $ChaseTimer2
+@onready var patrol_timer: Timer = $PatrolTimer
 
 @onready var hurt_cool_down = $HurtTimer
 @onready var ragdoll_death :bool = false
@@ -35,8 +36,10 @@ signal parried_started
 signal death_started
 signal attack_started
 signal retreat_started
+signal smash_signal
 
 @export var archer = false
+@export var brute = false
 
 # Added export for multiplayer for this - AD 
 @export var current_state = state.FREE : set = update_current_state # Enemy states controlled by enum PlayerStates
@@ -67,32 +70,60 @@ func _ready():
 	else:
 		$EquipmentSystem/LeftHand.visible = false
 
+	if brute == true:
+		$vampire.scale = Vector3(3.0, 3.0, 3.0)
+		$EquipmentSystem/BoneAttachment3D/HandPivot.scale = Vector3(1.3, 1.3, 1.3)
+		combat_range = 3.5
+		$CollisionShape3D.scale = Vector3(2.2, 2.2, 2.2)
+		$CollisionShape3D.position  = $CollisionShape3D.position + Vector3(0.0, 0.9, 0.0)
+
 	if animation_tree:
 		animation_tree.animation_measured.connect(_on_animation_measured)
 	
 	hurt_cool_down.one_shot = true
 	
 	add_to_group(group_name)
+	add_to_group('enemies')
 	collision_layer = 5
 
 	set_default_target()
 
 	if health_system:
+		if brute == true:
+			health_system.total_health = 25
+			health_system.current_health = 25
+			health_system.max_health_updated.emit(25)
+			health_system.health_updated.emit(25)
+		else:
+			var curr_max = Hub.enemy_max
+			health_system.total_health = curr_max
+			health_system.current_health = curr_max
+			health_system.max_health_updated.emit(curr_max)
+			health_system.health_updated.emit(curr_max)				
+
 		health_system.died.connect(death)
 
 	multiplayer.peer_disconnected.connect(_remove_player_change_target)
 
-	if is_multiplayer_authority():
+	if multiplayer.is_server():
+		patrol_timer.timeout.connect(_on_patrol_timer_timeout)
 		combat_timer.timeout.connect(_on_combat_timer_timeout)
 		chase_timer.timeout.connect(_on_chase_timer_timeout)
 		combat_timer.start()
 
 		if target_sensor:
 			target_sensor.target_spotted.connect(_on_target_spotted)
-			target_sensor.target_lost.connect(_on_target_lost)
+			#target_sensor.target_lost.connect(_on_target_lost)
 		
 		$AttackAreaSensor.body_entered.connect(_on_target_entered)
 		$AttackAreaSensor.body_exited.connect(_on_target_exited)
+	else:
+		# NOTE: HUUUUUUUUUUGE frame rate and processing savings if we disable Collision shapes on the client side. 24 -> 60 fps
+		# NOTE: TODO: make sure all collisions still happen for the most part! 
+		set_process(false)
+		set_physics_process(false)
+		$AttackAreaSensor/AttackAreaCollisionShape.disabled = true
+
 
 func _remove_player_change_target(id):
 	if target.name == str(id) or default_target.name == str(id):
@@ -107,9 +138,6 @@ func _on_target_exited(_body):
 	colliding_with_target = false
 		
 func _process(delta):
-	if not is_multiplayer_authority():
-		return
-
 	apply_gravity(delta)
 	if current_state == state.DEAD:
 		return
@@ -155,15 +183,20 @@ func navigation():
 	if target != null:
 		if panic:
 			nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0) * -1.0
-		else: 
-			nav_agent_3d.target_position = target.global_position * Vector3(1.0,0,1.0)
+		elif is_patrolling && current_state == state.FREE: 
+			nav_agent_3d.target_position = target.global_position + Vector3(patrol_dir.x, 0.0, patrol_dir.y) 
+		else:
+			nav_agent_3d.target_position = target.global_position
 		var new_dir = (nav_agent_3d.get_next_path_position() - global_position).normalized()
 		new_dir *= Vector3(1,0,1) # strip the y value so enemy stays at current level
 		direction = new_dir
 
 func rotate_character():
+	if animation_tree.get("parameters/attack/active") == true && brute == true:
+		return  
+
 	var rate = .05
-	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position() * Vector3(1,0,1))
+	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position())
 	var current_rotation = global_transform.basis.get_rotation_quaternion()
 	var target_rotation = current_rotation.slerp(Quaternion(Vector3.UP, atan2(new_direction.x, new_direction.z)), rate)
 	global_transform.basis = Basis(target_rotation)
@@ -178,11 +211,12 @@ func evaluate_state(): ## depending on distance to target, run or walk
 				if current_distance > combat_range:
 					if colliding_with_target: 
 						current_state = state.COMBAT
+						#_on_combat_timer_timeout()
 					else:
 						current_state = state.CHASE
 				elif current_distance <= combat_range && current_state != state.COMBAT:
 					current_state = state.COMBAT
-
+					
 ## added random times between attacks. Might be a bit much
 func _on_combat_timer_timeout():
 	if target == null:
@@ -201,24 +235,38 @@ func _on_combat_timer_timeout():
 			return
 
 		if archer == true:
-			if target != null && global_position.distance_to(target.global_position) < combat_range / 3: 
-				start_panic()
-				combat_timer.stop()
+			if target != null && global_position.distance_to(target.global_position) < combat_range / 4: 
+				if randi_range(0, 1) == 0:
+					start_panic()
+					combat_timer.stop()
 				return
 			attack_ranged()
 			combat_timer.start(randf_range(4.0,5.0))
 			return
 
+		if brute == true:
+			attack.rpc()
+			combat_timer.start(randf_range(6.0, 7.0))
+			await get_tree().create_timer(2.6).timeout 
+			_smash()
+			return	
+			
+		@warning_ignore("integer_division")
+		if health_system.current_health < (health_system.total_health / 2):
+			if randi_range(0, 3) == 0:
+				start_panic() 
+				return
+
 		combat_randomizer()
 		combat_timer.start(randf_range(0.7,2.8))
-
 
 func start_panic():
 	panic = true
 	current_state = state.CHASE
-	await get_tree().create_timer(8.0).timeout 
-	combat_timer.start(1.0)
+	await get_tree().create_timer(5.0).timeout 
 	panic = false
+	current_state = state.COMBAT
+	combat_timer.start(1.0)
 
 func combat_randomizer():
 	if multiplayer.is_server():
@@ -237,12 +285,17 @@ func combat_randomizer():
 @rpc("authority", "call_local")
 func attack():
 	attack_started.emit()
+	chase_timer.start()
 
 func attack_ranged():
 	animation_tree.request_oneshot("shoot")
-	await get_tree().create_timer(1.8).timeout 
-	if target != null: 
-		$ArrowSystem.LaunchProjectile(target.global_position + Vector3(0.0, 0.8, 0.0))
+	await get_tree().create_timer(1.4).timeout 
+	# Allows strafing / evading... they can't be perfect, but if you're standing still they hit.
+	var save_prev_pos = target.global_position
+	await get_tree().create_timer(0.4).timeout 
+	# if no target or we get hurt:
+	if target != null && animation_tree.get("parameters/shoot/active") == true:  
+		$ArrowSystem.LaunchProjectile(save_prev_pos + Vector3(0.0, 0.8, 0.0))
 
 @rpc("authority", "call_local")
 func retreat(): # Back away for a period of time
@@ -257,7 +310,7 @@ func circle():
 	update_current_state(state.COMBAT)
 	
 func set_default_target(): 
-	await get_tree().create_timer(.2).timeout
+	await get_tree().create_timer(1.0).timeout
 	$EnemyMarkerSpawn.global_position = global_position * Vector3(1.0, 0, 1.0)
 	if not default_target:
 		default_target = $EnemyMarkerSpawn
@@ -277,13 +330,7 @@ func _target_to_player_node(_spotted_target: Node3D):
 func _on_target_spotted(_spotted_target): # Updates from a TargetSensor if a target is found.
 	if target != null && target.name != _spotted_target.name:
 		target = _spotted_target
-	chase_timer.start()
-	
-# NOTE: Target lost can make it spin in circles in multiplayer.
-# TODO: Restore.
-func _on_target_lost():
-	print('TARGET LOST')
-	pass
+		chase_timer.start()
 
 func _on_chase_timer_timeout():
 	give_up()
@@ -296,7 +343,6 @@ func apply_gravity(_delta):
 	if !is_on_floor():
 		velocity.y -= gravity * _delta
 		move_and_slide()
-
 
 func hit(_by_who, _by_what):
 	#var get_player_targeted = _target_to_player_node(_by_who)
@@ -311,29 +357,34 @@ func hit(_by_who, _by_what):
 
 @rpc("any_peer", "call_local")
 func hit_sync(_by_who_name: String, power: int):
-	if multiplayer.is_server():
+	if is_multiplayer_authority():
 		# During RPC, this is an EncodedObjectAsID, so if we're host, let's  instance_from_id before:
 		var get_player_targeted = Hub.get_player_by_name(_by_who_name)
 		if (get_player_targeted):
 			target = get_player_targeted
-			if hurt_cool_down.is_stopped():
-				hurt_cool_down.start()
-				hurt_started.emit()
-				sync_back_hit.rpc()
-				damage_taken.emit(power)
+
+		if hurt_cool_down.is_stopped():
+			hurt_cool_down.start(0.4)
+			hurt_started.emit()
+			sync_back_hit.rpc()
+			damage_taken.emit(power)
+				
+			if power > 1:
+				var normal_dir = target.global_position.direction_to(self.global_position).normalized()
+				knockback_enemy.rpc(normal_dir + Vector3(0.0, 0.4, 0.0))
+
+@rpc("any_peer", "call_local")
+func knockback_enemy(_dir):
+	velocity = velocity + _dir * 9
 
 @rpc("any_peer", "call_local")
 func sync_back_hit():
 		hurt_started.emit()
 
-func parried():
-	parried_sync.rpc()
-
 @rpc("any_peer", "call_local")
-func parried_sync():
+func parried():
 	if multiplayer.is_server() && hurt_cool_down.is_stopped():
 		combat_timer.stop()
-		hurt_cool_down.start()
 		parried_started.emit()
 		combat_timer.start(3)
 		
@@ -342,10 +393,14 @@ func death():
 	update_current_state(state.DEAD)
 	hurt_cool_down.start(10)
 	death_sync.rpc()
-	# Note: always queue_free on the server. - AD
-	await get_tree().create_timer(4).timeout
 	if multiplayer.is_server():
+		await get_tree().create_timer(2.0).timeout
 		Hub.add_coins(randi_range(1,5))
+	# Note: always queue_free on the server. - AD
+	await get_tree().create_timer(2.0).timeout
+	if multiplayer.is_server():
+		if target.is_in_group("players"):
+			target.get_kill.rpc()
 		queue_free()
 		
 @rpc("any_peer", "call_local")
@@ -374,3 +429,29 @@ func apply_ragdoll():
 
 func _on_animation_measured(_new_length):
 	anim_length = _new_length - .05 # offset slightly for the process frame
+
+var is_patrolling = false
+var patrol_dir: Vector2
+
+func _on_patrol_timer_timeout():
+	if current_state == state.FREE && is_patrolling == false && randi_range(0, 2) != 0:
+		patrol_dir = Vector2.from_angle(randf() * 2 * PI) * 10 # spawn radius
+		is_patrolling = true
+		patrol_timer.start(randi_range(5, 10))
+	else:
+		is_patrolling = false
+		patrol_timer.start(randi_range(8, 16))
+
+
+func _smash():
+	_sound.rpc()
+	for player in Hub.players_container.get_children():
+		if global_position.distance_to(player.global_position) < 3.0:
+			var normal_dir = player.global_position.direction_to(self.global_position).normalized()
+			#player.apply_central_impulse(normal_dir * 1.5)
+			#player.apply_impulse(normal_dir * 0.01, get_position())
+			player.knockback.rpc(-normal_dir + Vector3(0.0, 0.4, 0.0))
+
+@rpc('any_peer', 'call_local')
+func _sound():
+	smash_signal.emit()

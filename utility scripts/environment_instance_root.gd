@@ -82,5 +82,5 @@ func _on_show():
 		if instance.has_method("distribute_meshes"):
 			instance.show()
 
-func _on_environment_ignore_remove(_node: Node3D, given_name: String):
+func _on_environment_ignore_remove(given_name: String):
 	environment_ignore.erase(given_name)

@@ -28,6 +28,9 @@ func _on_body_entered(body):
 			body.hit_sync.rpc(str(Source), Damage)
 		return
 	
+	if Source != 1 && body.is_in_group("players") && body.pvp_on == false:
+		return
+
 	if body.has_method("hit"):
 		# source, damage, position, rotation
 		body.hit_sync.rpc(str(Source), Damage)

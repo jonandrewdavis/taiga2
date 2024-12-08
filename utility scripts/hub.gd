@@ -19,6 +19,10 @@ signal environment_ignore_remove
 signal equipment_is_using
 signal coin
 signal debug_spawn_new_enemy
+signal debug_kill_all_enemies
+
+const HEIGHTMAP = preload('res://assets/environment/heightmap_grass_main.tres')
+const basic_enemy = preload('res://enemy/enemy_base_root_motion.tscn')
 
 # Nodes for spawning
 # Remember to add new Scenes to the Auto Spawn List
@@ -32,6 +36,10 @@ var forest_sun: DirectionalLight3D
 const player_scene = preload("res://player/player_charbody3d.tscn")
 
 
+# Server tracking
+var distance_travelled = 0
+var enemy_max = 5
+
 func get_player(player_id: int):
 	for player in players_container.get_children():
 		if player.name == str(player_id):
@@ -41,6 +49,8 @@ func get_player_by_name(player_name: StringName):
 	for player in players_container.get_children():
 		if player.name == player_name:
 			return player
+
+	return null
 
 func get_random_player():
 	var count_up = 0
@@ -57,43 +67,60 @@ func get_cart() -> Node3D:
 func add_coins(amount):
 	add_coins_sync.rpc(amount)
 	
-@rpc("authority", "call_remote")
+@rpc("any_peer", "call_local")
 func add_coins_sync(amount):
 	coin.emit(amount)
 
-@rpc('any_peer')
+@rpc('any_peer', 'call_local')
 func debug_spawn_new_enemy_sync():
-	debug_spawn_new_enemy.emit()
-	
+	if multiplayer.is_server():
+		debug_spawn_new_enemy.emit()
+
+@rpc('any_peer')
+func debug_kill_all_enemies_sync():
+	if multiplayer.is_server():
+		var count = 0
+		for enemy in enemies_container.get_children():
+			var min_dist = INF
+			for player in Hub.players_container.get_children():
+				min_dist = min(min_dist, player.global_position.distance_to(enemy.global_position))
+
+			if min_dist > 80.0:
+				enemy.queue_free()
+				count = count + 1
+
+		print('DEBUG: Removed out of bounds enemies: ', count)
+
 func get_environment_root() -> Node3D:
 	return environment_container.get_node("EnvironmentInstanceRoot")
 
+@rpc("any_peer", 'call_local')
+func spawn_enemy_at_location(_new_location: Vector3, _dist: = 60.0, _target_name = null, _radius = 10, _brute = false):
+	if multiplayer.is_server():
+		var chance_archer = randi_range(0, 2)
+		var spawn_point = Vector2.from_angle(randf() * 2 * PI) * _radius # spawn radius
+		var spawn_dir = Vector2.from_angle(randf() * 2 * PI)
+		var _new_location_dist = _new_location + Vector3(spawn_dir.x, 1.0, spawn_dir.y) * Vector3(_dist, 1.0, _dist)
+		var final_location = Vector3(spawn_point.x + _new_location_dist.x, 4.0, spawn_point.y + _new_location_dist.z)
 
-# TODO: Ambitious way to reset the player.... but bug prone.
+		var enemy = basic_enemy.instantiate()
+		if chance_archer == 0: 
+			enemy.archer = true
+		if _brute == true:
+			enemy.archer = false
+			enemy.brute = true
 
-#@rpc('any_peer')
-#func _remove_player(id):
-	#if not multiplayer.is_server() or not players_container.has_node(str(id)):
-		#return
-	#var player_node = players_container.get_node(str(id))
-	#if player_node:
-		#player_node.queue_free()
-	#
-	#await get_tree().create_timer(5).timeout	
-	#_add_player_as_respawn.rpc(id)
-#
-#@rpc("any_peer", "call_local")
-#func _add_player_as_respawn(id: int):
-	#if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
-		#return
-	#
-	#var player = player_scene.instantiate()
-	#player.name = str(id)
-	#players_container.add_child(player, true)
-#
-	#var nick = Network.players[id]["nick"]
-	#player.rpc("change_nick", nick)
-	#
-	#player.global_position = Vector3(3.0, 3.0, 3.0)
-	#
-	#get_environment_root().environment_tracker_changed.emit(player)
+		Hub.enemies_container.add_child(enemy, true)
+		enemy.global_position = final_location
+		if _target_name != null:
+			enemy.set_new_default_target(Hub.get_player_by_name(_target_name))
+		else:
+			enemy.set_new_default_target(Hub.get_random_player())
+
+func debug_spawn_new_brute(_location):
+	spawn_enemy_at_location.rpc(_location, 60.0, get_random_player().name, 10, true)
+
+
+@rpc("any_peer", 'call_local')
+func increase_enemy_health():
+	enemy_max = enemy_max + 1
