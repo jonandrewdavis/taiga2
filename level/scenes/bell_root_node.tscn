@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dhemtdwfxuwnl"]
+[gd_scene load_steps=13 format=3 uid="uid://dhemtdwfxuwnl"]
 
 [ext_resource type="Script" path="res://utility scripts/rope.gd" id="1_ilnl7"]
 [ext_resource type="ArrayMesh" uid="uid://dqofwp02qg7ki" path="res://assets/interactable/chinese_bell_optimized/bell_mesh/bell_holder_mesh.res" id="2_ai8ow"]
@@ -22,6 +22,20 @@ size = Vector3(0.1, 0.1, 0.1)
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hunw8"]
 radius = 0.7
 height = 2.5
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hjtrs"]
+properties/0/path = NodePath("Bell:replicated_position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("Bell:replicated_rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("Bell:replicated_linear_velocity")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath("Bell:replicated_angular_velocity")
+properties/3/spawn = true
+properties/3/replication_mode = 1
 
 [node name="BellRootNode" type="Node3D"]
 
@@ -97,3 +111,6 @@ sound_trigger_signal = "ring"
 unique_name_in_owner = true
 wait_time = 2.5
 one_shot = true
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_hjtrs")

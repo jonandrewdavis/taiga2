@@ -3,7 +3,6 @@ extends Node3D
 var previous_encounter_location = Vector3.ZERO
 var encounter_tracker = Node3D
 
-
 var distance_interval = 180.0
 # Position in front of player / tracker
 var distance_during_spawn = 80.0
@@ -19,6 +18,7 @@ var recent_directions = {}
 var first_encounter_scene = preload("res://level/scenes/encounter.tscn")
 var encounter_rock_scene = preload("res://level/scenes/encounter_rock.tscn")
 var encounter_bell_scene = preload("res://level/scenes/encounter_bell.tscn")
+var encounter_hut_scene = preload("res://level/scenes/encounter_huts.tscn")
 
 var basic_enemy = preload("res://enemy/enemy_base_root_motion.tscn")
 var town = preload("res://level/scenes/town.tscn")
@@ -61,14 +61,10 @@ func _on_encounter_tracker_changed(new_encounter_tracker):
 
 # DO NOT FORGET TO ADD ENCOUNTERS TO SPAWNER
 func prepare_encounter(new_encounter_position: Vector3):
-	var first_encounter = encounter_bell_scene.instantiate()
+	var first_encounter = encounter_hut_scene.instantiate()
 	Hub.environment_container.call_deferred('add_child', first_encounter, true)
 	await get_tree().process_frame
-	if first_encounter.name == "EncounterBell":
-		print('PLACING MANUALLy')
-		first_encounter.place_location_sync.rpc(new_encounter_position)
-	else:
-		first_encounter.global_position = new_encounter_position
+	first_encounter.global_position = new_encounter_position
 	previous_encounter_location = new_encounter_position
 	var enemy_count = int(Hub.players_container.get_children().size() * 1.5)
 	for count in range(0, enemy_count):
@@ -80,12 +76,6 @@ func prepare_starting_area():
 	Hub.environment_container.add_child(first_town, true)	
 	first_town.global_position = Vector3.ZERO
 	previous_encounter_location = Vector3.ZERO
-#
-	#populate_enemies(Vector3(10.0, 10.0, 10.0))
-	#populate_enemies(Vector3(5.0, 5.0, 5.0))
-	#populate_enemies(Vector3(-7.0, 7.0, -7.0))
-	#populate_enemies(Vector3(-12.0, 12.0, -12.0))
-#
 
 func check_surrounding_area(new_encounter_position) -> bool:
 	var min_dist = INF
@@ -114,7 +104,7 @@ func check_for_encounter():
 	if encounter_tracker:
 		var average_recent_directions =  recent_directions.values().reduce(func(a, b): return a + b, Vector3.ZERO) / recent_directions.size()
 		var new_encounter_position = encounter_tracker.global_position + (average_recent_directions * Vector3(distance_during_spawn, 0.0, distance_during_spawn))
-		print('CHECKING FOR ENCOUNTER...', new_encounter_position.distance_to(previous_encounter_location))
+		#print('CHECKING FOR ENCOUNTER...', new_encounter_position.distance_to(previous_encounter_location))
 		if check_surrounding_area(new_encounter_position) && check_distance_from_previous(new_encounter_position):
 			print("DEBUG: ENCOUNTER ALLOWED AT: ", new_encounter_position)
 			prepare_encounter(new_encounter_position)
@@ -138,7 +128,6 @@ func populate_enemies(_new_encounter_position: Vector3, is_seeking_players = fal
 		else: 
 			enemy.set_new_default_target(Hub.get_random_player())
 			
-
 
 func get_spawn_point(_new_encounter_position) -> Vector3:
 	var spawn_point = Vector2.from_angle(randf() * 2 * PI) * 18 # spawn radius

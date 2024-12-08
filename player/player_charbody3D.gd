@@ -62,6 +62,7 @@ signal attack_requested
 ## New stuff - AD
 signal eyeline_check
 signal menu_open
+signal open_debug
 
 
 ## A helper variable for keyboard events across 2 key inputs "shift+ attack", etc.
@@ -247,7 +248,7 @@ func _ready():
 	store_loot.connect(_on_loot_added)
 	
 	# TODO: Remove before launch
-	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT
+	#DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT
 	
 	
 	
@@ -348,10 +349,20 @@ func _input(_event:InputEvent):
 			attack()
 
 		if _event.is_action_pressed("debug"):
-			Hub.debug_spawn_new_enemy_sync.rpc()
+			Hub.spawn_enemy_at_location.rpc(global_position)
 
 		if _event.is_action_pressed("debug_1"):
+			print("DEBUG: Killing all enemies")
 			Hub.debug_kill_all_enemies_sync.rpc()
+
+		if _event.is_action_pressed("debug_2"):
+			open_debug.emit()
+			
+		if _event.is_action_pressed("debug_3"):
+			Hub.add_coins(5)
+
+		if _event.is_action_pressed("debug_4"):
+			Hub.debug_spawn_new_brute(global_position)
 
 		if _event.is_action_pressed("use_weapon_light") && hurt_cool_down.is_stopped():
 			attack()
@@ -696,7 +707,11 @@ func hit(_who, _by_what):
 			_who.parried.rpc()
 			return
 	else:
-		hit_sync.rpc(_who.name, _by_what.power)
+		if _who.is_in_group("enemies"):
+			if _who.brute == true:	
+				hit_sync.rpc(_who.name, _by_what.power + 2)
+
+	hit_sync.rpc(_who.name, _by_what.power)
 			
 @rpc("any_peer", "call_local")
 func hit_sync(_by_who_name: String, power: int):
@@ -942,6 +957,7 @@ func prevent_engine():
 	return not Engine.is_editor_hint()
 
 func get_coin(amount):
+	print('ONLPLAYER GET COIN', amount)
 	coins = coins + amount
 	# Adds the coins (GetLoot) sound.
 	_on_update_coin()
@@ -1183,8 +1199,12 @@ func _on_loot_added(_status = null):
 		status_label.text = ''
 
 
-@rpc("any_peer")
+@rpc("any_peer", "call_local")
 func environment_clean_up(_encounter_name: String):
-	print('emitting on: ',  get_multiplayer_authority())
-	print('removing:', _encounter_name)
+	print('DEBUG: Removing Encounter:', _encounter_name)
 	Hub.environment_ignore_remove.emit(_encounter_name)
+
+
+@rpc('any_peer', 'call_local')
+func knockback(_dir):
+	velocity = velocity + _dir * 8

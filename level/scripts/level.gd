@@ -148,7 +148,7 @@ func add_server_only_nodes():
 
 	await get_tree().create_timer(.1).timeout
 	prepare_environment.environment_tracker_changed.emit(cart) 
-	cart.global_position = Vector3(8.0, 1.0, -8.0)
+	cart.global_position = Vector3(-7.0, 1.0, -10.0)
 	
 	# Begin Scenarios
 	Hub.encounter_timer_start.emit()

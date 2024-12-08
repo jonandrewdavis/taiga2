@@ -78,12 +78,15 @@ func set_movement():
 			speed.y = 0.0
 	
 	var blend = lerp(get("parameters/Movement/Movement2D/blend_position"),speed,.1)
+	if enemy.brute == true:
+		blend = lerp(get("parameters/Movement/Movement2D/blend_position"),speed * 0.6,.1)
 	set("parameters/Movement/Movement2D/blend_position",blend)
 	
 func _on_attack_started():
 	attack_count = randi_range(1, max_attack_count)
+	if enemy.brute == true:
+		attack_count = 5
 	request_oneshot("attack")
-	
 
 func _on_retreat_started():
 	attack_count = randi_range(1, 2)
@@ -113,16 +116,18 @@ func abort_oneshot_sync(oneshot):
 
 func _on_hurt_started():
 	hurt_count = randi_range(1,2)
-	abort_oneshot(last_oneshot)
-	request_oneshot("hurt")
+	if enemy.brute == false:
+		abort_oneshot(last_oneshot)
+		request_oneshot("hurt")
 	if is_multiplayer_authority():
 		_on_hurt_started_sync.rpc()
 	
 @rpc("any_peer", "call_remote")
 func _on_hurt_started_sync():
 	hurt_count = randi_range(1,2)
-	abort_oneshot(last_oneshot)
-	request_oneshot("hurt")
+	if enemy.brute == false:
+		abort_oneshot(last_oneshot)
+		request_oneshot("hurt")
 
 func _on_parried_started():
 	abort_oneshot(last_oneshot)

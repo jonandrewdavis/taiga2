@@ -32,14 +32,15 @@ func _ready():
 		add_child(ignore_zone)
 		Hub.environment_ignore_add.emit(ignore_zone, name)
 		
-		await get_tree().create_timer(0.4).timeout
-		height_map_check()
+		await get_tree().create_timer(0.2).timeout
+
+	height_map_check()
 
 func height_map_check():
 	var hmap_img = Hub.HEIGHTMAP.noise.get_image(HEIGHTMAP_NOISE_WIDTH, HEIGHTMAP_NOISE_WIDTH)
 	if scenery_container:
 		for object in scenery_container.get_children():
-			await get_tree().create_timer(0.1).timeout
+			await get_tree().create_timer(0.05).timeout
 			object.global_position.y = get_heightmap_y(object.global_position.x, object.global_position.z, hmap_img) + 0.5
 			
 # If there are no more nearby players, it's safe to remove this encounter:
@@ -76,6 +77,6 @@ func get_heightmap_y(x, z, _hmap_img):
 	#return color.r * terrain_height * v_scale
 	return color
 	
-@rpc("authority")	
+@rpc("authority", "call_local")	
 func place_location_sync(_position):
-	position = _position
+	global_position = _position

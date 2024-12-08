@@ -36,8 +36,10 @@ signal parried_started
 signal death_started
 signal attack_started
 signal retreat_started
+signal smash_signal
 
 @export var archer = false
+@export var brute = false
 
 # Added export for multiplayer for this - AD 
 @export var current_state = state.FREE : set = update_current_state # Enemy states controlled by enum PlayerStates
@@ -68,6 +70,11 @@ func _ready():
 	else:
 		$EquipmentSystem/LeftHand.visible = false
 
+	if brute == true:
+		$vampire.scale = Vector3(3.0, 3.0, 3.0)
+		$EquipmentSystem/BoneAttachment3D/HandPivot.scale = Vector3(1.2, 1.2, 1.2)
+		combat_range = 3.5
+
 	if animation_tree:
 		animation_tree.animation_measured.connect(_on_animation_measured)
 	
@@ -80,6 +87,12 @@ func _ready():
 	set_default_target()
 
 	if health_system:
+		if brute == true:
+			health_system.total_health = 25
+			health_system.current_health = 25
+			health_system.max_health_updated.emit(25)
+			health_system.health_updated.emit(25)
+			
 		health_system.died.connect(death)
 
 	multiplayer.peer_disconnected.connect(_remove_player_change_target)
@@ -171,6 +184,9 @@ func navigation():
 		direction = new_dir
 
 func rotate_character():
+	if animation_tree.get("parameters/attack/active") == true && brute == true:
+		return  
+
 	var rate = .05
 	var new_direction = global_position.direction_to(nav_agent_3d.get_next_path_position())
 	var current_rotation = global_transform.basis.get_rotation_quaternion()
@@ -187,11 +203,12 @@ func evaluate_state(): ## depending on distance to target, run or walk
 				if current_distance > combat_range:
 					if colliding_with_target: 
 						current_state = state.COMBAT
+						#_on_combat_timer_timeout()
 					else:
 						current_state = state.CHASE
 				elif current_distance <= combat_range && current_state != state.COMBAT:
 					current_state = state.COMBAT
-
+					
 ## added random times between attacks. Might be a bit much
 func _on_combat_timer_timeout():
 	if target == null:
@@ -219,6 +236,13 @@ func _on_combat_timer_timeout():
 			combat_timer.start(randf_range(4.0,5.0))
 			return
 
+		if brute == true:
+			attack.rpc()
+			combat_timer.start(randf_range(6.0, 7.0))
+			await get_tree().create_timer(2.6).timeout 
+			_smash()
+			return	
+			
 		@warning_ignore("integer_division")
 		if health_system.current_health < (health_system.total_health / 2):
 			if randi_range(0, 3) == 0:
@@ -261,7 +285,8 @@ func attack_ranged():
 	# Allows strafing / evading... they can't be perfect, but if you're standing still they hit.
 	var save_prev_pos = target.global_position
 	await get_tree().create_timer(0.4).timeout 
-	if target != null: 
+	# if no target or we get hurt:
+	if target != null && animation_tree.get("parameters/shoot/active") == true:  
 		$ArrowSystem.LaunchProjectile(save_prev_pos + Vector3(0.0, 0.8, 0.0))
 
 @rpc("authority", "call_local")
@@ -300,7 +325,6 @@ func _on_target_spotted(_spotted_target): # Updates from a TargetSensor if a tar
 		chase_timer.start()
 
 func _on_chase_timer_timeout():
-	print("ABOUT TO GIVE UP")
 	give_up()
 	
 func give_up():
@@ -330,17 +354,17 @@ func hit_sync(_by_who_name: String, power: int):
 		var get_player_targeted = Hub.get_player_by_name(_by_who_name)
 		if (get_player_targeted):
 			target = get_player_targeted
-			if hurt_cool_down.is_stopped():
-				hurt_cool_down.start()
-				hurt_started.emit()
-				sync_back_hit.rpc()
-				damage_taken.emit(power)
 
+		if hurt_cool_down.is_stopped():
+			hurt_cool_down.start(0.4)
+			hurt_started.emit()
+			sync_back_hit.rpc()
+			damage_taken.emit(power)
+			print(health_system.current_health)
 
 @rpc("any_peer", "call_local")
 func sync_back_hit():
 		hurt_started.emit()
-
 
 @rpc("any_peer", "call_local")
 func parried():
@@ -401,5 +425,16 @@ func _on_patrol_timer_timeout():
 		is_patrolling = false
 		patrol_timer.start(randi_range(8, 16))
 
-func _on_eyeline_interval_timeout():
-	pass # Replace with function body.
+
+func _smash():
+	_sound.rpc()
+	for player in Hub.players_container.get_children():
+		if global_position.distance_to(player.global_position) < 3.0:
+			var normal_dir = player.global_position.direction_to(self.global_position).normalized()
+			#player.apply_central_impulse(normal_dir * 1.5)
+			#player.apply_impulse(normal_dir * 0.01, get_position())
+			player.knockback.rpc(-normal_dir + Vector3(0.0, 0.4, 0.0))
+
+@rpc('any_peer', 'call_local')
+func _sound():
+	smash_signal.emit()

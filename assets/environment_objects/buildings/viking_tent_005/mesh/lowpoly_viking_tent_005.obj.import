@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bpd1evhdew0kb"
+path="res://.godot/imported/lowpoly_viking_tent_005.obj-efb7af3af2a1f544f70d222f48c218a2.mesh"
+
+[deps]
+
+files=["res://.godot/imported/lowpoly_viking_tent_005.obj-efb7af3af2a1f544f70d222f48c218a2.mesh"]
+
+source_file="res://assets/environment_objects/buildings/viking_tent_005/mesh/lowpoly_viking_tent_005.obj"
+dest_files=["res://.godot/imported/lowpoly_viking_tent_005.obj-efb7af3af2a1f544f70d222f48c218a2.mesh", "res://.godot/imported/lowpoly_viking_tent_005.obj-efb7af3af2a1f544f70d222f48c218a2.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

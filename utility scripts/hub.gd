@@ -62,7 +62,7 @@ func get_cart() -> Node3D:
 func add_coins(amount):
 	add_coins_sync.rpc(amount)
 	
-@rpc("authority", "call_remote")
+@rpc("any_peer", "call_local")
 func add_coins_sync(amount):
 	coin.emit(amount)
 
@@ -74,15 +74,19 @@ func debug_spawn_new_enemy_sync():
 @rpc('any_peer')
 func debug_kill_all_enemies_sync():
 	if multiplayer.is_server():
+		var count = 0
 		for enemy in enemies_container.get_children():
-			if enemy.global_position.distance_to(enemy.target.global_position) > 120.0:
-				enemy.queue_free()			
+			if enemy.global_position.distance_to(enemy.target.global_position) > 100.0:
+				enemy.queue_free()
+				count = count + 1
+
+		print('DEBUG: Removed out of bounds enemies: ', count)
 
 func get_environment_root() -> Node3D:
 	return environment_container.get_node("EnvironmentInstanceRoot")
 
 @rpc("any_peer", 'call_local')
-func spawn_enemy_at_location(_new_location: Vector3, _dist: = 70.0, _target_name = null, _radius = 10):
+func spawn_enemy_at_location(_new_location: Vector3, _dist: = 60.0, _target_name = null, _radius = 10, _brute = false):
 	if multiplayer.is_server():
 		var chance_archer = randi_range(0, 2)
 		var spawn_point = Vector2.from_angle(randf() * 2 * PI) * _radius # spawn radius
@@ -93,9 +97,16 @@ func spawn_enemy_at_location(_new_location: Vector3, _dist: = 70.0, _target_name
 		var enemy = basic_enemy.instantiate()
 		if chance_archer == 0: 
 			enemy.archer = true
+		if _brute == true:
+			enemy.archer = false
+			enemy.brute = true
+
 		Hub.enemies_container.add_child(enemy, true)
 		enemy.global_position = final_location
 		if _target_name != null:
 			enemy.set_new_default_target(Hub.get_player_by_name(_target_name))
 		else:
 			enemy.set_new_default_target(Hub.get_random_player())
+
+func debug_spawn_new_brute(_location):
+	spawn_enemy_at_location.rpc(_location, 60.0, get_random_player().name, 10, true)

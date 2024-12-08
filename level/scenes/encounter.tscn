@@ -25,7 +25,6 @@ visible = false
 mesh = SubResource("CylinderMesh_r5rqo")
 
 [node name="SceneryContainer" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.39018, 0, 0)
 
 [node name="tower" parent="SceneryContainer" instance=ExtResource("3_yd6ne")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 1.34594, -1.53314, 0)

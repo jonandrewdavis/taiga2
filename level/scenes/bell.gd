@@ -1,14 +1,37 @@
 extends RigidBody3D
 
+@export var replicated_position : Vector3
+@export var replicated_rotation : Vector3
+@export var replicated_linear_velocity : Vector3
+@export var replicated_angular_velocity : Vector3
+
+
 var limit = 30
 var most_recent_player = ''
 
 signal ring
 
+func _enter_tree():
+	set_multiplayer_authority(1)
+
+# Called when the node enters the scene tree for the first time.
 func _ready():
-	if is_multiplayer_authority():
+	if not multiplayer.is_server():
+		set_process(false)
+		set_physics_process(false)
 		%RingTimer.start()
-		ring.connect(_on_ring.rpc)
+
+func _integrate_forces(state):
+		if is_multiplayer_authority():
+			replicated_position = position
+			replicated_rotation = rotation
+			replicated_linear_velocity = state.linear_velocity
+			replicated_angular_velocity = state.angular_velocity
+		else:
+			state.linear_velocity = replicated_linear_velocity
+			state.angular_velocity = replicated_angular_velocity
+			position = replicated_position
+			rotation = replicated_rotation		
 
 func _physics_process(_delta):
 	for col in get_colliding_bodies():
@@ -22,19 +45,30 @@ func _physics_process(_delta):
 	try_ring()
 		
 func try_ring():
-	if linear_velocity.z > 3.15 or linear_velocity.x > 3.15:
+	if linear_velocity.z > 2.2 or linear_velocity.x > 2.2:
 		ring.emit()	
+		_on_ring.rpc(most_recent_player)
+		_ring_sound.rpc()
+
+@rpc("any_peer", 'call_local')
+func _ring_sound():
+	$"../SoundFXTrigger".play()
 
 func hit(_player, _equipment):
 	ring.emit()
+	_on_ring.rpc(_player.name)
 
 @rpc("any_peer", 'call_local')
-func _on_ring():
+func _on_ring(_player = null):
 	if is_multiplayer_authority() && %RingTimer.is_stopped() && limit > 0:
 		limit = limit - 1
-		Hub.spawn_enemy_at_location.rpc(global_position, 40.0, most_recent_player)
+		if _player != null:
+			Hub.spawn_enemy_at_location.rpc(global_position, 40.0, _player)
+			print('SPAWNED RING', global_position, _player, ' limit', limit)
+		else:
+			Hub.spawn_enemy_at_location.rpc(global_position, 40.0, most_recent_player)
+			print('SPAWNED HIT',  global_position, _player,  ' limit', limit)
 		%RingTimer.start(2.5)
-		print("ENEMY, ", limit)
-		print('LIN', linear_velocity)
-	else: 
-		$"../SoundFXTrigger".play()
+
+func _client_ring():
+	$"../SoundFXTrigger".play()

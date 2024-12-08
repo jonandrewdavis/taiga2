@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://boeiwt2araai2"]
+[gd_scene load_steps=21 format=3 uid="uid://boeiwt2araai2"]
 
 [ext_resource type="Script" path="res://utility scripts/store.gd" id="1_wkhmm"]
 [ext_resource type="PackedScene" uid="uid://c3yajhej5laa7" path="res://interactable objects/chest/chest.tscn" id="2_74so3"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://hg6hunkvy65f" path="res://assets/interactable/medieval_carriage/textures/aiStandardSurface1_metallicRoughness.png" id="4_twsdp"]
 [ext_resource type="Texture2D" uid="uid://dngyp1baqmyl2" path="res://assets/interactable/medieval_carriage/textures/aiStandardSurface1_normal.png" id="5_kjfvy"]
 [ext_resource type="ArrayMesh" uid="uid://creq3ae8cfngv" path="res://assets/interactable/store/axe_mesh.tres" id="7_s8p3j"]
+[ext_resource type="PackedScene" uid="uid://b0nkyxv67offp" path="res://assets/weapons/axe/uploads_files_3612294_Topor.fbx" id="8_4yvrc"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_xu47l"]
 size = Vector3(1, 0.6, 1)
@@ -103,7 +104,11 @@ shape = SubResource("CapsuleShape3D_s4b0l")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Items/Axe (20g)"]
 transform = Transform3D(0.0691079, 0.00956475, -0.393869, -0.087249, 0.390325, -0.00582996, 0.384203, 0.0869189, 0.0695227, -0.0614208, -0.205178, -0.0856889)
+visible = false
 mesh = ExtResource("7_s8p3j")
+
+[node name="uploads_files_3612294_Topor" parent="Items/Axe (20g)" instance=ExtResource("8_4yvrc")]
+transform = Transform3D(0.0151261, -7.27596e-10, -0.0988494, 0, 0.1, -7.567e-10, 0.0988494, 0, 0.0151261, -0.00609475, -0.143553, -0.0123347)
 
 [node name="Shield (15g)" type="Area3D" parent="Items"]
 transform = Transform3D(-0.991601, 0, 0.129332, 0.0533516, 0.91095, 0.409052, -0.117815, 0.412516, -0.9033, -0.0372312, 1.1116, 0)
