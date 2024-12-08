@@ -94,25 +94,25 @@ sky_mode = 1
 
 [node name="GrassLoopAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("21_m577m")
-volume_db = -25.164
-pitch_scale = 0.91
-autoplay = true
+volume_db = -80.0
+pitch_scale = 0.96
 bus = &"Background"
 
 [node name="WindLoopAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_am4re")
-volume_db = -80.0
+volume_db = 7.242
+autoplay = true
 bus = &"Background"
 
 [node name="ColdWindAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("9_xv7lm")
-volume_db = 1.567
+volume_db = -4.157
 autoplay = true
 bus = &"Background"
 
 [node name="InsectsLoopAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("23_aoolo")
-volume_db = -35.0
+volume_db = -39.415
 autoplay = true
 bus = &"Background"
 
@@ -233,6 +233,13 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_raw8h")
 max_length = 10
 expand_to_text_length = true
 
+[node name="Error" type="Label" parent="Menu/MainContainer/MarginContainer/MainMenu"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0, 0, 1)
+text = "ERROR JOINING GAME"
+horizontal_alignment = 1
+
 [node name="Option2" type="HBoxContainer" parent="Menu/MainContainer/MarginContainer/MainMenu"]
 visible = false
 layout_mode = 2
@@ -315,6 +322,7 @@ size_flags_vertical = 4
 alignment = 1
 
 [node name="Host" type="Button" parent="Menu/MainContainer/MarginContainer/MainMenu/Option5"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_hover_color = Color(0.858807, 4.71681e-06, 1.15514e-06, 0.862745)
 theme_override_colors/font_pressed_color = Color(0.858824, 0, 0, 0.862745)

@@ -10,12 +10,12 @@ config_version=5
 
 [application]
 
-config/name="Taiga"
+config/name="ForestBath"
 config/version="2.0.0"
 run/main_scene="res://level/scenes/level.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 run/max_fps=60
-config/icon="res://taiga.png"
+config/icon="res://forest_bath.png"
 
 [audio]
 
@@ -35,6 +35,7 @@ gdscript/warnings/unused_signal=0
 
 window/size/viewport_width=2073
 window/size/viewport_height=1167
+window/size/mode=4
 window/size/resizable=false
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
@@ -233,6 +234,11 @@ debug_4={
 tab={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194306,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+debug_5={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":53,"key_label":0,"unicode":53,"location":0,"echo":false,"script":null)
 ]
 }
 

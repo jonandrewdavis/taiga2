@@ -100,3 +100,10 @@ func _on_pvp_check_toggled(toggled_on):
 	if player:
 		player.pvp_on = toggled_on
 	pass # Replace with function body.
+
+func _on_check_button_toggled(toggled_on):
+	if toggled_on:
+		Hub.forest_sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	else:
+		Hub.forest_sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
+	pass # Replace with function body.

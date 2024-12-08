@@ -36,8 +36,9 @@ var forest_sun: DirectionalLight3D
 const player_scene = preload("res://player/player_charbody3d.tscn")
 
 
-# Cart tracking
+# Server tracking
 var distance_travelled = 0
+var enemy_max = 5
 
 func get_player(player_id: int):
 	for player in players_container.get_children():
@@ -48,6 +49,8 @@ func get_player_by_name(player_name: StringName):
 	for player in players_container.get_children():
 		if player.name == player_name:
 			return player
+
+	return null
 
 func get_random_player():
 	var count_up = 0
@@ -116,3 +119,8 @@ func spawn_enemy_at_location(_new_location: Vector3, _dist: = 60.0, _target_name
 
 func debug_spawn_new_brute(_location):
 	spawn_enemy_at_location.rpc(_location, 60.0, get_random_player().name, 10, true)
+
+
+@rpc("any_peer", 'call_local')
+func increase_enemy_health():
+	enemy_max = enemy_max + 1

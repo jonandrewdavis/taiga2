@@ -79,7 +79,11 @@ func _on_join_pressed():
 	var tween = create_tween()
 	tween.tween_property($LoadingControl,"modulate:a", 1, 1.5)
 	await tween.finished
-	Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
+	var check_join_game = Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
+	if check_join_game != OK:
+		$LoadingControl.visible = false
+		menu.show()
+		$Menu/MainContainer/MarginContainer/MainMenu/Error.show()
 	
 func _add_player(id: int):
 	# Skip a lot of nodes
@@ -128,8 +132,10 @@ func sync_player_client_only_nodes(peer_id):
 	$EnvironmentContainer.add_child(prepare_environment)
 	prepare_environment.environment_tracker_changed.emit(player_node) 
 	player_node.position = get_spawn_point()
+	var server_scenario_manager = server_scenario_manager_scene.instantiate()
+	add_child(server_scenario_manager)
 
-	await get_tree().create_timer(1.1).timeout
+	await get_tree().create_timer(1.2).timeout
 	var tween = create_tween()
 	tween.tween_property($LoadingControl,"modulate:a", 0, 1.5)
 	await tween.finished

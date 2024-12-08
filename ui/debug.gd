@@ -31,8 +31,8 @@ func _update_debug_text():
 	var out_of_bounds = 0
 	for enemy in Hub.enemies_container.get_children():
 		var min_dist = INF
-		for player in Hub.players_container.get_children():
-			min_dist = min(min_dist, player.global_position.distance_to(enemy.global_position))
+		for get_player in Hub.players_container.get_children():
+			min_dist = min(min_dist, get_player.global_position.distance_to(enemy.global_position))
 		if min_dist > 80.0:
 			out_of_bounds = out_of_bounds + 1
 

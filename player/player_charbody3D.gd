@@ -365,6 +365,9 @@ func _input(_event:InputEvent):
 		if _event.is_action_pressed("debug_4"):
 			Hub.debug_spawn_new_brute(global_position)
 
+		if _event.is_action_pressed("debug_5"):
+			Hub.increase_enemy_health.rpc()
+
 		if _event.is_action_pressed("use_weapon_light") && hurt_cool_down.is_stopped():
 			attack()
 		elif _event.is_action_pressed("use_weapon_strong"):
@@ -737,6 +740,9 @@ func hit_sync(_by_who_name: String, power: int):
 		else:
 			hurt()
 			damage_taken.emit(power)
+			if Hub.get_player_by_name(_by_who_name) != null &&  power > 1:
+				var normal_dir = Hub.get_player_by_name(_by_who_name).global_position.direction_to(self.global_position).normalized()
+				velocity = velocity + (normal_dir + Vector3(0.0, 0.4, 0.0))  * 10
 
 func heal(_by_what):
 	health_received.emit(_by_what.power)

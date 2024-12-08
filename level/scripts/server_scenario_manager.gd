@@ -20,13 +20,11 @@ var encounter_rock_scene = preload("res://level/scenes/encounter_rock.tscn")
 var encounter_bell_scene = preload("res://level/scenes/encounter_bell.tscn")
 var encounter_hut_scene = preload("res://level/scenes/encounter_huts.tscn")
 
-
 var count = 0
-var encounters_array = [first_encounter_scene, encounter_rock_scene, encounter_bell_scene, encounter_hut_scene]
+@onready var encounters_array := [first_encounter_scene, encounter_rock_scene, encounter_bell_scene, encounter_hut_scene]
 
 var basic_enemy = preload("res://enemy/enemy_base_root_motion.tscn")
 var town = preload("res://level/scenes/town.tscn")
-
 
 @onready var encounter_timer = $EncounterTimer
 @onready var encounter_direction_timer = $RecentDirectionTimer
@@ -38,7 +36,7 @@ func _enter_tree():
 
 func _ready():
 	# Only the server is listening to these.
-	if is_multiplayer_authority():
+	if multiplayer.is_server():
 		Hub.encounter_timer_start.connect(_on_begin_encounters)
 		Hub.encounter_tracker_changed.connect(_on_encounter_tracker_changed)
 		Hub.debug_spawn_new_enemy.connect(_on_debug_spawn_new_enemy)

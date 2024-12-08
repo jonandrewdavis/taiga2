@@ -72,7 +72,7 @@ func _ready():
 
 	if brute == true:
 		$vampire.scale = Vector3(3.0, 3.0, 3.0)
-		$EquipmentSystem/BoneAttachment3D/HandPivot.scale = Vector3(1.2, 1.2, 1.2)
+		$EquipmentSystem/BoneAttachment3D/HandPivot.scale = Vector3(1.3, 1.3, 1.3)
 		combat_range = 3.5
 		$CollisionShape3D.scale = Vector3(2.2, 2.2, 2.2)
 		$CollisionShape3D.position  = $CollisionShape3D.position + Vector3(0.0, 0.9, 0.0)
@@ -94,7 +94,13 @@ func _ready():
 			health_system.current_health = 25
 			health_system.max_health_updated.emit(25)
 			health_system.health_updated.emit(25)
-			
+		else:
+			var curr_max = Hub.enemy_max
+			health_system.total_health = curr_max
+			health_system.current_health = curr_max
+			health_system.max_health_updated.emit(curr_max)
+			health_system.health_updated.emit(curr_max)				
+
 		health_system.died.connect(death)
 
 	multiplayer.peer_disconnected.connect(_remove_player_change_target)
@@ -347,7 +353,6 @@ func hit(_by_who, _by_what):
 			#hurt_started.emit()
 			#damage_taken.emit(_by_what)
 	if (_by_who.name && _by_what.power):
-		
 		hit_sync.rpc(_by_who.name, _by_what.power)
 
 @rpc("any_peer", "call_local")
@@ -363,6 +368,14 @@ func hit_sync(_by_who_name: String, power: int):
 			hurt_started.emit()
 			sync_back_hit.rpc()
 			damage_taken.emit(power)
+				
+			if power > 1:
+				var normal_dir = target.global_position.direction_to(self.global_position).normalized()
+				knockback_enemy.rpc(normal_dir + Vector3(0.0, 0.4, 0.0))
+
+@rpc("any_peer", "call_local")
+func knockback_enemy(_dir):
+	velocity = velocity + _dir * 9
 
 @rpc("any_peer", "call_local")
 func sync_back_hit():
