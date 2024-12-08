@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=4 uid="uid://8njjisb8vun0"]
+[gd_scene load_steps=22 format=4 uid="uid://8njjisb8vun0"]
 
 [ext_resource type="Script" path="res://utility scripts/environment_instance_root.gd" id="1_fepr5"]
 [ext_resource type="Texture2D" uid="uid://ckp2tungibla7" path="res://assets/environment/heightmap_grass_main.tres" id="2_3f4kl"]
@@ -12,7 +12,9 @@
 [ext_resource type="ArrayMesh" uid="uid://bn7ptrl8ro1ih" path="res://assets/environment_objects/bushes/thyme_bush/thyme_bush_mesh.res" id="12_bgi6p"]
 [ext_resource type="PackedScene" uid="uid://cri21pmfc6wxi" path="res://assets/environment/GodotGrass/grass_main.tscn" id="12_in6vh"]
 [ext_resource type="ArrayMesh" uid="uid://jdgtoup3ace0" path="res://assets/environment_objects/trees/arbol9.res" id="12_ossvq"]
+[ext_resource type="ArrayMesh" uid="uid://bklyyooosm010" path="res://assets/environment_objects/bushes/Bush_Mediteranean/med_bush_1.tres" id="13_lex87"]
 [ext_resource type="ArrayMesh" uid="uid://cyarbgytbuoay" path="res://assets/environment_objects/trees/arbol8.res" id="13_ltu1w"]
+[ext_resource type="ArrayMesh" uid="uid://dvjweexhb8pxv" path="res://assets/environment_objects/bushes/3_pine_bushes/pine_bush2.tres" id="14_jleyb"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_phdkx"]
 _surfaces = [{
@@ -153,17 +155,47 @@ instance_collision = SubResource("CapsuleShape3D_pwyh0")
 
 [node name="thyme" type="Node3D" parent="."]
 script = ExtResource("2_o747f")
+instance_amount = 200
 pos_randomize = 15.0
-instance_min_scale = 0.03
-instance_height = 0.003
-instance_width = 0.003
-instance_spacing = 14
+instance_min_scale = 0.025
+instance_height = 0.004
+instance_width = 0.004
+instance_spacing = 12
 scale_randomize = 0.004
 instance_Y_rot = 2.142
 instance_X_rot = 0.04
 instance_Z_rot = 0.08
 instance_mesh = ExtResource("12_bgi6p")
 update_frequency = 0.3
+
+[node name="bush" type="Node3D" parent="."]
+script = ExtResource("2_o747f")
+instance_amount = 200
+pos_randomize = 12.0
+instance_min_scale = 0.01
+instance_spacing = 11
+scale_randomize = 0.731
+instance_Y_rot = 2.824
+instance_X_rot = 0.222
+instance_Z_rot = 0.015
+rot_x_randomize = 0.02
+rot_z_randomize = 0.2
+instance_mesh = ExtResource("13_lex87")
+
+[node name="bush2" type="Node3D" parent="."]
+script = ExtResource("2_o747f")
+instance_amount = 300
+pos_randomize = 19.0
+instance_min_scale = 0.01
+instance_height = 0.005
+instance_width = 0.005
+instance_spacing = 6
+terrain_height = 0.0
+scale_randomize = 0.004
+instance_X_rot = 1.6
+instance_Z_rot = 3.0
+rot_z_randomize = 0.4
+instance_mesh = ExtResource("14_jleyb")
 
 [node name="BakeTimer" type="Timer" parent="."]
 wait_time = 10.0

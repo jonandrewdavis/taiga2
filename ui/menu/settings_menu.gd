@@ -9,6 +9,7 @@ extends Control
 @onready var master_slider: HSlider =$MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/Master
 @onready var sfx_slider: HSlider = $MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/SFX
 @onready var background_slider: HSlider = $MarginContainer/Panel/MarginContainer/VBoxContainer/VBoxContainer/HBoxContainer2/BackgroundSlider
+@onready var scoreboard = $MarginContainer2/Panel/MarginContainer/Scoreboard
 
 var bus_master = AudioServer.get_bus_index("Master")
 var bus_sfx = AudioServer.get_bus_index("SFX")
@@ -22,7 +23,7 @@ var volume_background_value
 @export var player: CharacterBody3D
 
 func _input(_event:InputEvent):
-	if _event.is_action_pressed("ui_cancel"):
+	if _event.is_action_pressed("ui_cancel") or _event.is_action_pressed("tab"):
 		toggleMenu()
 
 func _ready():
@@ -56,6 +57,17 @@ func toggleMenu():
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		player.current_state = player.state.STATIC
 		player.menu_open.emit(true)
+		
+		var text_with_p = []
+		text_with_p.append("[p]" + "Cart Distance Travelled: " + str(Hub.distance_travelled) + "m. [p]")
+		text_with_p.append("[p]" + " " +"[p]")
+		text_with_p.append("[p]" + "-------- " + "Players" +  " --------" +"[p]")
+		text_with_p.append("[p]" + " " +"[p]")
+		for item in Hub.players_container.get_children():
+			text_with_p.append("[p]" + item.nickname.text +  ' --- K: ' + str(item.kills) + ' D: ' + str(item.deaths) + "[p]")
+		
+		scoreboard.text =  "".join(text_with_p)
+
 	else:
 		self.visible = false
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

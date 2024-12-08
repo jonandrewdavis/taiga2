@@ -21,7 +21,6 @@ signal coin
 signal debug_spawn_new_enemy
 signal debug_kill_all_enemies
 
-
 const HEIGHTMAP = preload('res://assets/environment/heightmap_grass_main.tres')
 const basic_enemy = preload('res://enemy/enemy_base_root_motion.tscn')
 
@@ -36,6 +35,9 @@ var forest_sun: DirectionalLight3D
 
 const player_scene = preload("res://player/player_charbody3d.tscn")
 
+
+# Cart tracking
+var distance_travelled = 0
 
 func get_player(player_id: int):
 	for player in players_container.get_children():
@@ -76,7 +78,11 @@ func debug_kill_all_enemies_sync():
 	if multiplayer.is_server():
 		var count = 0
 		for enemy in enemies_container.get_children():
-			if enemy.global_position.distance_to(enemy.target.global_position) > 100.0:
+			var min_dist = INF
+			for player in Hub.players_container.get_children():
+				min_dist = min(min_dist, player.global_position.distance_to(enemy.global_position))
+
+			if min_dist > 80.0:
 				enemy.queue_free()
 				count = count + 1
 

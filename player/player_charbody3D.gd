@@ -6,6 +6,8 @@ extends CharacterBody3D
 # MULTIPLAYER TEMPLATE VARS
 # MULTIPLAYER TEMPLATE VARS
 @export var coins: int = 0
+@export var kills: int = 0
+@export var deaths: int = 0
 
 const CONST_MAX_HEALTH = 8;
 const CONST_MAX_STAMNIA = 30;
@@ -248,9 +250,8 @@ func _ready():
 	store_loot.connect(_on_loot_added)
 	
 	# TODO: Remove before launch
-	#DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT
-	
-	
+	DebugMenu.style = DebugMenu.Style.VISIBLE_COMPACT
+	DebugMenu.hide()
 	
 ## Makes variable changes for each state, primiarily used for updating movement speeds
 func change_state(new_state):
@@ -792,6 +793,7 @@ func use_item():
 func death():
 	if is_dead == true:
 		return
+	deaths = deaths + 1
 	#$CollisionShape3D.disabled = true
 	hurt_cool_down.start(8.0)
 	current_state = state.STATIC
@@ -957,7 +959,6 @@ func prevent_engine():
 	return not Engine.is_editor_hint()
 
 func get_coin(amount):
-	print('ONLPLAYER GET COIN', amount)
 	coins = coins + amount
 	# Adds the coins (GetLoot) sound.
 	_on_update_coin()
@@ -1208,3 +1209,8 @@ func environment_clean_up(_encounter_name: String):
 @rpc('any_peer', 'call_local')
 func knockback(_dir):
 	velocity = velocity + _dir * 8
+
+@rpc("any_peer", 'call_local')
+func get_kill():
+	if is_multiplayer_authority():
+		kills = kills + 1

@@ -74,6 +74,8 @@ func _ready():
 		$vampire.scale = Vector3(3.0, 3.0, 3.0)
 		$EquipmentSystem/BoneAttachment3D/HandPivot.scale = Vector3(1.2, 1.2, 1.2)
 		combat_range = 3.5
+		$CollisionShape3D.scale = Vector3(2.2, 2.2, 2.2)
+		$CollisionShape3D.position  = $CollisionShape3D.position + Vector3(0.0, 0.9, 0.0)
 
 	if animation_tree:
 		animation_tree.animation_measured.connect(_on_animation_measured)
@@ -345,6 +347,7 @@ func hit(_by_who, _by_what):
 			#hurt_started.emit()
 			#damage_taken.emit(_by_what)
 	if (_by_who.name && _by_what.power):
+		
 		hit_sync.rpc(_by_who.name, _by_what.power)
 
 @rpc("any_peer", "call_local")
@@ -360,7 +363,6 @@ func hit_sync(_by_who_name: String, power: int):
 			hurt_started.emit()
 			sync_back_hit.rpc()
 			damage_taken.emit(power)
-			print(health_system.current_health)
 
 @rpc("any_peer", "call_local")
 func sync_back_hit():
@@ -384,6 +386,8 @@ func death():
 	# Note: always queue_free on the server. - AD
 	await get_tree().create_timer(2.0).timeout
 	if multiplayer.is_server():
+		if target.is_in_group("players"):
+			target.get_kill.rpc()
 		queue_free()
 		
 @rpc("any_peer", "call_local")

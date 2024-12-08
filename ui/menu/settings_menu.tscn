@@ -39,6 +39,48 @@ grow_vertical = 2
 theme = SubResource("Theme_6a556")
 script = ExtResource("1_1fdt1")
 
+[node name="MarginContainer2" type="MarginContainer" parent="."]
+layout_mode = 1
+offset_right = 514.0
+offset_bottom = 496.0
+
+[node name="Panel" type="PanelContainer" parent="MarginContainer2"]
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_wacxy")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="MarginContainer2/Panel"]
+layout_mode = 2
+texture = ExtResource("3_1chtl")
+patch_margin_left = 20
+patch_margin_top = 20
+patch_margin_right = 20
+patch_margin_bottom = 20
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer2/Panel"]
+self_modulate = Color(1, 1, 1, 0.145098)
+layout_mode = 2
+texture = SubResource("NoiseTexture2D_wcpwf")
+expand_mode = 2
+stretch_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer2/Panel"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Scoreboard" type="RichTextLabel" parent="MarginContainer2/Panel/MarginContainer"]
+layout_mode = 2
+bbcode_enabled = true
+text = "
+
+"
+fit_content = true
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
@@ -164,10 +206,11 @@ theme_override_constants/separation = 60
 
 [node name="RichTextLabel" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "[E]: Interact
+text = "[WASD]: Move
+[E]: Interact
 [G]: Item (Heal)
-[R]: Change Primary Weapon
-[Z]: Change Secondary"
+[R]: Swap Primary Weapon
+[Q]: Swap Secondary"
 
 [node name="RichTextLabel2" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -175,7 +218,8 @@ size_flags_vertical = 0
 text = "[F]: Jump
 [Shift]: Sprint
 [Space]: Roll (Evade)
-"
+
+Note: Controller Supported"
 
 [node name="PVP Box" type="HBoxContainer" parent="MarginContainer/Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -183,7 +227,7 @@ theme_override_constants/separation = 70
 
 [node name="Label" type="Label" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/PVP Box"]
 layout_mode = 2
-text = "PVP Enabled"
+text = "PVP Enabled Toggle"
 
 [node name="PVPCheck" type="CheckButton" parent="MarginContainer/Panel/MarginContainer/VBoxContainer/PVP Box"]
 unique_name_in_owner = true

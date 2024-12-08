@@ -20,6 +20,10 @@ var encounter_rock_scene = preload("res://level/scenes/encounter_rock.tscn")
 var encounter_bell_scene = preload("res://level/scenes/encounter_bell.tscn")
 var encounter_hut_scene = preload("res://level/scenes/encounter_huts.tscn")
 
+
+var count = 0
+var encounters_array = [first_encounter_scene, encounter_rock_scene, encounter_bell_scene, encounter_hut_scene]
+
 var basic_enemy = preload("res://enemy/enemy_base_root_motion.tscn")
 var town = preload("res://level/scenes/town.tscn")
 
@@ -61,13 +65,19 @@ func _on_encounter_tracker_changed(new_encounter_tracker):
 
 # DO NOT FORGET TO ADD ENCOUNTERS TO SPAWNER
 func prepare_encounter(new_encounter_position: Vector3):
-	var first_encounter = encounter_hut_scene.instantiate()
-	Hub.environment_container.call_deferred('add_child', first_encounter, true)
+	var encounter_scene_ready 
+	if count < encounters_array.size():
+		encounter_scene_ready = encounters_array[count].instantiate()
+		count = count + 1
+	else:
+		encounter_scene_ready = encounters_array[randi_range(0, encounters_array.size())].instantiate()
+
+	Hub.environment_container.call_deferred('add_child', encounter_scene_ready, true)
 	await get_tree().process_frame
-	first_encounter.global_position = new_encounter_position
+	encounter_scene_ready.global_position = new_encounter_position
 	previous_encounter_location = new_encounter_position
 	var enemy_count = int(Hub.players_container.get_children().size() * 1.5)
-	for count in range(0, enemy_count):
+	for en_count in range(0, enemy_count):
 		populate_enemies(new_encounter_position)
 		await get_tree().create_timer(0.7).timeout
 

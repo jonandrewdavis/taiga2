@@ -44,6 +44,10 @@ func _ready():
 	$HealthSystem.died.connect(_on_cart_death)
 	
 func _integrate_forces(state):
+	if global_position.distance_to(prev_position) > 1.0:
+		prev_position = global_position
+		Hub.distance_travelled = Hub.distance_travelled + 1
+
 	if is_multiplayer_authority():
 		if not player_attached:
 			var down = 0.0
@@ -90,11 +94,15 @@ func _integrate_forces(state):
 		position = replicated_position
 		rotation = replicated_rotation
 
+var prev_position = Vector3.ZERO
+
 func _process(_delta):
 	if not is_multiplayer_authority():
 		return
 
 	if abs(global_position.x) > 465.0 or abs(global_position.z) > 465.0:
+		death_signal.emit()
+		await get_tree().create_timer(1.0).timeout
 		_on_cart_death()
 
 
@@ -186,3 +194,4 @@ func _on_cart_death():
 	await get_tree().create_timer(10.0).timeout
 	is_dead = false
 	visible = true
+	Hub.distance_travelled = 0

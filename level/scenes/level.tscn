@@ -101,13 +101,12 @@ bus = &"Background"
 
 [node name="WindLoopAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("8_am4re")
-volume_db = 15.733
-autoplay = true
+volume_db = -80.0
 bus = &"Background"
 
 [node name="ColdWindAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("9_xv7lm")
-volume_db = 2.521
+volume_db = 1.567
 autoplay = true
 bus = &"Background"
 
