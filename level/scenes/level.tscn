@@ -264,7 +264,6 @@ alignment = 1
 expand_to_text_length = true
 
 [node name="Option3" type="HBoxContainer" parent="Menu/MainContainer/MarginContainer/MainMenu"]
-visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -282,7 +281,7 @@ custom_minimum_size = Vector2(378, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_icc4p")
 theme_override_font_sizes/font_size = 35
-placeholder_text = "127.0.0.1"
+placeholder_text = "54.211.108.7"
 alignment = 1
 expand_to_text_length = true
 
@@ -322,7 +321,6 @@ size_flags_vertical = 4
 alignment = 1
 
 [node name="Host" type="Button" parent="Menu/MainContainer/MarginContainer/MainMenu/Option5"]
-visible = false
 layout_mode = 2
 theme_override_colors/font_hover_color = Color(0.858807, 4.71681e-06, 1.15514e-06, 0.862745)
 theme_override_colors/font_pressed_color = Color(0.858824, 0, 0, 0.862745)
