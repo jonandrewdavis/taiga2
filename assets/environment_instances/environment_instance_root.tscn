@@ -1,8 +1,8 @@
 [gd_scene load_steps=22 format=4 uid="uid://8njjisb8vun0"]
 
-[ext_resource type="Script" path="res://utility scripts/environment_instance_root.gd" id="1_fepr5"]
+[ext_resource type="Script" uid="uid://dkdbd0sh84rud" path="res://utility scripts/environment_instance_root.gd" id="1_fepr5"]
 [ext_resource type="Texture2D" uid="uid://ckp2tungibla7" path="res://assets/environment/heightmap_grass_main.tres" id="2_3f4kl"]
-[ext_resource type="Script" path="res://utility scripts/instancer_custom.gd" id="2_o747f"]
+[ext_resource type="Script" uid="uid://df5y4qctkqo3l" path="res://utility scripts/instancer_custom.gd" id="2_o747f"]
 [ext_resource type="ArrayMesh" uid="uid://bq73t5hoanj0l" path="res://assets/environment_objects/trees/arbol1.res" id="3_hqwlf"]
 [ext_resource type="Material" uid="uid://c06lrg6iohyf7" path="res://assets/environment_objects/rocks/moss_rock_08/moss_rock_08_material.tres" id="4_e7m07"]
 [ext_resource type="Shape3D" uid="uid://b4xwo0u1f1yrf" path="res://assets/environment_objects/rocks/moss_rock_08/moss_rock_08_col.tres" id="5_rev6c"]

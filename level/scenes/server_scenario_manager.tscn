@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ib1cpa8a56gy"]
 
-[ext_resource type="Script" path="res://level/scripts/server_scenario_manager.gd" id="1_brjcy"]
+[ext_resource type="Script" uid="uid://clyq0tayp87rv" path="res://level/scripts/server_scenario_manager.gd" id="1_brjcy"]
 
 [node name="ServerController" type="Node3D"]
 script = ExtResource("1_brjcy")

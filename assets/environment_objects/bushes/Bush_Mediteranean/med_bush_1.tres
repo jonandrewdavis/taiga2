@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://c5ik8o4moux75" path="res://assets/environment_objects/bushes/Bush_Mediteranean/Textures/Bark_Color.png" id="1_sv7n1"]
 [ext_resource type="Texture2D" uid="uid://bmopxtvj1tfxv" path="res://assets/environment_objects/bushes/Bush_Mediteranean/Textures/Bush_Mediteranean_Color.png" id="2_p3evp"]
-[ext_resource type="Shader" path="res://utility scripts/SwayShaderExtended.gdshader" id="3_8sfrq"]
+[ext_resource type="Shader" uid="uid://20efvdim2ia3" path="res://utility scripts/SwayShaderExtended.gdshader" id="3_8sfrq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_be4tf"]
 resource_name = "Bark_Frond_Mat"
@@ -15,6 +15,7 @@ emission_enabled = true
 render_priority = 0
 shader = ExtResource("3_8sfrq")
 shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/texture_albedo = ExtResource("2_p3evp")
 shader_parameter/alpha_scissor_threshold = 0.5
 shader_parameter/point_size = null
 shader_parameter/roughness = null
@@ -28,7 +29,6 @@ shader_parameter/uv2_offset = null
 shader_parameter/sway_speed = 1.25
 shader_parameter/sway_strength = 0.04
 shader_parameter/sway_phase_len = 3.2
-shader_parameter/texture_albedo = ExtResource("2_p3evp")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1driv"]
 resource_name = "Bush_Mediteranean_Frond_Mat"

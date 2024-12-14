@@ -1,7 +1,7 @@
 extends Node
 
-const SERVER_ADDRESS: String = "108.31.13.188"
-const SERVER_PORT: int = 8080
+const SERVER_ADDRESS: String = "127.0.0.1"
+const SERVER_PORT: int = 9999
 const MAX_PLAYERS : int = 10
 
 var players = {}
@@ -24,12 +24,14 @@ func start_host():
 		return error
 	multiplayer.multiplayer_peer = peer
 	
-	#players[1] = player_info
-	#Hub.player_connected.emit(1, player_info)
-	
 func join_game(nickname: String, skin_color: String, address: String = SERVER_ADDRESS):
 	var peer = ENetMultiplayerPeer.new()
-	var error = peer.create_client(address, SERVER_PORT)
+	print('??', address)
+	var error
+	if address != '':
+		error = peer.create_client(address, SERVER_PORT)
+	else:
+		error = peer.create_client(SERVER_ADDRESS, SERVER_PORT)
 	if error:
 		return error
 	multiplayer.multiplayer_peer = peer

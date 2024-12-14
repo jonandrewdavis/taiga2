@@ -1,57 +1,57 @@
 [gd_scene load_steps=313 format=4 uid="uid://bn7vh6v8mmgja"]
 
-[ext_resource type="Script" path="res://player/player_charbody3D.gd" id="1_4per7"]
+[ext_resource type="Script" uid="uid://dtqu6ij00obec" path="res://player/player_charbody3D.gd" id="1_4per7"]
 [ext_resource type="PackedScene" uid="uid://6wrd1hteygmg" path="res://assets/animations/akai-attack-master-2.glb" id="2_4he2a"]
 [ext_resource type="AnimationLibrary" uid="uid://d3h8qu2uqwwdf" path="res://player/animation_libraries/MeleeLib.res" id="3_8tvpy"]
-[ext_resource type="Script" path="res://player/player_anim_tree.gd" id="3_f2g20"]
+[ext_resource type="Script" uid="uid://cu057ghf7fgjs" path="res://player/player_anim_tree.gd" id="3_f2g20"]
 [ext_resource type="AnimationLibrary" uid="uid://c24n8hqprfhm2" path="res://assets/animations/attack-master-library.res" id="3_llaff"]
-[ext_resource type="Script" path="res://player/equipment_system/equipment_system.gd" id="4_bebk6"]
+[ext_resource type="Script" uid="uid://2kc7052bt57f" path="res://player/equipment_system/equipment_system.gd" id="4_bebk6"]
 [ext_resource type="AnimationLibrary" uid="uid://urtlehei4s27" path="res://assets/animations/bow-axe/bow_3.res" id="5_0xmlu"]
 [ext_resource type="PackedScene" uid="uid://dva7owhrl4wew" path="res://player/equipment_system/equipment/sword.tscn" id="5_d7elj"]
 [ext_resource type="AudioStream" uid="uid://c318jpy76ckxp" path="res://audio/SoundFX/hit/hit_blunt_02.wav" id="6_poyxp"]
-[ext_resource type="Script" path="res://audio/SoundFXSystem.gd" id="6_wnkxc"]
+[ext_resource type="Script" uid="uid://5iexe3na5pl5" path="res://audio/SoundFXSystem.gd" id="6_wnkxc"]
 [ext_resource type="AudioStream" uid="uid://bl6briwljoa1t" path="res://audio/SoundFX/clang/clang_4.wav" id="8_adk4b"]
 [ext_resource type="PackedScene" uid="uid://cvsduneit6bh2" path="res://player/equipment_system/equipment/EmptyEquipment.tscn" id="9_3jf58"]
 [ext_resource type="PackedScene" uid="uid://5sa731kfp54y" path="res://player/equipment_system/equipment/Bow.tscn" id="9_k2h4g"]
 [ext_resource type="PackedScene" uid="uid://b65t1v7qe0rb3" path="res://cameras/follow_cam/follow_cam.tscn" id="12_i13o0"]
 [ext_resource type="AudioStream" uid="uid://dwewi6cxbh3do" path="res://audio/SoundFX/hit/hit_blunt_06.wav" id="12_mounm"]
-[ext_resource type="Script" path="res://player/footfall_system/footfall_system.gd" id="12_wnb34"]
+[ext_resource type="Script" uid="uid://cl0wc2pw71lev" path="res://player/footfall_system/footfall_system.gd" id="12_wnb34"]
 [ext_resource type="AudioStream" uid="uid://djwdoeoxmfyrw" path="res://audio/SoundFX/clang/clang_1.wav" id="17_2kr13"]
-[ext_resource type="Script" path="res://utility scripts/signal_switch.gd" id="17_xborg"]
+[ext_resource type="Script" uid="uid://ekcb3hof7r60" path="res://utility scripts/signal_switch.gd" id="17_xborg"]
 [ext_resource type="AudioStream" uid="uid://cvkugbv6gb3l7" path="res://audio/SoundFX/clang/clang_3.wav" id="18_wrnle"]
 [ext_resource type="AudioStream" uid="uid://byiegy7na8aw6" path="res://audio/SoundFX/shuffle/shuffle_5.wav" id="19_dsm8d"]
-[ext_resource type="Script" path="res://player/item_system/item_system.gd" id="19_j17nd"]
+[ext_resource type="Script" uid="uid://ctwjr0wecfp6k" path="res://player/item_system/item_system.gd" id="19_j17nd"]
 [ext_resource type="PackedScene" uid="uid://dvs3icvtoe84r" path="res://player/equipment_system/equipment/torch_gadget.tscn" id="19_jgf1j"]
 [ext_resource type="AudioStream" uid="uid://tj8rf1hhm0r6" path="res://audio/SoundFX/cork/cork_04.wav" id="20_0kqb2"]
 [ext_resource type="AudioStream" uid="uid://bnvrf7qx4p4jb" path="res://audio/error-cutt.mp3" id="21_bhy8p"]
 [ext_resource type="AudioStream" uid="uid://b2ug2buo8xm6t" path="res://audio/coinbag.mp3" id="21_s4vgk"]
 [ext_resource type="AudioStream" uid="uid://b67qrpcr5t5ag" path="res://audio/SoundFX/swish/swish_4.wav" id="21_v0m5e"]
-[ext_resource type="Script" path="res://player/arrow_system.gd" id="23_td4q5"]
+[ext_resource type="Script" uid="uid://bdkylecmcs81y" path="res://player/arrow_system.gd" id="23_td4q5"]
 [ext_resource type="AudioStream" uid="uid://c06v27rvocqw4" path="res://audio/SoundFX/swoosh/swoosh_3.wav" id="24_td7p2"]
 [ext_resource type="PackedScene" uid="uid://b40rwwk030bp5" path="res://player/footfall_system/footstep_sound_system.tscn" id="25_y8nbd"]
-[ext_resource type="Script" path="res://utility scripts/mesh_streak.gd" id="26_bvh58"]
+[ext_resource type="Script" uid="uid://cpimouj483yin" path="res://utility scripts/mesh_streak.gd" id="26_bvh58"]
 [ext_resource type="AudioStream" uid="uid://c8umq402d2x4l" path="res://audio/SoundFX/shuffle/shuffle_2.wav" id="26_k8guu"]
 [ext_resource type="PackedScene" uid="uid://b5nk1tsswudcm" path="res://player/player_targeting_system/player_targeting_system.tscn" id="26_qtvan"]
 [ext_resource type="AudioStream" uid="uid://c233ofm2tdg2g" path="res://audio/sand_step-cut-grass.mp3" id="27_2bhyj"]
 [ext_resource type="AudioStream" uid="uid://b8av6rc6jwi7n" path="res://audio/SoundFX/voice/voice_hurt_01.wav" id="27_f7c51"]
 [ext_resource type="AudioStream" uid="uid://dyefk5k0gpedy" path="res://audio/SoundFX/swish/swish_2.wav" id="28_x4vw8"]
 [ext_resource type="AudioStream" uid="uid://bfn3vntgufbd0" path="res://audio/landing-on-grass-cut.mp3" id="29_8623i"]
-[ext_resource type="Script" path="res://utility scripts/signal_caller.gd" id="29_vuyco"]
+[ext_resource type="Script" uid="uid://d31ybg66tdwq7" path="res://utility scripts/signal_caller.gd" id="29_vuyco"]
 [ext_resource type="AudioStream" uid="uid://fge5j7dsiwj1" path="res://audio/SoundFX/hit/hit_wet_04.wav" id="30_1eskw"]
 [ext_resource type="AudioStream" uid="uid://bjhg7ssm2k606" path="res://audio/SoundFX/voice/voice_hurt_05.wav" id="30_1ghdj"]
 [ext_resource type="AudioStream" uid="uid://bxqrf0y1eflh6" path="res://audio/SoundFX/hit/hit_blunt_03.wav" id="30_6fy5x"]
-[ext_resource type="Script" path="res://player/item_system/inventory_system.gd" id="30_q1hnb"]
+[ext_resource type="Script" uid="uid://ceggkb40rqfnh" path="res://player/item_system/inventory_system.gd" id="30_q1hnb"]
 [ext_resource type="AudioStream" uid="uid://dk0v3ug6sia4l" path="res://audio/SoundFX/special/Spawn01.wav" id="31_m4tnv"]
 [ext_resource type="Texture2D" uid="uid://c46nfvbeeb3pr" path="res://ui/panel-border-027.png" id="32_sdjc6"]
 [ext_resource type="Resource" uid="uid://8ujj54t15t8d" path="res://player/item_system/items/potion.tres" id="34_xeucu"]
-[ext_resource type="Script" path="res://ui/item_slot.gd" id="36_vymyb"]
+[ext_resource type="Script" uid="uid://eo1bfrieidyi" path="res://ui/item_slot.gd" id="36_vymyb"]
 [ext_resource type="Texture2D" uid="uid://cxu46pc2rw3xg" path="res://assets/coin.png" id="38_1x2f1"]
-[ext_resource type="Script" path="res://ui/health_bar.gd" id="38_auti3"]
-[ext_resource type="Script" path="res://utility scripts/health_system.gd" id="41_x7csm"]
-[ext_resource type="Script" path="res://player/gui.gd" id="43_xwue4"]
+[ext_resource type="Script" uid="uid://csd2s3aftm5yk" path="res://ui/health_bar.gd" id="38_auti3"]
+[ext_resource type="Script" uid="uid://dnet5otpbdim" path="res://utility scripts/health_system.gd" id="41_x7csm"]
+[ext_resource type="Script" uid="uid://b3t7r20t7lgfy" path="res://player/gui.gd" id="43_xwue4"]
 [ext_resource type="PackedScene" uid="uid://r31q8k2be4qk" path="res://player/player_interact_sensors/sensor_cast.tscn" id="44_gyr7x"]
 [ext_resource type="PackedScene" uid="uid://s5lur3jc6w4b" path="res://ui/menu/settings_menu.tscn" id="47_qolty"]
-[ext_resource type="Script" path="res://ui/debug.gd" id="48_p3gln"]
+[ext_resource type="Script" uid="uid://defwc3vvv3yqs" path="res://ui/debug.gd" id="48_p3gln"]
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="52_wugsi"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ugukg"]
@@ -1434,9 +1434,9 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_rah6f"]
 _data = {
-"RESET": SubResource("Animation_qaelj"),
-"deadcard": SubResource("Animation_wswho"),
-"lifecard": SubResource("Animation_7cyet")
+&"RESET": SubResource("Animation_qaelj"),
+&"deadcard": SubResource("Animation_wswho"),
+&"lifecard": SubResource("Animation_7cyet")
 }
 
 [sub_resource type="Gradient" id="Gradient_g6boh"]
@@ -1662,10 +1662,8 @@ bones/0/position = Vector3(0.000288274, 0, 0.00306505)
 bones/1/position = Vector3(4.52539e-05, 0.911781, -0.0885889)
 bones/1/rotation = Quaternion(0.0428888, 3.23789e-05, 8.28535e-05, 0.99908)
 bones/2/rotation = Quaternion(2.84653e-05, 3.29886e-06, -2.67191e-05, 1)
-bones/2/scale = Vector3(1, 1, 1)
 bones/3/rotation = Quaternion(0.0428065, -8.78085e-05, -6.65849e-05, 0.999083)
 bones/4/rotation = Quaternion(0.0422187, -0.000107216, 1.7787e-05, 0.999108)
-bones/4/scale = Vector3(1, 1, 1)
 bones/5/rotation = Quaternion(-0.0422118, 6.49584e-05, -1.25256e-05, 0.999109)
 bones/6/rotation = Quaternion(-0.0424445, 6.79497e-05, -6.32732e-06, 0.999099)
 bones/9/rotation = Quaternion(0.241634, 0.824661, -0.511396, 0.00461534)
@@ -1729,18 +1727,20 @@ bones/64/scale = Vector3(0.999941, 1.00007, 0.999988)
 
 [node name="AnimationPlayer" parent="akai-attack-master-2" index="1"]
 libraries = {
-"": ExtResource("3_llaff"),
-"MeleeLib": ExtResource("3_8tvpy"),
-"bow_3": ExtResource("5_0xmlu")
+&"": ExtResource("3_llaff"),
+&"MeleeLib": ExtResource("3_8tvpy"),
+&"bow_3": ExtResource("5_0xmlu")
 }
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.872986, 0)
 shape = SubResource("CapsuleShape3D_7f43o")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="AnimStateTree" type="AnimationTree" parent="." node_paths=PackedStringArray("player_node")]
 root_node = NodePath("../akai-attack-master-2")
 root_motion_track = NodePath("%GeneralSkeleton:Root")
+root_motion_local = false
 callback_mode_process = 0
 callback_mode_method = 1
 callback_mode_discrete = 0
@@ -2171,7 +2171,7 @@ sound_trigger_signal = "store_error"
 [node name="LifeCardAnimations" type="AnimationPlayer" parent="FootstepSoundSystem/TriggeredSounds"]
 root_node = NodePath("LifeDeathCard")
 libraries = {
-"": SubResource("AnimationLibrary_rah6f")
+&"": SubResource("AnimationLibrary_rah6f")
 }
 
 [node name="DeathSignalCaller" type="Node" parent="FootstepSoundSystem/TriggeredSounds/LifeCardAnimations" node_paths=PackedStringArray("signaling_node")]
@@ -2785,7 +2785,7 @@ font = ExtResource("52_wugsi")
 animation_path = NodePath("../AnimStateTree")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://player/equipment_system/equipment/shield.tscn", "res://player/equipment_system/equipment/Ax.tscn", "res://player/equipment_system/equipment/Bow.tscn", "res://player/equipment_system/equipment/EmptyEquipment.tscn")
+_spawnable_scenes = PackedStringArray("uid://g454n8wvwlm6", "uid://cppm5fkbguoqx", "uid://5sa731kfp54y", "uid://cvsduneit6bh2")
 spawn_path = NodePath("..")
 
 [node name="RelocateTimer" type="Timer" parent="."]

@@ -1,12 +1,12 @@
 [gd_scene load_steps=27 format=4 uid="uid://brcob4a2vngyt"]
 
 [ext_resource type="PackedScene" uid="uid://bdiwt6qndl0qy" path="res://assets/interactable/medieval_carriage/carriage.gltf" id="1_0i6nf"]
-[ext_resource type="Script" path="res://assets/interactable/medieval_carriage/cart.gd" id="1_kp5fv"]
+[ext_resource type="Script" uid="uid://by5cniojs8frk" path="res://assets/interactable/medieval_carriage/cart.gd" id="1_kp5fv"]
 [ext_resource type="Material" uid="uid://crd45hh5sn81h" path="res://assets/interactable/store/wooden_chest_back_side.tres" id="3_ram5r"]
-[ext_resource type="Script" path="res://utility scripts/health_system.gd" id="4_rewff"]
-[ext_resource type="Script" path="res://utility scripts/rope.gd" id="4_rllv7"]
-[ext_resource type="Script" path="res://ui/health_bar.gd" id="5_6yc8k"]
-[ext_resource type="Script" path="res://audio/SoundFXSystem.gd" id="6_2eeam"]
+[ext_resource type="Script" uid="uid://dnet5otpbdim" path="res://utility scripts/health_system.gd" id="4_rewff"]
+[ext_resource type="Script" uid="uid://bvy3udumry5bx" path="res://utility scripts/rope.gd" id="4_rllv7"]
+[ext_resource type="Script" uid="uid://csd2s3aftm5yk" path="res://ui/health_bar.gd" id="5_6yc8k"]
+[ext_resource type="Script" uid="uid://5iexe3na5pl5" path="res://audio/SoundFXSystem.gd" id="6_2eeam"]
 [ext_resource type="AudioStream" uid="uid://twq1ywacwc88" path="res://audio/SoundFX/hit/hit_blunt_04.wav" id="6_o72a1"]
 [ext_resource type="PackedScene" uid="uid://boeiwt2araai2" path="res://assets/interactable/store/store.tscn" id="8_x3bt8"]
 
@@ -151,26 +151,32 @@ collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Cart"]
 shape = SubResource("BoxShape3D_f5nyq")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="CollisionShape3D3" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.834689, 1.34623, -1.57685)
 shape = SubResource("BoxShape3D_k3ulb")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="CollisionShape3D5" type="CollisionShape3D" parent="."]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.162728, 1.3, -2.36538)
 shape = SubResource("BoxShape3D_ofkjn")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="CollisionShape3D4" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.83488, 1.34623, -1.57685)
 shape = SubResource("BoxShape3D_k3ulb")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.57, 1.06333)
 shape = SubResource("BoxShape3D_nkrui")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.81131, -1.45546)
 shape = SubResource("BoxShape3D_d5f6c")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="InteractionPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00210643, 1.11572, 3.66055)
@@ -199,6 +205,7 @@ collision_mask = 0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Rope/End"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.369185, 0, 0)
 shape = SubResource("SphereShape3D_ey22n")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="Start" type="StaticBody3D" parent="Rope"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.71331, 1.31113, 3.06122)
@@ -207,6 +214,7 @@ collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Rope/Start"]
 shape = SubResource("SphereShape3D_8wmav")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="StartSecondRope" type="StaticBody3D" parent="Rope"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.01904, 1.29597, 3.0491)
@@ -215,6 +223,7 @@ collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Rope/StartSecondRope"]
 shape = SubResource("SphereShape3D_8sndc")
+debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="Rope2" type="Node3D" parent="." node_paths=PackedStringArray("start_point", "end_point")]
 script = ExtResource("4_rllv7")
@@ -291,6 +300,5 @@ light_color = Color(1, 0.628031, 0.466544, 1)
 light_energy = 1.388
 light_indirect_energy = 2.165
 light_volumetric_fog_energy = 3.334
-shadow_enabled = true
 
 [editable path="Sketchfab_Scene"]
