@@ -26,6 +26,14 @@ buses/default_bus_layout="res://audio/default_bus_layout.tres"
 Network="*res://level/scripts/network.gd"
 DebugMenu="*res://addons/debug_menu/debug_menu.tscn"
 Hub="*res://utility scripts/hub.gd"
+Noray="*res://addons/netfox.noray/noray.gd"
+PacketHandshake="*res://addons/netfox.noray/packet-handshake.gd"
+NetworkTime="*res://addons/netfox/network-time.gd"
+NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
+NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
+NetworkEvents="*res://addons/netfox/network-events.gd"
+NetworkPerformance="*res://addons/netfox/network-performance.gd"
+Async="*res://examples/shared/scripts/async.gd"
 
 [debug]
 
@@ -35,7 +43,6 @@ gdscript/warnings/unused_signal=0
 
 window/size/viewport_width=2073
 window/size/viewport_height=1167
-window/size/mode=4
 window/size/resizable=false
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
@@ -43,7 +50,7 @@ window/vsync/vsync_mode=2
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg", "res://addons/script-ide/plugin.cfg")
+enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox.noray/plugin.cfg", "res://addons/netfox/plugin.cfg", "res://addons/script-ide/plugin.cfg")
 
 [global_group]
 

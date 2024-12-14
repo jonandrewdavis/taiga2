@@ -128,7 +128,7 @@ func _setup_grass_instances() -> void:
 			# Can effect performance. If you have mostly flat terrain, it can be lower.
 			# 2.00
 			
-			instance.extra_cull_margin = 0.0
+			instance.extra_cull_margin = 0.5
 			add_child(instance)
 			
 			grass_multimeshes.append([instance, instance.position])

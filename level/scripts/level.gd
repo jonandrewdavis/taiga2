@@ -1,9 +1,9 @@
 extends Node3D
 
-@onready var master_slider: HSlider = $Menu/MainContainer/MarginContainer2/Panel/MarginContainer/VBoxContainer/MenuMasterSlider
-@onready var skin_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option2/SkinInput
-@onready var nick_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option1/NickInput
-@onready var address_input: LineEdit = $Menu/MainContainer/MarginContainer/MainMenu/Option3/AddressInput
+@onready var master_slider: HSlider = $Menu/MainContainer/MarginContainer/Panel/MarginContainer/VBoxContainer/MenuMasterSlider
+@onready var skin_input: LineEdit = $Menu/MainContainer/NetfoxMenuContainer/OldMenu/Option2/SkinInput
+@onready var nick_input: LineEdit = $Menu/MainContainer/NetfoxMenuContainer/OldMenu/Option1/NickInput
+@onready var address_input: LineEdit = $Menu/MainContainer/NetfoxMenuContainer/OldMenu/Option3/AddressInput
 @onready var players_container: Node = $PlayersContainer
 @onready var menu: Control = $Menu
 @export var player_scene: PackedScene
@@ -20,13 +20,13 @@ var volume_master_value
 
 func _ready():
 	# Check for -- server
-	var args = OS.get_cmdline_user_args()
-	for arg in args:
-		var key_value = arg.rsplit("=")
-		match key_value[0]:
-			"server":
-				print('DEBUG: SERVER STARTING `-- server` found')
-				_on_host_pressed()
+	#var args = OS.get_cmdline_user_args()
+	#for arg in args:
+		#var key_value = arg.rsplit("=")
+		#match key_value[0]:
+			#"server":
+				#print('DEBUG: SERVER STARTING `-- server` found')
+				#_on_host_pressed()
 
 	if get_node_or_null('MenuEnvironmentArea'):
 		get_node_or_null('MenuEnvironmentArea').get_node("EnvironmentInstanceRoot").environment_tracker_changed.emit($MenuEnvironmentArea/CAMPMARKER)
@@ -65,12 +65,15 @@ func _on_player_connected(peer_id, _player_info):
 
 func _on_host_pressed():
 	menu.hide()
-	Network.start_host()
+	# NOTE: Disabled for netfox.
+	#Network.start_host()
 
 	var bus_idx = AudioServer.get_bus_index("Master")
 	AudioServer.set_bus_mute(bus_idx, true)
 	
 	add_server_only_nodes()
+	await _on_join_started()
+	RenderingServer.render_loop_enabled = false
 
 func _on_join_pressed():
 	menu.hide()
@@ -79,12 +82,28 @@ func _on_join_pressed():
 	var tween = create_tween()
 	tween.tween_property($LoadingControl,"modulate:a", 1, 1.5)
 	await tween.finished
-	var check_join_game = Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
+	# NOTE: Disabled for netfox.
+	#var check_join_game = Network.join_game(nick_input.text.strip_edges(), skin_input.text.strip_edges(), address_input.text.strip_edges())
+	var check_join_game = false
 	if check_join_game != OK:
 		$LoadingControl.visible = false
 		menu.show()
 		$Menu/MainContainer/MarginContainer/MainMenu/Error.show()
-	
+
+func _on_join_started():
+	menu.hide()
+	$LoadingControl.modulate.a = 0
+	$LoadingControl.visible = true
+	var tween = create_tween()
+	tween.tween_property($LoadingControl,"modulate:a", 1, 1.5)
+	await tween.finished
+	return OK
+
+func _on_join_failed():
+	$LoadingControl.visible = false
+	menu.show()
+	$Menu/MainContainer/NetfoxMenuContainer/OldMenu/Error.show()
+
 func _add_player(id: int):
 	# Skip a lot of nodes
 	if players_container.has_node(str(id)) or not multiplayer.is_server() or id == 1:
@@ -142,7 +161,7 @@ func sync_player_client_only_nodes(peer_id):
 	player_node.spawn()
 	
 func add_server_only_nodes():
-	#$MenuEnvironmentArea.queue_free()
+	$MenuEnvironmentArea.queue_free()
 
 	var prepare_environment = environment_instance_root_scene.instantiate()
 	var server_scenario_manager = server_scenario_manager_scene.instantiate()
