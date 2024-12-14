@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dugaivbj1o66n"]
+[gd_scene load_steps=23 format=3 uid="uid://dugaivbj1o66n"]
 
 [ext_resource type="Script" uid="uid://mvuxrakmucuk" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://eue4sgjiwyos" path="res://shirin.png" id="11_560ui"]
 [ext_resource type="PackedScene" uid="uid://b6nuyrcy1rigj" path="res://level/scenes/menu_environment.tscn" id="13_insfy"]
 [ext_resource type="PackedScene" uid="uid://badtpsxn5lago" path="res://examples/shared/ui/network-popup.tscn" id="13_onpkm"]
+[ext_resource type="FontFile" uid="uid://bnudr3myap7vs" path="res://assets/themes/MinimalUI4/Strait-Regular.ttf" id="14_aj1qi"]
 [ext_resource type="AudioStream" uid="uid://dw4bplkv57i6i" path="res://assets/environment/GodotGrass/grass_loop.wav" id="21_m577m"]
 [ext_resource type="AudioStream" uid="uid://d4mv7rx862p3o" path="res://assets/environment/GodotGrass/insects_loop.wav" id="23_aoolo"]
 
@@ -161,7 +162,7 @@ anchors_preset = 9
 anchor_bottom = 1.0
 offset_right = 611.0
 grow_vertical = 2
-theme_override_constants/separation = 50
+theme_override_constants/separation = 30
 alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Menu/MainContainer"]
@@ -204,14 +205,14 @@ theme_override_constants/margin_bottom = 20
 
 [node name="Network Popup" parent="Menu/MainContainer/NetfoxMenuContainer" node_paths=PackedStringArray("level_root") instance=ExtResource("13_onpkm")]
 layout_mode = 2
-current_tab = 0
+theme_override_fonts/font = ExtResource("14_aj1qi")
 level_root = NodePath("../../../..")
 
 [node name="OldMenu" type="VBoxContainer" parent="Menu/MainContainer/NetfoxMenuContainer"]
-visible = false
 layout_direction = 1
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 8
+size_flags_vertical = 8
 theme_override_constants/separation = 20
 alignment = 1
 
@@ -221,6 +222,7 @@ theme_override_constants/separation = 10
 theme_override_styles/separator = SubResource("StyleBoxLine_npnbc")
 
 [node name="Option1" type="HBoxContainer" parent="Menu/MainContainer/NetfoxMenuContainer/OldMenu"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
@@ -241,13 +243,6 @@ theme_override_font_sizes/font_size = 35
 theme_override_styles/normal = SubResource("StyleBoxFlat_raw8h")
 max_length = 10
 expand_to_text_length = true
-
-[node name="Error" type="Label" parent="Menu/MainContainer/NetfoxMenuContainer/OldMenu"]
-visible = false
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0, 0, 1)
-text = "ERROR JOINING GAME"
-horizontal_alignment = 1
 
 [node name="Option2" type="HBoxContainer" parent="Menu/MainContainer/NetfoxMenuContainer/OldMenu"]
 visible = false
@@ -273,6 +268,7 @@ alignment = 1
 expand_to_text_length = true
 
 [node name="Option3" type="HBoxContainer" parent="Menu/MainContainer/NetfoxMenuContainer/OldMenu"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -299,6 +295,7 @@ theme_override_constants/separation = 30
 theme_override_styles/separator = SubResource("StyleBoxLine_npnbc")
 
 [node name="Buttons" type="HBoxContainer" parent="Menu/MainContainer/NetfoxMenuContainer/OldMenu"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 30
 alignment = 1
@@ -323,6 +320,7 @@ text = "JOIN"
 flat = true
 
 [node name="Option5" type="HBoxContainer" parent="Menu/MainContainer/NetfoxMenuContainer/OldMenu"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -337,18 +335,25 @@ theme_override_font_sizes/font_size = 22
 text = "Host"
 flat = true
 
-[node name="Option4" type="HBoxContainer" parent="Menu/MainContainer/NetfoxMenuContainer/OldMenu"]
+[node name="Error" type="Label" parent="Menu/MainContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0, 0, 1)
+text = "ERROR JOINING GAME"
+horizontal_alignment = 1
+
+[node name="Option4" type="HBoxContainer" parent="Menu/MainContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Quit" type="Button" parent="Menu/MainContainer/NetfoxMenuContainer/OldMenu/Option4"]
+[node name="Quit" type="Button" parent="Menu/MainContainer/Option4"]
 layout_mode = 2
 theme_override_colors/font_hover_color = Color(0.858807, 4.71681e-06, 1.15514e-06, 0.862745)
 theme_override_colors/font_pressed_color = Color(0.858824, 0, 0, 0.862745)
 theme_override_fonts/font = ExtResource("3_icc4p")
-theme_override_font_sizes/font_size = 35
+theme_override_font_sizes/font_size = 24
 text = "QUIT"
 flat = true
 
@@ -438,5 +443,5 @@ spawn_path = NodePath("../EnvironmentContainer")
 [connection signal="pressed" from="Menu/MainContainer/NetfoxMenuContainer/OldMenu/Buttons/Host" to="." method="_on_host_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/NetfoxMenuContainer/OldMenu/Buttons/Join" to="." method="_on_join_pressed"]
 [connection signal="pressed" from="Menu/MainContainer/NetfoxMenuContainer/OldMenu/Option5/Host" to="." method="_on_host_pressed"]
-[connection signal="pressed" from="Menu/MainContainer/NetfoxMenuContainer/OldMenu/Option4/Quit" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="Menu/MainContainer/Option4/Quit" to="." method="_on_quit_pressed"]
 [connection signal="value_changed" from="Menu/MainContainer/MarginContainer/Panel/MarginContainer/VBoxContainer/MenuMasterSlider" to="." method="_on_menu_master_slider_value_changed"]

@@ -115,7 +115,6 @@ func _handle_connect_nat(address: String, port: int) -> Error:
 		Noray.connect_relay(host_oid_input.text)
 		err = OK
 		
-	level_root._on_join_failed()
 	return err
 
 func _handle_connect_relay(address: String, port: int) -> Error:
@@ -156,6 +155,7 @@ func _handle_connect(address: String, port: int) -> Error:
 		err = peer.create_client(address, port, 0, 0, 0, Noray.local_port)
 		if err != OK:
 			print("Failed to create client: %s" % error_string(err))
+			level_root._on_join_failed()
 			return err
 
 		get_tree().get_multiplayer().multiplayer_peer = peer
@@ -168,12 +168,14 @@ func _handle_connect(address: String, port: int) -> Error:
 		if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 			print("Failed to connect to %s:%s with status %s" % [address, port, peer.get_connection_status()])
 			get_tree().get_multiplayer().multiplayer_peer = null
+			level_root._on_join_failed()
 			return ERR_CANT_CONNECT
 		
 		connect_ui.hide()
 		# NOTE: This is not needed when using NetworkEvents
 		# However, this script also runs in multiplayer-simple where NetworkEvents
 		# are assumed to be absent, hence starting NetworkTime manually
+		
 		NetworkTime.start()
 
 	if role == Role.HOST:

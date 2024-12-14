@@ -88,8 +88,8 @@ func _on_join_pressed():
 	if check_join_game != OK:
 		$LoadingControl.visible = false
 		menu.show()
-		$Menu/MainContainer/MarginContainer/MainMenu/Error.show()
-
+		$Menu/MainContainer/Error.show()
+		
 func _on_join_started():
 	menu.hide()
 	$LoadingControl.modulate.a = 0
@@ -102,7 +102,7 @@ func _on_join_started():
 func _on_join_failed():
 	$LoadingControl.visible = false
 	menu.show()
-	$Menu/MainContainer/NetfoxMenuContainer/OldMenu/Error.show()
+	$Menu/MainContainer/Error.show()
 
 func _add_player(id: int):
 	# Skip a lot of nodes

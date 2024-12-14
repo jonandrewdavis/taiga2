@@ -26,7 +26,6 @@ func start_host():
 	
 func join_game(nickname: String, skin_color: String, address: String = SERVER_ADDRESS):
 	var peer = ENetMultiplayerPeer.new()
-	print('??', address)
 	var error
 	if address != '':
 		error = peer.create_client(address, SERVER_PORT)
@@ -49,6 +48,10 @@ func _on_connected_ok():
 	Hub.player_connected.emit(peer_id, player_info)
 	
 func _on_player_connected(id):
+	#
+	#if !nickname:
+		#nickname = "Player_" + str(multiplayer.get_unique_id())
+	player_info["nick"] = "Player_" + str(multiplayer.get_unique_id())
 	_register_player.rpc_id(id, player_info)
 	
 @rpc("any_peer", "reliable")
