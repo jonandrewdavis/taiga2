@@ -1,52 +1,50 @@
 
-# Cat's Godot 4 Souls-Like Template & Asset Pack
+# ForestBath Tech Demo
 
-Version 2.0.0
+### ForestBath is a vibes-based multiplayer souls-ish adventure game. 
 
-IF YOU NEED THE NON-ROOT VERSION, CHECK THE RELEASES FOR ANY v1.x.x bundle.
+It is personal project, not intended for distribution. It's for learning purposes and to play with friends.
 
+This project is cobbled together from a number of open source projects & assets. This is a non-comprehensive list of major influences or sources:
 
-![Controller Screenshot](https://raw.githubusercontent.com/catprisbrey/Cats-Godot4-Modular-Souls-like-Template/main/screenshots/combat.png)
+- [Cat's Godot 4 Souls-Like Template & Asset Pack](https://github.com/catprisbrey/Cats-Godot4-Modular-Souls-like-Template)
+    - An incredible starter kit. Includes the foundational player controller, weapon system, animations, enemy logic. 
+    - I heavily modified this and converted to multiplayer.
+- [2Retr0's GodotGrass](https://github.com/2Retr0/GodotGrass)
+- [Traveling Trees - Explaining My Multimesh Instancer / Godot 4 Tutorial ](https://www.youtube.com/watch?v=79sgK0rxNwk)
+- [netfox - A set of addons for responsive online games](https://github.com/foxssake/netfox)
 
-![YouTube Overview Video](https://www.youtube.com/watch?v=6WdAxzw8pnE)
+Assets:
 
-A highly modular, loosely coupled soulslike game template/asset pack for the Godot Engine. It's driven heavily using signals and loose code, and the tree uses an animation library to drive it's animations. This allows you to swap in your own compatible models and animations quickly and not break the logic of the code. All you need is  a  model with a standard Godot/Unity/Mixamo etc, skeleton mapped into Godot at import.
-
-All CC0 content free to be used as you wish without attribution. Although I'll very gratefully be attributed in credits and/or humbly accept your donations.
-
-This template uses assets created entirely by myself, or from Kenney Assets. Nothing from Mixamo, etc to muddy up the licensing waters.
-
-## Features
-
-The accumulation of about a years worth of testing. It features a lot of the classic mechanics for soulslike games:
-
-- Root motion driven player and enemies
-- Primary weapon
-- Offhand gadgets 
-- Consumable items
-- Enemy targeting
-- Enemy knockback
-- Blocking / perfect parry
-- Dodge rolling
-- Sprinting
-- Ladder Movement
-- Lever activated intractables
-- Enemys with multiple states and pathfinding
-- Ragdoll death
-- Joystick and Keyboard controls based off Elden Ring/Bloodborne
-
-## Assets:
-
-- Rigged Low poly male and female model
-- Low resolution textures
-- Lots of sound effects and music
-- 110+ animations
-- Gridmap/Meshlibrary
-- Flexible nested animation state trees
+- Character models are from Mixamo (eww adobe) https://www.mixamo.com/
+- Character animations are from Mixamo 
+   - Converted with much effort to root motion
+- Environment assets:
+    - Grass is [2Retr0's GodotGrass](https://github.com/2Retr0/GodotGrass)
+    - Trees are Arboles from [elbolilloduro](https://elbolilloduro.itch.io/)'s itch.io
+- Weapons / Objects:
+    - Too many to list right now, but most are from [itch](https://itch.io/) and [cgtrader](https://www.cgtrader.com) or https://poly.pizza/
 
 
-## License
 
-[Creative Commons, but be cool about it](https://choosealicense.com/licenses/unlicense)
-Consider donating me a coffee or crediting/thanking me in a game you make with it :)
+TODO: Will do a more comprehensive thanks and acknowledgement when complete. 
 
+### Instructions:
+
+Clone the project git or download the windows release. NOTE: Host is render disabled!!! Run a second copy to join on the same machine you host from.
+
+- Host:
+    - In the Remote tab:
+    - Click Connect (connects to noray)
+    - Copy the id (send to friends)  
+    - Click Host
+
+- Join:
+    - In the Remote tab:
+    - Click Connect (connects to noray)
+    - Paste the id (from above)
+    - Click Join
+
+Can also debug -> two local instances and do Local, host on 1, join on the other (Remember: the host will disable rendering)
+
+Hit "ESC" or "TAB" to see controls.

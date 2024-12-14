@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cve4ryx1obn5p"
 path.s3tc="res://.godot/imported/BarkStripped0001_S.jpg-666e7e26095c2efa598ae5880a7cecd7.s3tc.ctex"
+path.etc2="res://.godot/imported/BarkStripped0001_S.jpg-666e7e26095c2efa598ae5880a7cecd7.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment_objects/buildings/tower/textures/BarkStripped0001_S.jpg"
-dest_files=["res://.godot/imported/BarkStripped0001_S.jpg-666e7e26095c2efa598ae5880a7cecd7.s3tc.ctex"]
+dest_files=["res://.godot/imported/BarkStripped0001_S.jpg-666e7e26095c2efa598ae5880a7cecd7.s3tc.ctex", "res://.godot/imported/BarkStripped0001_S.jpg-666e7e26095c2efa598ae5880a7cecd7.etc2.ctex"]
 
 [params]
 

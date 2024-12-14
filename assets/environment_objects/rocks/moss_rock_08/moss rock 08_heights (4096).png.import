@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5jv1nwwd7qyi"
 path.s3tc="res://.godot/imported/moss rock 08_heights (4096).png-375cea89a9ad8f19bc92932b9924a97d.s3tc.ctex"
+path.etc2="res://.godot/imported/moss rock 08_heights (4096).png-375cea89a9ad8f19bc92932b9924a97d.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment_objects/rocks/moss_rock_08/moss rock 08_heights (4096).png"
-dest_files=["res://.godot/imported/moss rock 08_heights (4096).png-375cea89a9ad8f19bc92932b9924a97d.s3tc.ctex"]
+dest_files=["res://.godot/imported/moss rock 08_heights (4096).png-375cea89a9ad8f19bc92932b9924a97d.s3tc.ctex", "res://.godot/imported/moss rock 08_heights (4096).png-375cea89a9ad8f19bc92932b9924a97d.etc2.ctex"]
 
 [params]
 

@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://hwql6y5mkur0"
 path.s3tc="res://.godot/imported/moss rock 14_roughness (4096).png-d600c79ef5685b8f7de23d629e42e043.s3tc.ctex"
+path.etc2="res://.godot/imported/moss rock 14_roughness (4096).png-d600c79ef5685b8f7de23d629e42e043.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment_objects/rocks/moss_rock_14/moss rock 14_roughness (4096).png"
-dest_files=["res://.godot/imported/moss rock 14_roughness (4096).png-d600c79ef5685b8f7de23d629e42e043.s3tc.ctex"]
+dest_files=["res://.godot/imported/moss rock 14_roughness (4096).png-d600c79ef5685b8f7de23d629e42e043.s3tc.ctex", "res://.godot/imported/moss rock 14_roughness (4096).png-d600c79ef5685b8f7de23d629e42e043.etc2.ctex"]
 
 [params]
 

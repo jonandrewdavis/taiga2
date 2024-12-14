@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bin6vove8d32y"
 path.s3tc="res://.godot/imported/TinyWood03_albedo.png-a7df76607b83ea6acc51c693d42edee4.s3tc.ctex"
+path.etc2="res://.godot/imported/TinyWood03_albedo.png-a7df76607b83ea6acc51c693d42edee4.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://demo_level/world_materials/TinyWood03_albedo.png"
-dest_files=["res://.godot/imported/TinyWood03_albedo.png-a7df76607b83ea6acc51c693d42edee4.s3tc.ctex"]
+dest_files=["res://.godot/imported/TinyWood03_albedo.png-a7df76607b83ea6acc51c693d42edee4.s3tc.ctex", "res://.godot/imported/TinyWood03_albedo.png-a7df76607b83ea6acc51c693d42edee4.etc2.ctex"]
 
 [params]
 

@@ -266,6 +266,10 @@ debug_5={
 
 3d/default_gravity=12.8
 
+[rendering]
+
+textures/vram_compression/import_etc2_astc=true
+
 [shader_globals]
 
 heightmap_scale={

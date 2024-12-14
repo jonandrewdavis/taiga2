@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5ik8o4moux75"
 path.s3tc="res://.godot/imported/Bark_Color.png-8d65550770bec2f7fca5ac31f3ac6b4d.s3tc.ctex"
+path.etc2="res://.godot/imported/Bark_Color.png-8d65550770bec2f7fca5ac31f3ac6b4d.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment_objects/bushes/Bush_Mediteranean/Textures/Bark_Color.png"
-dest_files=["res://.godot/imported/Bark_Color.png-8d65550770bec2f7fca5ac31f3ac6b4d.s3tc.ctex"]
+dest_files=["res://.godot/imported/Bark_Color.png-8d65550770bec2f7fca5ac31f3ac6b4d.s3tc.ctex", "res://.godot/imported/Bark_Color.png-8d65550770bec2f7fca5ac31f3ac6b4d.etc2.ctex"]
 
 [params]
 

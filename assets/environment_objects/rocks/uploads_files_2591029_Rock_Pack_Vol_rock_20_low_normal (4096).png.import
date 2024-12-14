@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cqpoy1md4y074"
 path.s3tc="res://.godot/imported/uploads_files_2591029_Rock_Pack_Vol_rock_20_low_normal (4096).png-8e85a7a64c50390c83b63a160596ffc7.s3tc.ctex"
+path.etc2="res://.godot/imported/uploads_files_2591029_Rock_Pack_Vol_rock_20_low_normal (4096).png-8e85a7a64c50390c83b63a160596ffc7.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/environment_objects/rocks/uploads_files_2591029_Rock_Pack_Vol_rock_20_low_normal (4096).png"
-dest_files=["res://.godot/imported/uploads_files_2591029_Rock_Pack_Vol_rock_20_low_normal (4096).png-8e85a7a64c50390c83b63a160596ffc7.s3tc.ctex"]
+dest_files=["res://.godot/imported/uploads_files_2591029_Rock_Pack_Vol_rock_20_low_normal (4096).png-8e85a7a64c50390c83b63a160596ffc7.s3tc.ctex", "res://.godot/imported/uploads_files_2591029_Rock_Pack_Vol_rock_20_low_normal (4096).png-8e85a7a64c50390c83b63a160596ffc7.etc2.ctex"]
 
 [params]
 

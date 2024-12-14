@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bmopxtvj1tfxv"
 path.s3tc="res://.godot/imported/Bush_Mediteranean_Color.png-dbf2be305a133552b5e7c72e2af86d8f.s3tc.ctex"
+path.etc2="res://.godot/imported/Bush_Mediteranean_Color.png-dbf2be305a133552b5e7c72e2af86d8f.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/environment_objects/bushes/Bush_Mediteranean/Textures/Bush_Mediteranean_Color.png"
-dest_files=["res://.godot/imported/Bush_Mediteranean_Color.png-dbf2be305a133552b5e7c72e2af86d8f.s3tc.ctex"]
+dest_files=["res://.godot/imported/Bush_Mediteranean_Color.png-dbf2be305a133552b5e7c72e2af86d8f.s3tc.ctex", "res://.godot/imported/Bush_Mediteranean_Color.png-dbf2be305a133552b5e7c72e2af86d8f.etc2.ctex"]
 
 [params]
 
