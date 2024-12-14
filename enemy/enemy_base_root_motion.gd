@@ -368,10 +368,6 @@ func hit_sync(_by_who_name: String, power: int):
 			hurt_started.emit()
 			sync_back_hit.rpc()
 			damage_taken.emit(power)
-				
-			if power > 1:
-				var normal_dir = target.global_position.direction_to(self.global_position).normalized()
-				knockback_enemy.rpc(normal_dir + Vector3(0.0, 0.4, 0.0))
 
 @rpc("any_peer", "call_local")
 func knockback_enemy(_dir):

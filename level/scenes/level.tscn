@@ -1,10 +1,10 @@
 [gd_scene load_steps=21 format=3 uid="uid://dugaivbj1o66n"]
 
-[ext_resource type="Script" path="res://level/scripts/level.gd" id="1_e1sh7"]
+[ext_resource type="Script" uid="uid://mvuxrakmucuk" path="res://level/scripts/level.gd" id="1_e1sh7"]
 [ext_resource type="PackedScene" uid="uid://bn7vh6v8mmgja" path="res://player/player_charbody3d.tscn" id="2_5wxyk"]
-[ext_resource type="Shader" path="res://utility scripts/filmgrain.gdshader" id="3_1ypwr"]
+[ext_resource type="Shader" uid="uid://ilgfpa6fqkkg" path="res://utility scripts/filmgrain.gdshader" id="3_1ypwr"]
 [ext_resource type="FontFile" uid="uid://diapabmalpcrj" path="res://assets/fonts/Kurland.ttf" id="3_icc4p"]
-[ext_resource type="Shader" path="res://utility scripts/horror_pixels.gdshader" id="4_mglur"]
+[ext_resource type="Shader" uid="uid://dagl0um7fq4qw" path="res://utility scripts/horror_pixels.gdshader" id="4_mglur"]
 [ext_resource type="Environment" uid="uid://c8oyix4qs0l7j" path="res://assets/environment/SecondForestEnv.tres" id="5_hv8je"]
 [ext_resource type="PackedScene" uid="uid://bnov3r3udtsa3" path="res://assets/environment/forest_sun.tscn" id="5_hyp44"]
 [ext_resource type="AudioStream" uid="uid://cltwo5xg7hrjg" path="res://audio/ambience-wind-blowing-through-trees-01-186986.mp3" id="8_am4re"]
@@ -67,6 +67,7 @@ script = ExtResource("1_e1sh7")
 player_scene = ExtResource("2_5wxyk")
 
 [node name="FilmGrain" type="ColorRect" parent="."]
+visible = false
 material = SubResource("ShaderMaterial_tqduw")
 anchors_preset = 15
 anchor_right = 1.0
@@ -75,6 +76,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="DownSample" type="ColorRect" parent="."]
+visible = false
 material = SubResource("ShaderMaterial_bpqhk")
 anchors_preset = 15
 anchor_right = 1.0
@@ -88,8 +90,8 @@ grow_vertical = 2
 environment = ExtResource("5_hv8je")
 
 [node name="ForestSun" parent="Environment" instance=ExtResource("5_hyp44")]
-light_volumetric_fog_energy = 2.5
-shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_max_distance = 9.9
 sky_mode = 1
 
 [node name="GrassLoopAudio" type="AudioStreamPlayer" parent="."]
@@ -281,7 +283,6 @@ custom_minimum_size = Vector2(378, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_icc4p")
 theme_override_font_sizes/font_size = 35
-placeholder_text = "54.211.108.7"
 alignment = 1
 expand_to_text_length = true
 
@@ -414,15 +415,15 @@ expand_mode = 1
 stretch_mode = 1
 
 [node name="SpawnerPlayers" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://player/player_charbody3d.tscn")
+_spawnable_scenes = PackedStringArray("uid://bn7vh6v8mmgja")
 spawn_path = NodePath("../PlayersContainer")
 
 [node name="SpawnerEnemies" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://enemy/enemy_base_root_motion.tscn")
+_spawnable_scenes = PackedStringArray("uid://cq2lr6sclvutj")
 spawn_path = NodePath("../EnemiesContainer")
 
 [node name="SpawnerEnvironment" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://assets/interactable/medieval_carriage/cart.tscn", "res://level/scenes/encounter.tscn", "res://level/scenes/town.tscn", "res://player/equipment_system/equipment/bullet.tscn", "res://level/scenes/encounter_rock.tscn", "res://level/scenes/encounter_bell.tscn", "res://level/scenes/encounter_huts.tscn")
+_spawnable_scenes = PackedStringArray("uid://brcob4a2vngyt", "uid://b58rh24bdj4p0", "uid://c4oockhjnrg6", "uid://dxlkgbr1p580", "uid://o0lqdvwkq6n4", "uid://donc6jtlr06dp", "uid://ds7vr6al5jaed")
 spawn_path = NodePath("../EnvironmentContainer")
 
 [node name="MenuEnvironmentArea" parent="." instance=ExtResource("13_insfy")]

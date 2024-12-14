@@ -1,12 +1,13 @@
 [gd_resource type="ArrayMesh" load_steps=6 format=4 uid="uid://dvjweexhb8pxv"]
 
 [ext_resource type="Texture2D" uid="uid://dgx1tkpc25kl0" path="res://assets/environment_objects/bushes/3_pine_bushes/textures/Material_25_baseColor.png" id="1_7d5io"]
-[ext_resource type="Shader" path="res://utility scripts/SwayShaderExtended.gdshader" id="2_76o5u"]
+[ext_resource type="Shader" uid="uid://20efvdim2ia3" path="res://utility scripts/SwayShaderExtended.gdshader" id="2_76o5u"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hp7yf"]
 render_priority = 0
 shader = ExtResource("2_76o5u")
 shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/texture_albedo = ExtResource("1_7d5io")
 shader_parameter/alpha_scissor_threshold = 0.9
 shader_parameter/point_size = null
 shader_parameter/roughness = null
@@ -20,7 +21,6 @@ shader_parameter/uv2_offset = null
 shader_parameter/sway_speed = 3.0
 shader_parameter/sway_strength = 1.5
 shader_parameter/sway_phase_len = 1.3
-shader_parameter/texture_albedo = ExtResource("1_7d5io")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aw6bu"]
 resource_name = "Material_25"

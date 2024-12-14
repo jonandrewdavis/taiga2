@@ -18,7 +18,7 @@ var grass_multimeshes : Array[Array] = []
 var previous_tile_id := Vector3.ZERO
 var should_render_imgui := true
 
-@onready var should_render_shadows := [true]
+@onready var should_render_shadows := [false]
 @onready var density_modifier := [0.8 if Engine.is_editor_hint() else 1.0]
 @onready var clumping_factor := [GRASS_MAT.get_shader_parameter('clumping_factor')]
 @onready var wind_speed := [GRASS_MAT.get_shader_parameter('wind_speed')]
@@ -128,7 +128,7 @@ func _setup_grass_instances() -> void:
 			# Can effect performance. If you have mostly flat terrain, it can be lower.
 			# 2.00
 			
-			instance.extra_cull_margin = 1.00
+			instance.extra_cull_margin = 0.0
 			add_child(instance)
 			
 			grass_multimeshes.append([instance, instance.position])
