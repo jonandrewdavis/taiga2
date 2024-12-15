@@ -5,6 +5,8 @@
 
 It is personal project, not intended for distribution. It's for learning purposes and to play with friends.
 
+![A character standing in the forest bath game](ForestBath1.png)
+
 This project is cobbled together from a number of open source projects & assets. This is a non-comprehensive list of major influences or sources:
 
 - [Cat's Godot 4 Souls-Like Template & Asset Pack](https://github.com/catprisbrey/Cats-Godot4-Modular-Souls-like-Template)
@@ -24,7 +26,6 @@ Assets:
     - Trees are Arboles from [elbolilloduro](https://elbolilloduro.itch.io/)'s itch.io
 - Weapons / Objects:
     - Too many to list right now, but most are from [itch](https://itch.io/) and [cgtrader](https://www.cgtrader.com) or https://poly.pizza/
-
 
 
 TODO: Will do a more comprehensive thanks and acknowledgement when complete. 
