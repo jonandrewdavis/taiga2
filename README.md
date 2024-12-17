@@ -1,9 +1,13 @@
 
 # ForestBath Tech Demo
 
-### ForestBath is a vibes-based multiplayer souls-ish adventure game. 
+### ForestBath is a multiplayer souls-ish game about pulling a cart through a forest.
 
 It is personal project, not intended for distribution. It's for learning purposes and to play with friends.
+
+- Procedually generated terrain / forest
+- A shop with a wide arrange of weapons with combo attacks
+- Enemies & encounters!
 
 ![A character standing in the forest bath game](ForestBath1.png)
 
