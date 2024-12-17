@@ -7,11 +7,14 @@ It is personal project, not intended for distribution. It's for learning purpose
 
 ![A character standing in the forest bath game](ForestBath1.png)
 
+#### Videos
 
 - [ForestBath Playtest Video 1 (30s)](https://www.youtube.com/watch?v=_oQAMMXPlEU)
 - [ForestBath Playtest Video 2 (1 min)](https://www.youtube.com/watch?v=scz4cNi1vlI) 
 
 Note: My capture settings were wrong, resulting in very low-res gameplay. Network settings were poor too.
+
+### Assets Used & Open Source projects referenced
 
 This project is cobbled together from a number of open source projects & assets. This is a non-comprehensive list of major influences or sources:
 
