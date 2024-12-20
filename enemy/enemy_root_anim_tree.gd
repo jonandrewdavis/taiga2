@@ -30,7 +30,7 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	if not multiplayer.is_server():
+	if not multiplayer or not multiplayer.is_server():
 		return
 
 	set_movement()

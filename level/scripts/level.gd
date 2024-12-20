@@ -151,8 +151,8 @@ func sync_player_client_only_nodes(peer_id):
 	$EnvironmentContainer.add_child(prepare_environment)
 	prepare_environment.environment_tracker_changed.emit(player_node) 
 	player_node.position = get_spawn_point()
-	var server_scenario_manager = server_scenario_manager_scene.instantiate()
-	add_child(server_scenario_manager)
+	#var server_scenario_manager = server_scenario_manager_scene.instantiate()
+	#add_child(server_scenario_manager)
 
 	await get_tree().create_timer(1.2).timeout
 	var tween = create_tween()
