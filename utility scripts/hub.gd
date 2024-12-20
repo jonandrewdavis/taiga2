@@ -117,6 +117,7 @@ func spawn_enemy_at_location(_new_location: Vector3, _dist: = 60.0, _target_name
 		else:
 			enemy.set_new_default_target(Hub.get_random_player())
 
+@rpc("any_peer", 'call_local')
 func debug_spawn_new_brute(_location):
 	if multiplayer.is_server():
 		spawn_enemy_at_location.rpc(_location, 60.0, get_random_player().name, 10, true)

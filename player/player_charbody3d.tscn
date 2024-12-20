@@ -9,15 +9,15 @@
 [ext_resource type="AnimationLibrary" uid="uid://urtlehei4s27" path="res://assets/animations/bow-axe/bow_3.res" id="5_0xmlu"]
 [ext_resource type="PackedScene" uid="uid://dva7owhrl4wew" path="res://player/equipment_system/equipment/sword.tscn" id="5_d7elj"]
 [ext_resource type="AudioStream" uid="uid://c318jpy76ckxp" path="res://audio/SoundFX/hit/hit_blunt_02.wav" id="6_poyxp"]
-[ext_resource type="Script" uid="uid://5iexe3na5pl5" path="res://audio/SoundFXSystem.gd" id="6_wnkxc"]
+[ext_resource type="Script" path="res://audio/SoundFXSystem.gd" id="6_wnkxc"]
 [ext_resource type="AudioStream" uid="uid://bl6briwljoa1t" path="res://audio/SoundFX/clang/clang_4.wav" id="8_adk4b"]
 [ext_resource type="PackedScene" uid="uid://cvsduneit6bh2" path="res://player/equipment_system/equipment/EmptyEquipment.tscn" id="9_3jf58"]
 [ext_resource type="PackedScene" uid="uid://5sa731kfp54y" path="res://player/equipment_system/equipment/Bow.tscn" id="9_k2h4g"]
 [ext_resource type="PackedScene" uid="uid://b65t1v7qe0rb3" path="res://cameras/follow_cam/follow_cam.tscn" id="12_i13o0"]
 [ext_resource type="AudioStream" uid="uid://dwewi6cxbh3do" path="res://audio/SoundFX/hit/hit_blunt_06.wav" id="12_mounm"]
-[ext_resource type="Script" uid="uid://cl0wc2pw71lev" path="res://player/footfall_system/footfall_system.gd" id="12_wnb34"]
+[ext_resource type="Script" path="res://player/footfall_system/footfall_system.gd" id="12_wnb34"]
 [ext_resource type="AudioStream" uid="uid://djwdoeoxmfyrw" path="res://audio/SoundFX/clang/clang_1.wav" id="17_2kr13"]
-[ext_resource type="Script" uid="uid://ekcb3hof7r60" path="res://utility scripts/signal_switch.gd" id="17_xborg"]
+[ext_resource type="Script" path="res://utility scripts/signal_switch.gd" id="17_xborg"]
 [ext_resource type="AudioStream" uid="uid://cvkugbv6gb3l7" path="res://audio/SoundFX/clang/clang_3.wav" id="18_wrnle"]
 [ext_resource type="AudioStream" uid="uid://byiegy7na8aw6" path="res://audio/SoundFX/shuffle/shuffle_5.wav" id="19_dsm8d"]
 [ext_resource type="Script" uid="uid://ctwjr0wecfp6k" path="res://player/item_system/item_system.gd" id="19_j17nd"]
@@ -26,10 +26,10 @@
 [ext_resource type="AudioStream" uid="uid://bnvrf7qx4p4jb" path="res://audio/error-cutt.mp3" id="21_bhy8p"]
 [ext_resource type="AudioStream" uid="uid://b2ug2buo8xm6t" path="res://audio/coinbag.mp3" id="21_s4vgk"]
 [ext_resource type="AudioStream" uid="uid://b67qrpcr5t5ag" path="res://audio/SoundFX/swish/swish_4.wav" id="21_v0m5e"]
-[ext_resource type="Script" uid="uid://bdkylecmcs81y" path="res://player/arrow_system.gd" id="23_td4q5"]
+[ext_resource type="Script" path="res://player/arrow_system.gd" id="23_td4q5"]
 [ext_resource type="AudioStream" uid="uid://c06v27rvocqw4" path="res://audio/SoundFX/swoosh/swoosh_3.wav" id="24_td7p2"]
 [ext_resource type="PackedScene" uid="uid://b40rwwk030bp5" path="res://player/footfall_system/footstep_sound_system.tscn" id="25_y8nbd"]
-[ext_resource type="Script" uid="uid://cpimouj483yin" path="res://utility scripts/mesh_streak.gd" id="26_bvh58"]
+[ext_resource type="Script" path="res://utility scripts/mesh_streak.gd" id="26_bvh58"]
 [ext_resource type="AudioStream" uid="uid://c8umq402d2x4l" path="res://audio/SoundFX/shuffle/shuffle_2.wav" id="26_k8guu"]
 [ext_resource type="PackedScene" uid="uid://b5nk1tsswudcm" path="res://player/player_targeting_system/player_targeting_system.tscn" id="26_qtvan"]
 [ext_resource type="AudioStream" uid="uid://c233ofm2tdg2g" path="res://audio/sand_step-cut-grass.mp3" id="27_2bhyj"]
@@ -40,15 +40,15 @@
 [ext_resource type="AudioStream" uid="uid://fge5j7dsiwj1" path="res://audio/SoundFX/hit/hit_wet_04.wav" id="30_1eskw"]
 [ext_resource type="AudioStream" uid="uid://bjhg7ssm2k606" path="res://audio/SoundFX/voice/voice_hurt_05.wav" id="30_1ghdj"]
 [ext_resource type="AudioStream" uid="uid://bxqrf0y1eflh6" path="res://audio/SoundFX/hit/hit_blunt_03.wav" id="30_6fy5x"]
-[ext_resource type="Script" uid="uid://ceggkb40rqfnh" path="res://player/item_system/inventory_system.gd" id="30_q1hnb"]
+[ext_resource type="Script" path="res://player/item_system/inventory_system.gd" id="30_q1hnb"]
 [ext_resource type="AudioStream" uid="uid://dk0v3ug6sia4l" path="res://audio/SoundFX/special/Spawn01.wav" id="31_m4tnv"]
 [ext_resource type="Texture2D" uid="uid://c46nfvbeeb3pr" path="res://ui/panel-border-027.png" id="32_sdjc6"]
 [ext_resource type="Resource" uid="uid://8ujj54t15t8d" path="res://player/item_system/items/potion.tres" id="34_xeucu"]
-[ext_resource type="Script" uid="uid://eo1bfrieidyi" path="res://ui/item_slot.gd" id="36_vymyb"]
+[ext_resource type="Script" path="res://ui/item_slot.gd" id="36_vymyb"]
 [ext_resource type="Texture2D" uid="uid://cxu46pc2rw3xg" path="res://assets/coin.png" id="38_1x2f1"]
 [ext_resource type="Script" uid="uid://csd2s3aftm5yk" path="res://ui/health_bar.gd" id="38_auti3"]
 [ext_resource type="Script" uid="uid://dnet5otpbdim" path="res://utility scripts/health_system.gd" id="41_x7csm"]
-[ext_resource type="Script" uid="uid://b3t7r20t7lgfy" path="res://player/gui.gd" id="43_xwue4"]
+[ext_resource type="Script" path="res://player/gui.gd" id="43_xwue4"]
 [ext_resource type="PackedScene" uid="uid://r31q8k2be4qk" path="res://player/player_interact_sensors/sensor_cast.tscn" id="44_gyr7x"]
 [ext_resource type="PackedScene" uid="uid://s5lur3jc6w4b" path="res://ui/menu/settings_menu.tscn" id="47_qolty"]
 [ext_resource type="Script" uid="uid://defwc3vvv3yqs" path="res://ui/debug.gd" id="48_p3gln"]
@@ -1663,10 +1663,8 @@ bones/0/position = Vector3(0.00451711, 0, -0.00160561)
 bones/1/position = Vector3(0.00173813, 0.828643, -0.10025)
 bones/1/rotation = Quaternion(0.130445, 0.00279952, 0.0143438, 0.991348)
 bones/2/rotation = Quaternion(1.40675e-05, 2.22801e-06, -1.80442e-05, 1)
-bones/2/scale = Vector3(1, 1, 1)
 bones/3/rotation = Quaternion(0.0428005, -0.00199933, 0.0021503, 0.999079)
 bones/4/rotation = Quaternion(0.0425096, -0.00595489, 0.00223731, 0.999076)
-bones/4/scale = Vector3(1, 1, 1)
 bones/5/rotation = Quaternion(-0.0425399, 0.00386899, -0.00228999, 0.999085)
 bones/6/rotation = Quaternion(-0.103545, 0.00412788, -0.00181735, 0.994615)
 bones/9/rotation = Quaternion(0.256543, 0.841026, -0.476051, 0.0153919)
@@ -1738,7 +1736,6 @@ libraries = {
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.872986, 0)
 shape = SubResource("CapsuleShape3D_7f43o")
-debug_color = Color(0, 0.6, 0.7, 0.42)
 
 [node name="AnimStateTree" type="AnimationTree" parent="." node_paths=PackedStringArray("player_node")]
 root_node = NodePath("../akai-attack-master-2")

@@ -363,7 +363,7 @@ func _input(_event:InputEvent):
 			Hub.add_coins(5)
 
 		if _event.is_action_pressed("debug_4"):
-			Hub.debug_spawn_new_brute(global_position)
+			Hub.debug_spawn_new_brute.rpc(global_position)
 
 		if _event.is_action_pressed("debug_5"):
 			Hub.increase_enemy_health.rpc()
