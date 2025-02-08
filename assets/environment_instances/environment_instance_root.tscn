@@ -70,7 +70,7 @@ environment_root_tracker = NodePath("Marker3D")
 heightmap = ExtResource("2_3f4kl")
 
 [node name="moss_rock_08" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 instance_amount = 64
 generate_colliders = true
@@ -87,7 +87,7 @@ instance_mesh = SubResource("ArrayMesh_phdkx")
 instance_collision = ExtResource("5_rev6c")
 
 [node name="moss_rock_14" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 instance_amount = 64
 generate_colliders = true
@@ -102,7 +102,7 @@ instance_mesh = SubResource("ArrayMesh_vrmt5")
 instance_collision = ExtResource("7_yewy6")
 
 [node name="arbol1" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 instance_amount = 144
 generate_colliders = true
@@ -116,7 +116,7 @@ instance_mesh = ExtResource("3_hqwlf")
 instance_collision = SubResource("CapsuleShape3D_kvtob")
 
 [node name="arbol7" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 instance_amount = 121
 generate_colliders = true
@@ -130,7 +130,7 @@ instance_mesh = ExtResource("11_505i2")
 instance_collision = SubResource("CapsuleShape3D_vcx1a")
 
 [node name="arbol9" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 instance_amount = 64
 generate_colliders = true
@@ -143,7 +143,7 @@ instance_mesh = ExtResource("12_ossvq")
 instance_collision = SubResource("CapsuleShape3D_w50me")
 
 [node name="arbol8" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 generate_colliders = true
 pos_randomize = 7.0
@@ -160,7 +160,7 @@ instance_mesh = ExtResource("13_ltu1w")
 instance_collision = SubResource("CapsuleShape3D_pwyh0")
 
 [node name="thyme" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 instance_amount = 200
 pos_randomize = 15.0
@@ -176,7 +176,7 @@ instance_mesh = ExtResource("12_bgi6p")
 update_frequency = 0.3
 
 [node name="bush" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 instance_amount = 200
 pos_randomize = 12.0
@@ -191,7 +191,7 @@ rot_z_randomize = 0.2
 instance_mesh = ExtResource("13_lex87")
 
 [node name="bush2" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 script = ExtResource("2_o747f")
 instance_amount = 300
 pos_randomize = 19.0
@@ -211,7 +211,7 @@ wait_time = 10.0
 autostart = true
 
 [node name="Marker3D" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -153.384, 0, 65.6183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -205.994, 0, 249.63)
 
 [node name="GrassMain" parent="." node_paths=PackedStringArray("player") instance=ExtResource("12_in6vh")]
 player = NodePath("../Marker3D")

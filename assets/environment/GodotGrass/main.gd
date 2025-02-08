@@ -146,9 +146,9 @@ func _generate_grass_multimeshes() -> void:
 	for data in grass_multimeshes:
 		var distance = data[1].length() # Distance from center tile
 		if distance > MAP_RADIUS: continue
-		if distance < 18.0:    data[0].multimesh = multimesh_lods[0]
-		elif distance < 40.0:  data[0].multimesh = multimesh_lods[1]
-		elif distance < 70.0:  data[0].multimesh = multimesh_lods[2]
+		if distance < 12.0:    data[0].multimesh = multimesh_lods[0]
+		elif distance < 24.0:  data[0].multimesh = multimesh_lods[1]
+		elif distance < 50.0:  data[0].multimesh = multimesh_lods[2]
 		elif distance < 100.0: data[0].multimesh = multimesh_lods[3]
 		else:                  data[0].multimesh = multimesh_lods[4]
 

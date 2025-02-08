@@ -34,32 +34,35 @@ class edge:
 	var bottom_p : Vector3
 
 func _set_emitting(_new_value):
-	emitting = _new_value
-	if lifetime != 0:
-		await get_tree().create_timer(lifetime).timeout
-		emitting = false
+	pass
+	#emitting = _new_value
+	#if lifetime != 0:
+		#await get_tree().create_timer(lifetime).timeout
+		#emitting = false
 
 func _ready():
-	global_transform = Transform3D.IDENTITY
-	top_level =  true # don't follow the parent, be independant
-	material_check() # if no material is set, create one and add it.
-	
-	if origin_node == null:
-		origin_node = get_parent()
+	pass
+	#global_transform = Transform3D.IDENTITY
+	#top_level =  true # don't follow the parent, be independant
+	#material_check() # if no material is set, create one and add it.
+	#
+	#if origin_node == null:
+		#origin_node = get_parent()
 
 func _process(_delta):
-	sync_property()
-	if emitting:
-		counter += 1
-		if counter > 1:
-			counter = 0
-		
-		if counter == 0:
-			create_edge()
-			mesh_update()
-	else:
-		remove_edge()
-		mesh_update()
+	pass
+	#sync_property()
+	#if emitting:
+		#counter += 1
+		#if counter > 1:
+			#counter = 0
+		#
+		#if counter == 0:
+			#create_edge()
+			#mesh_update()
+	#else:
+		#remove_edge()
+		#mesh_update()
 			
 		
 func mesh_update():

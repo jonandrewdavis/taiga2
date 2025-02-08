@@ -49,7 +49,7 @@ var v_scale: float = 1
 @onready var colliders_to_spawn: Array
 @onready var last_pos: Vector3
 @onready var first_update= true
-
+ 
 @onready var environment_root = get_parent()
 
 # TODO: Decouple from parent. Do not rely on get_parent to allow this to be used more freely?

@@ -35,7 +35,6 @@ var forest_sun: DirectionalLight3D
 
 const player_scene = preload("res://player/player_charbody3d.tscn")
 
-
 # Server tracking
 var distance_travelled = 0
 var enemy_max = 5

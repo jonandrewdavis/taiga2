@@ -14,7 +14,6 @@ config/name="ForestBath"
 config/version="2.0.0"
 run/main_scene="res://level/scenes/level.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-run/max_fps=60
 config/icon="res://forest_bath.png"
 
 [audio]
@@ -43,10 +42,11 @@ gdscript/warnings/unused_signal=0
 
 window/size/viewport_width=2073
 window/size/viewport_height=1167
+window/size/mode=4
 window/size/resizable=false
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
-window/vsync/vsync_mode=2
+window/vsync/vsync_mode=0
 
 [editor_plugins]
 
